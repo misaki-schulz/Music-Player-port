@@ -1,0 +1,131 @@
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+
+plugins {
+	id "net.fabricmc.fabric-loom" version "${loom_version}"
+	id "com.gradleup.shadow" version "9.6.1"
+}
+
+group = project.maven_group
+version = project.mod_version
+
+base {
+	archivesName = "music_player-fabric-${minecraft_version}"
+}
+
+repositories {
+	maven {
+		url = "https://repo.u-team.info"
+	}
+	mavenCentral()
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ["common/src/common/java", "fabric/src/main/java"]
+		}
+		resources {
+			srcDirs = ["common/src/common/resources", "common/src/common_generated/resources", "fabric/src/main/resources"]
+		}
+	}
+}
+
+configurations {
+	shade
+	implementation.extendsFrom(shade)
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+	compileOnly project(":musicplayer-lavaplayer-api")
+	runtimeOnly project(":musicplayer-lavaplayer-api")
+	shade("net.harawata:appdirs:1.4.0") {
+		transitive = false
+	}
+}
+
+loom {
+	runs {
+		client {
+			client()
+			runDir "run/client"
+			def playerBuild = project(":musicplayer-lavaplayer").layout.buildDirectory.get().asFile
+			def devDependencies = [
+				new File(playerBuild, "libs").canonicalPath,
+				new File(playerBuild, "dependencies").canonicalPath
+			].join(File.pathSeparator)
+			property "musicplayer.dev", devDependencies
+		}
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		def versionValue = project.version.toString()
+		filter { String line ->
+			line.replace('${version}', versionValue)
+		}
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 25
+	options.encoding = "UTF-8"
+	options.compilerArgs.addAll(["-Xmaxerrs", "500"])
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+def addLegalFiles = { task ->
+	task.from(rootProject.file("LICENSE")) {
+		rename { "LICENSE_Music-Player" }
+	}
+	task.from(rootProject.file("NOTICE"))
+	task.from(rootProject.file("THIRD_PARTY_LICENSES")) {
+		into "THIRD_PARTY_LICENSES"
+	}
+}
+
+tasks.named("shadowJar") {
+	dependsOn project(":musicplayer-lavaplayer-api").tasks.named("classes")
+	dependsOn project(":musicplayer-lavaplayer").tasks.named("assemble")
+
+	archiveClassifier = ""
+	configurations = [project.configurations.shade]
+
+	from project(":musicplayer-lavaplayer-api").sourceSets.main.output
+	from project(":musicplayer-lavaplayer").file("src/main/resources/LICENSE-DEPENDENCIES")
+
+	into("dependencies") {
+		def playerBuild = project(":musicplayer-lavaplayer").layout.buildDirectory
+		from playerBuild.dir("libs").map { it.file("musicplayer-lavaplayer.jar.packed") }
+		from playerBuild.dir("dependencies")
+	}
+
+	relocate "net.harawata.appdirs", "info.u_team.music_player.shade.net.harawata.appdirs"
+	exclude "META-INF/maven/**"
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	addLegalFiles(delegate)
+}
+
+tasks.named("jar") {
+	archiveClassifier = "thin"
+	addLegalFiles(delegate)
+}
+
+tasks.named("sourcesJar") {
+	addLegalFiles(delegate)
+}
+
+tasks.named("assemble") {
+	dependsOn tasks.named("shadowJar")
+}

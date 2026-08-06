@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "musicplayer",
+  "version": "${version}",
+  "name": "Music Player — Unofficial 26.2 Port",
+  "description": "Unofficial Fabric port of Music Player 2.7.1.351 for Minecraft 26.2.",
+  "authors": [
+    "HyCraftHD"
+  ],
+  "contributors": [
+    "misaki-schulz — Minecraft 26.2 port"
+  ],
+  "contact": {
+    "homepage": "https://github.com/misaki-schulz/Music-Player-port",
+    "sources": "https://github.com/misaki-schulz/Music-Player-port",
+    "issues": "https://github.com/misaki-schulz/Music-Player-port/issues"
+  },
+  "license": "Apache-2.0",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "info.u_team.music_player.MusicPlayerMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": ">=0.156.0+26.2",
+    "minecraft": "~26.2",
+    "java": ">=25"
+  }
+}

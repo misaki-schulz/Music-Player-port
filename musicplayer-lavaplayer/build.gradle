@@ -1,0 +1,89 @@
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+plugins {
+	id "java"
+}
+
+sourceSets {
+	main {
+		java
+		resources
+	}
+	test_player {
+		java
+		resources
+	}
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 25
+	options.encoding = "UTF-8"
+}
+
+configurations {
+	musicplayer
+	musicplayer.exclude group: "commons-logging", module: "commons-logging"
+	implementation.extendsFrom(musicplayer)
+}
+
+evaluationDependsOn(":musicplayer-lavaplayer-api")
+
+tasks.named("jar").configure {
+	archiveExtension.set(archiveExtension.get() + ".packed")
+	
+	exclude("LICENSE-DEPENDENCIES")
+}
+
+tasks.register("deleteOldDependencies", Delete) {
+	delete layout.buildDirectory.dir("dependencies").map { it.asFileTree }
+}
+
+tasks.register("copyNewDependencies", Copy) {
+	dependsOn tasks.named("deleteOldDependencies")
+	
+	from configurations.musicplayer.copyRecursive().with {
+		exclude group: "org.slf4j", module: "slf4j-api"
+	}
+	into layout.buildDirectory.dir("dependencies")
+	rename { fileName ->
+		fileName += ".packed"
+	}
+}
+
+tasks.named("assemble").configure {
+	dependsOn tasks.named("copyNewDependencies")
+}
+
+repositories {
+	maven {
+		url = "https://repo.u-team.info"
+	}
+	maven {
+		url = "https://maven.arbjerg.dev/releases"
+	}
+	maven {
+		url = "https://maven.topi.wtf/releases"
+	}
+	mavenCentral()
+	maven {
+		url = "https://jitpack.io"
+	}
+}
+
+dependencies {
+	musicplayer "net.hycrafthd.lavaplayer:lavaplayer:2.2.4-fix-j8"
+	musicplayer "dev.lavalink.youtube:v2:1.18.1"
+	musicplayer "dev.arbjerg:lavadsp:0.7.8"
+	musicplayer "com.github.topi314.lavasrc:lavasrc:4.8.1"
+	musicplayer "com.github.topi314.lavasrc:lavasrc-protocol:4.8.1"
+	
+	musicplayer "org.slf4j:jcl-over-slf4j:2.0.17"
+	implementation "org.slf4j:slf4j-simple:2.0.17"
+	
+	implementation project(":musicplayer-lavaplayer-api")
+}
