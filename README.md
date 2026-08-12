@@ -1,6 +1,6 @@
 # Music Player — Multi-version Fabric Port
 
-Unofficial Fabric port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.1.351 for Minecraft 1.21.2 through 1.21.11 and Minecraft 26.x. This repository is based on the working 26.2 port.
+Unofficial Fabric port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.1.351 for Minecraft 1.21.2 through 1.21.11 and Minecraft 26.x.
 
 This port is maintained by [misaki-schulz](https://github.com/misaki-schulz). It is not an official U-Team release.
 
