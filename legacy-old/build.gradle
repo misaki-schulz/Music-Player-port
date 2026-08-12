@@ -1,0 +1,124 @@
+// Shared legacy build for Minecraft 1.21.2 through 1.21.8.
+plugins {
+	id "net.fabricmc.fabric-loom-remap"
+	id "com.gradleup.shadow"
+}
+
+group = rootProject.maven_group
+version = "${rootProject.upstream_mod_version}+mc1.21.2-1.21.8.port.${rootProject.port_version}"
+
+base {
+	archivesName = "music_player-fabric-1.21.2-1.21.8"
+}
+
+repositories {
+	mavenCentral()
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs += [rootProject.file("legacy-common/src/main/java")]
+		}
+		resources {
+			srcDirs += [
+				rootProject.file("common/src/common/resources"),
+				rootProject.file("common/src/common_generated/resources")
+			]
+		}
+	}
+}
+
+configurations {
+	shade
+	implementation.extendsFrom(shade)
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:1.21.2"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:0.18.4"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.106.1+1.21.2"
+
+	compileOnly project(":musicplayer-lavaplayer-api")
+	runtimeOnly project(":musicplayer-lavaplayer-api")
+	shade("net.harawata:appdirs:1.4.0") {
+		transitive = false
+	}
+}
+
+loom {
+	runs {
+		client {
+			client()
+			runDir "run/client-1.21.2"
+			def playerBuild = project(":musicplayer-lavaplayer").layout.buildDirectory.get().asFile
+			property "musicplayer.dev", [
+				new File(playerBuild, "libs").canonicalPath,
+				new File(playerBuild, "dependencies").canonicalPath
+			].join(File.pathSeparator)
+		}
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		filter { String line -> line.replace('${version}', project.version.toString()) }
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 21
+	options.encoding = "UTF-8"
+	options.compilerArgs.addAll(["-Xmaxerrs", "500"])
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+def addLegalFiles = { task ->
+	task.from(rootProject.file("LICENSE")) { rename { "LICENSE_Music-Player" } }
+	task.from(rootProject.file("NOTICE"))
+	task.from(rootProject.file("THIRD_PARTY_LICENSES")) { into "THIRD_PARTY_LICENSES" }
+}
+
+tasks.named("shadowJar") {
+	dependsOn project(":musicplayer-lavaplayer-api").tasks.named("classes")
+	dependsOn project(":musicplayer-lavaplayer").tasks.named("assemble")
+	archiveClassifier = "dev-shadow"
+	configurations = [project.configurations.shade]
+	from project(":musicplayer-lavaplayer-api").sourceSets.main.output
+	from project(":musicplayer-lavaplayer").file("src/main/resources/LICENSE-DEPENDENCIES")
+	into("dependencies") {
+		def playerBuild = project(":musicplayer-lavaplayer").layout.buildDirectory
+		from playerBuild.dir("libs").map { it.file("musicplayer-lavaplayer.jar.packed") }
+		from playerBuild.dir("dependencies")
+	}
+	relocate "net.harawata.appdirs", "info.u_team.music_player.shade.net.harawata.appdirs"
+	exclude "META-INF/maven/**"
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	addLegalFiles(delegate)
+}
+
+tasks.named("remapJar") {
+	dependsOn tasks.named("shadowJar")
+	inputFile = tasks.named("shadowJar").flatMap { it.archiveFile }
+	archiveClassifier = ""
+}
+
+tasks.named("jar") {
+	archiveClassifier = "dev"
+	addLegalFiles(delegate)
+}
+
+tasks.named("sourcesJar") {
+	addLegalFiles(delegate)
+}
+
+tasks.named("assemble") {
+	dependsOn tasks.named("remapJar")
+}

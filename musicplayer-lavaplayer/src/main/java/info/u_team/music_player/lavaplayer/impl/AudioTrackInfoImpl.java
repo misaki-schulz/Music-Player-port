@@ -39,18 +39,27 @@ public class AudioTrackInfoImpl implements IAudioTrackInfo {
 	
 	@Override
 	public String getFixedTitle() {
-		if (info.title == null || info.title.equals("Unknown title")) {
-			return info.uri;
+		if (info.title == null || info.title.isBlank() || info.title.equals("Unknown title")) {
+			return info.uri == null ? "" : info.uri;
 		}
 		return info.title;
 	}
 	
 	@Override
 	public String getFixedAuthor() {
-		if (info.author == null || info.author.equals("Unknown artist")) {
+		if (info.author == null || info.author.isBlank() || info.author.equals("Unknown artist")) {
 			return "";
 		}
-		return info.author;
+		return removeYouTubeTopicSuffix(info.author);
+	}
+
+	private static String removeYouTubeTopicSuffix(String author) {
+		final String suffix = " - Topic";
+		final int suffixStart = author.length() - suffix.length();
+		if (suffixStart > 0 && author.regionMatches(true, suffixStart, suffix, 0, suffix.length())) {
+			return author.substring(0, suffixStart).stripTrailing();
+		}
+		return author;
 	}
 	
 }

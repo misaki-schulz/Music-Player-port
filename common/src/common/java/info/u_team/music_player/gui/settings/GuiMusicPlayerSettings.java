@@ -22,6 +22,7 @@ import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.musicplayer.settings.IngameOverlayPosition;
 import info.u_team.music_player.musicplayer.settings.MusicPlayerLanguage;
 import info.u_team.music_player.musicplayer.settings.Settings;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ActivatableButton;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.ScrollingText;
@@ -47,7 +48,7 @@ public class GuiMusicPlayerSettings extends BetterScreen {
 	
 	@Override
 	protected void init() {
-		addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK, button -> minecraft.gui.setScreen(previousGui)));
+		addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK, button -> MinecraftGuiCompat.setScreen(minecraft, previousGui)));
 		
 		final Settings settings = MusicPlayerManager.getSettingsManager().getSettings();
 		final IMusicPlayer player = MusicPlayerManager.getPlayer();
@@ -105,7 +106,7 @@ public class GuiMusicPlayerSettings extends BetterScreen {
 				Component.literal(getTranslation(GUI_SETTINGS_LANGUAGE) + ": " + settings.getLanguage().getDisplayName())));
 		languageButton.setPressable(() -> {
 			settings.setLanguage(MusicPlayerLanguage.forwardCycle(settings.getLanguage()));
-			minecraft.gui.setScreen(new GuiMusicPlayerSettings(previousGui));
+			MinecraftGuiCompat.setScreen(minecraft, new GuiMusicPlayerSettings(previousGui));
 		});
 
 		final USlider overlayScaleSlider = addRenderableWidget(new USlider(rightX, 150, columnWidth, 20,

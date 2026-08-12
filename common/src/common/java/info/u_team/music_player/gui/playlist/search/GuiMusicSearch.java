@@ -29,6 +29,7 @@ import info.u_team.music_player.lavaplayer.api.audio.IAudioTrack;
 import info.u_team.music_player.lavaplayer.api.audio.IAudioTrackList;
 import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.musicplayer.playlist.Playlist;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.UButton;
 import net.minecraft.ChatFormatting;
@@ -63,7 +64,7 @@ public class GuiMusicSearch extends BetterScreen {
 	@Override
 	protected void init() {
 		final ImageButton backButton = addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK));
-		backButton.setPressable(() -> minecraft.gui.setScreen(new GuiMusicPlaylist(playlist)));
+		backButton.setPressable(() -> MinecraftGuiCompat.setScreen(minecraft, new GuiMusicPlaylist(playlist)));
 		
 		urlField = new EditBox(font, 10, 35, width / 2 - 10, 20, Component.nullToEmpty("")) {
 			

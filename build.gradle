@@ -1,4 +1,4 @@
-// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+// Modified for Minecraft 26.x by misaki-schulz; see NOTICE.
 
 plugins {
 	id "net.fabricmc.fabric-loom" version "${loom_version}"
@@ -6,10 +6,10 @@ plugins {
 }
 
 group = project.maven_group
-version = project.mod_version
+version = "${project.upstream_mod_version}+mc${project.target_label}.port.${project.port_version}"
 
 base {
-	archivesName = "music_player-fabric-${minecraft_version}"
+	archivesName = "music_player-fabric-${target_label}"
 }
 
 repositories {
@@ -64,11 +64,20 @@ loom {
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "minecraft_dependency", project.minecraft_dependency
+	inputs.property "loader_min_version", project.loader_min_version
+	inputs.property "fabric_api_min_version", project.fabric_api_min_version
 
 	filesMatching("fabric.mod.json") {
 		def versionValue = project.version.toString()
+		def minecraftDependencyValue = project.minecraft_dependency.toString()
+		def loaderMinVersionValue = project.loader_min_version.toString()
+		def fabricApiMinVersionValue = project.fabric_api_min_version.toString()
 		filter { String line ->
 			line.replace('${version}', versionValue)
+					.replace('${minecraft_dependency}', minecraftDependencyValue)
+					.replace('${loader_min_version}', loaderMinVersionValue)
+					.replace('${fabric_api_min_version}', fabricApiMinVersionValue)
 		}
 	}
 }

@@ -20,3 +20,17 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build
         run: ./gradlew clean build --no-daemon
+      - name: Upload release JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: music-player-all-supported
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-thin.jar
+            legacy-old/build/libs/*.jar
+            !legacy-old/build/libs/*-sources.jar
+            !legacy-old/build/libs/*-dev*.jar
+            legacy-new/build/libs/*.jar
+            !legacy-new/build/libs/*-sources.jar
+            !legacy-new/build/libs/*-dev*.jar

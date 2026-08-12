@@ -2,6 +2,7 @@
 .gradle/
 **/build/
 **/.cache/
+dist/
 
 # Minecraft development runs
 run/

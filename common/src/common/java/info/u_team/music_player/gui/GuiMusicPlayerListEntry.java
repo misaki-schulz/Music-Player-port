@@ -17,6 +17,7 @@ import info.u_team.music_player.musicplayer.playlist.LoadedTracks;
 import info.u_team.music_player.musicplayer.playlist.Playlist;
 import info.u_team.music_player.musicplayer.playlist.Playlists;
 import info.u_team.music_player.musicplayer.playlist.Skip;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.ImageToggleButton;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -75,10 +76,10 @@ class GuiMusicPlayerListEntry extends BetterScrollableListEntry<GuiMusicPlayerLi
 				
 				playlists.removePlayingLock();
 				
-				if (minecraft.gui.screen() instanceof final GuiMusicPlayer musicplayergui) {
+				if (MinecraftGuiCompat.getScreen(minecraft) instanceof final GuiMusicPlayer musicplayergui) {
 					final GuiMusicPlayerList newGui = musicplayergui.getPlaylistsList();
 					newGui.children().forEach(entry -> entry.playPlaylistButton.active = true);
-				} else if (minecraft.gui.screen() instanceof final GuiMusicPlaylist musicplaylistgui) {
+				} else if (MinecraftGuiCompat.getScreen(minecraft) instanceof final GuiMusicPlaylist musicplaylistgui) {
 					musicplaylistgui.getTrackList().updateAllEntries();
 				}
 			};
@@ -94,7 +95,7 @@ class GuiMusicPlayerListEntry extends BetterScrollableListEntry<GuiMusicPlayerLi
 		});
 		
 		openPlaylistButton = addChildren(new ImageButton(0, 0, 20, 20, MusicPlayerResources.TEXTURE_OPEN));
-		openPlaylistButton.setPressable(() -> minecraft.gui.setScreen(new GuiMusicPlaylist(playlist)));
+		openPlaylistButton.setPressable(() -> MinecraftGuiCompat.setScreen(minecraft, new GuiMusicPlaylist(playlist)));
 		
 		deletePlaylistButton = addChildren(new ImageButton(0, 0, 20, 20, MusicPlayerResources.TEXTURE_CLEAR));
 		deletePlaylistButton.setPressable(() -> gui.removePlaylist(this));
@@ -103,7 +104,7 @@ class GuiMusicPlayerListEntry extends BetterScrollableListEntry<GuiMusicPlayerLi
 	@Override
 	public void render(GuiGraphicsExtractor guiGraphics, int slotIndex, int entryY, int entryX, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float partialTicks) {
 		String name = playlist.getName();
-		if (name.isEmpty()) {
+		if (name == null || name.isBlank()) {
 			name = "\u00A7o" + getTranslation(GUI_PLAYLISTS_NO_NAME);
 		}
 		guiGraphics.text(minecraft.font, name, entryX + 5, entryY + 5, playlist.equals(playlists.getPlaying()) ? 0xFF0083FF : 0xFFFFF00F, false);

@@ -20,6 +20,7 @@ import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.musicplayer.MusicPlayerUtils;
 import info.u_team.music_player.musicplayer.settings.Repeat;
 import info.u_team.music_player.musicplayer.settings.Settings;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ImageActivatableButton;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.ImageToggleButton;
@@ -121,13 +122,13 @@ public class GuiControls extends AbstractContainerEventHandler implements Better
 		// Open Settings
 		if (!isSettings) {
 			final ImageButton settingsButton = addButtonNonDisable(new ImageButton(width - (15 + 1), 1, 15, 15, MusicPlayerResources.TEXTURE_SETTINGS));
-			settingsButton.setPressable(() -> mc.gui.setScreen(new GuiMusicPlayerSettings(gui)));
+			settingsButton.setPressable(() -> MinecraftGuiCompat.setScreen(mc, new GuiMusicPlayerSettings(gui)));
 		}
 		
 		// Open musicplayer gui
 		if (isIngame) {
 			final ImageButton guiButton = addButtonNonDisable(new ImageButton(width - (15 * 2 + 2), 1, 15, 15, MusicPlayerResources.TEXTURE_OPEN));
-			guiButton.setPressable(() -> mc.gui.setScreen(new GuiMusicPlayer()));
+			guiButton.setPressable(() -> MinecraftGuiCompat.setScreen(mc, new GuiMusicPlayer()));
 		}
 		
 		// Volume

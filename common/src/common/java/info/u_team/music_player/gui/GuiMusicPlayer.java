@@ -11,6 +11,7 @@ import info.u_team.music_player.gui.controls.GuiControls;
 import info.u_team.music_player.init.MusicPlayerResources;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.ScrollingText;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -30,7 +31,7 @@ public class GuiMusicPlayer extends BetterScreen {
 	
 	@Override
 	protected void init() {
-		addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK, button -> minecraft.gui.setScreen(null)));
+		addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK, button -> MinecraftGuiCompat.setScreen(minecraft, null)));
 		
 		namePlaylistField = new EditBox(font, 100, 60, width - 150, 20, Component.nullToEmpty(null));
 		namePlaylistField.setMaxLength(500);

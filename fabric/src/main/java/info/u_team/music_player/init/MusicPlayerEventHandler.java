@@ -14,6 +14,7 @@ import info.u_team.music_player.musicplayer.MusicPlayerUtils;
 import info.u_team.music_player.musicplayer.SettingsManager;
 import info.u_team.music_player.musicplayer.settings.IngameOverlayPosition;
 import info.u_team.music_player.render.RenderOverlayMusicDisplay;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -85,8 +86,8 @@ public class MusicPlayerEventHandler {
 
 	private static void openMusicPlayer() {
 		final Minecraft mc = Minecraft.getInstance();
-		if (!(mc.gui.screen() instanceof GuiMusicPlayer)) {
-			mc.gui.setScreen(new GuiMusicPlayer());
+		if (!(MinecraftGuiCompat.getScreen(mc) instanceof GuiMusicPlayer)) {
+			MinecraftGuiCompat.setScreen(mc, new GuiMusicPlayer());
 		}
 	}
 
@@ -100,7 +101,7 @@ public class MusicPlayerEventHandler {
 	
 	public static void onRenderGameOverlay(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {
 		final Minecraft mc = Minecraft.getInstance();
-		if (mc.gui.screen() == null) {
+		if (MinecraftGuiCompat.getScreen(mc) == null) {
 			if (settingsManager.getSettings().isShowIngameOverlay()) {
 				final IngameOverlayPosition position = settingsManager.getSettings().getIngameOverlayPosition();
 				
@@ -211,7 +212,7 @@ public class MusicPlayerEventHandler {
 	
 	public static void register() {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (client.gui.screen() == null) {
+			if (MinecraftGuiCompat.getScreen(client) == null) {
 				onKeyInput();
 			}
 		});

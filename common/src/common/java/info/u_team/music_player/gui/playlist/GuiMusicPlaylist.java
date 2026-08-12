@@ -7,6 +7,7 @@ import info.u_team.music_player.gui.controls.GuiControls;
 import info.u_team.music_player.gui.playlist.search.GuiMusicSearch;
 import info.u_team.music_player.init.MusicPlayerResources;
 import info.u_team.music_player.musicplayer.playlist.Playlist;
+import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.minecraft.client.Minecraft;
@@ -31,9 +32,9 @@ public class GuiMusicPlaylist extends BetterScreen {
 		
 		if (!playlist.isLoaded()) {
 			playlist.load(() -> {
-				if (Minecraft.getInstance().gui.screen() == this) { // Check if gui is still open
+				if (MinecraftGuiCompat.getScreen(Minecraft.getInstance()) == this) { // Check if gui is still open
 					Minecraft.getInstance().execute(() -> {
-						if (Minecraft.getInstance().gui.screen() == this) { // Recheck gui because this is async on the main thread.
+						if (MinecraftGuiCompat.getScreen(Minecraft.getInstance()) == this) { // Recheck gui because this is async on the main thread.
 							trackList.addAllEntries();
 							if (addTracksButton != null) {
 								addTracksButton.active = true;
@@ -48,10 +49,10 @@ public class GuiMusicPlaylist extends BetterScreen {
 	@Override
 	protected void init() {
 		final ImageButton backButton = addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK));
-		backButton.setPressable(() -> minecraft.gui.setScreen(new GuiMusicPlayer()));
+		backButton.setPressable(() -> MinecraftGuiCompat.setScreen(minecraft, new GuiMusicPlayer()));
 		
 		addTracksButton = addRenderableWidget(new ImageButton(width - 35, 20, 22, 22, MusicPlayerResources.TEXTURE_ADD));
-		addTracksButton.setPressable(() -> minecraft.gui.setScreen(new GuiMusicSearch(playlist)));
+		addTracksButton.setPressable(() -> MinecraftGuiCompat.setScreen(minecraft, new GuiMusicSearch(playlist)));
 		
 		if (!playlist.isLoaded()) {
 			addTracksButton.active = false;
