@@ -18,14 +18,21 @@
   "license": "Apache-2.0",
   "icon": "logo.png",
   "environment": "client",
+  "mixins": [
+    "musicplayer.mixins.json"
+  ],
   "entrypoints": {
     "client": [
       "info.u_team.music_player.MusicPlayerMod"
+    ],
+    "modmenu": [
+      "info.u_team.music_player.integration.MusicPlayerModMenu"
     ]
   },
   "depends": {
     "fabricloader": ">=${loader_min_version}",
     "fabric-api": ">=${fabric_api_min_version}",
+    "modmenu": "*",
     "minecraft": "${minecraft_dependency}",
     "java": ">=25"
   }

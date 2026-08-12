@@ -34,5 +34,6 @@
 	"key.musicplayer.open": "Öffne den Musikplayer",
 	"key.musicplayer.pause": "Pausiere den Musikplayer",
 	"key.musicplayer.skip.back": "Zurück spulen",
-	"key.musicplayer.skip.forward": "Nach vorne spulen"
+	"key.musicplayer.skip.forward": "Nach vorne spulen",
+	"key.musicplayer.hud_controls": "HUD-Miniplayer bedienen"
 }

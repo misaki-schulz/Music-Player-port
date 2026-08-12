@@ -1,0 +1,8 @@
+ZXing Core 3.5.4
+https://github.com/zxing/zxing
+
+Copyright 2007-present ZXing authors
+
+Licensed under the Apache License, Version 2.0. A full copy of the Apache
+License, Version 2.0 is included in this distribution as
+LICENSE_Music-Player; the license text is identical for this dependency.

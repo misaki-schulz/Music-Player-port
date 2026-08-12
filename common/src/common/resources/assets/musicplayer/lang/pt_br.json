@@ -32,5 +32,6 @@
 	"key.musicplayer.open": "jogador aberto",
 	"key.musicplayer.pause": "Pausa",
 	"key.musicplayer.skip.back": "Retroceder",
-	"key.musicplayer.skip.forward": "Passe à frente"
+	"key.musicplayer.skip.forward": "Passe à frente",
+	"key.musicplayer.hud_controls": "Controlar miniplayer HUD"
 }

@@ -9,15 +9,21 @@ import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.musicplayer.playlist.LoadedTracks;
 import info.u_team.music_player.musicplayer.playlist.Playlist;
 import info.u_team.music_player.musicplayer.playlist.Playlists;
+import info.u_team.music_player.musicplayer.playlist.TrackFilter;
+import info.u_team.music_player.util.WrappedObject;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public class GuiMusicPlaylistList extends BetterScrollableList<GuiMusicPlaylistListEntry> {
 	
 	private final Playlist playlist;
 	
 	private boolean tracksLoaded;
+	private String filter = "";
+	private WrappedObject<String> dragSource;
+	private WrappedObject<String> dragTarget;
 	
 	public GuiMusicPlaylistList(Playlist playlist) {
-		super(0, 0, 0, 0, 40, 20);
+		super(0, 0, 0, 0, 34, 12);
 		this.playlist = playlist;
 		addEntry(new GuiMusicPlaylistListEntryLoading());
 	}
@@ -26,13 +32,15 @@ public class GuiMusicPlaylistList extends BetterScrollableList<GuiMusicPlaylistL
 		final Playlists playlists = MusicPlayerManager.getPlaylistManager().getPlaylists();
 		final List<GuiMusicPlaylistListEntry> list = new ArrayList<>();
 		if (loadedTracks.hasError()) {// Add error gui element
-			list.add(new GuiMusicPlaylistListEntryError(this, playlists, playlist, loadedTracks, loadedTracks.getErrorMessage()));
+			if (TrackFilter.matches(loadedTracks.getUri().get() + " " + loadedTracks.getErrorMessage(), filter)) list.add(new GuiMusicPlaylistListEntryError(this, playlists, playlist, loadedTracks, loadedTracks.getErrorMessage()));
 		} else if (loadedTracks.isTrack()) { // Add track gui element
-			list.add(new GuiMusicPlaylistListEntryMusicTrack(this, playlists, playlist, loadedTracks));
+			if (TrackFilter.matches(loadedTracks.getTrack(), filter)) list.add(new GuiMusicPlaylistListEntryMusicTrack(this, playlists, playlist, loadedTracks));
 		} else if (loadedTracks.isTrackList()) { // Add playlist start element and all track sub elements
+			final var matchingTracks = loadedTracks.getTrackList().getTracks().stream().filter(track -> TrackFilter.matches(track, filter)).toList();
+			if (matchingTracks.isEmpty()) return;
 			final GuiMusicPlaylistListEntryPlaylistStart start = new GuiMusicPlaylistListEntryPlaylistStart(this, playlists, playlist, loadedTracks);
 			list.add(start);
-			loadedTracks.getTrackList().getTracks().forEach(track -> {
+			matchingTracks.forEach(track -> {
 				final GuiMusicPlaylistListEntryPlaylistTrack entry = new GuiMusicPlaylistListEntryPlaylistTrack(start, playlists, playlist, loadedTracks, track);
 				start.addEntry(entry);
 				list.add(entry);
@@ -61,6 +69,11 @@ public class GuiMusicPlaylistList extends BetterScrollableList<GuiMusicPlaylistL
 		removeAllEntries();
 		addAllEntries();
 	}
+
+	public void setFilter(String value) {
+		filter = value == null ? "" : value;
+		updateAllEntries();
+	}
 	
 	public void setSelectedEntryWhenMove(GuiMusicPlaylistListEntry entry, int indexOffset) {
 		final int index = children().lastIndexOf(entry) + indexOffset;
@@ -71,5 +84,42 @@ public class GuiMusicPlaylistList extends BetterScrollableList<GuiMusicPlaylistL
 	
 	public void tick() {
 		children().forEach(GuiMusicPlaylistListEntry::tick);
+	}
+
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		if (event.button() == 0 && event.x() <= getX() + 18) {
+			final WrappedObject<String> uri = sourceAt(event.x(), event.y());
+			if (uri != null) { dragSource = uri; dragTarget = uri; return true; }
+		}
+		return super.mouseClicked(event, doubleClick);
+	}
+
+	@Override
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		if (dragSource != null && event.button() == 0) {
+			final WrappedObject<String> target = sourceAt(event.x(), event.y());
+			if (target != null) dragTarget = target;
+			return true;
+		}
+		return super.mouseDragged(event, dragX, dragY);
+	}
+
+	@Override
+	public boolean mouseReleased(MouseButtonEvent event) {
+		if (dragSource != null && event.button() == 0) {
+			final WrappedObject<String> source = dragSource, target = dragTarget;
+			dragSource = null; dragTarget = null;
+			if (source != target && playlist.moveTo(source, target)) updateAllEntries();
+			return true;
+		}
+		return super.mouseReleased(event);
+	}
+
+	private WrappedObject<String> sourceAt(double x, double y) {
+		final GuiMusicPlaylistListEntry entry = getEntryAtPosition(x, y);
+		if (entry instanceof GuiMusicPlaylistListEntryFunctions functions) return functions.getSourceUri();
+		if (entry instanceof GuiMusicPlaylistListEntryPlaylistTrack child) return child.getStart().getSourceUri();
+		return null;
 	}
 }

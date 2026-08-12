@@ -3,7 +3,6 @@ package info.u_team.music_player.gui.widget;
 
 import java.util.function.Supplier;
 
-import info.u_team.music_player.gui.util.LegacyGuiTransform;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -44,8 +43,10 @@ public class ScrollingText extends ScalableText {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		final int[] scissor = LegacyGuiTransform.transformRect(graphics, x, y, x + width, y + (font.lineHeight + 1) * scale);
-		graphics.enableScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
+		// GuiGraphics applies its current pose to the scissor rectangle itself.
+		// Pre-transforming it here applied the HUD scale twice and clipped the title
+		// and artist completely when the mini-player was enlarged or moved.
+		graphics.enableScissor(Math.round(x), Math.round(y), Math.round(x + width), Math.round(y + (font.lineHeight + 1) * scale));
 		setText(textSupplier.get());
 		renderFont(graphics, movingX(), y + 2 * scale);
 		graphics.disableScissor();

@@ -1,0 +1,48 @@
+plugins {
+	id "java"
+}
+
+group = rootProject.maven_group
+version = "${rootProject.upstream_mod_version}+server.port.${rootProject.port_version}"
+
+base {
+	archivesName = "music-player-server-companion"
+}
+
+repositories {
+	maven { url = "https://maven.fabricmc.net/" }
+	mavenCentral()
+}
+
+dependencies {
+	compileOnly "net.fabricmc:fabric-loader:0.18.4"
+	compileOnly "com.google.code.gson:gson:2.11.0"
+}
+
+processResources {
+	inputs.property "version", project.version
+	filesMatching("fabric.mod.json") {
+		filter { String line -> line.replace('${version}', project.version.toString()) }
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 21
+	options.encoding = "UTF-8"
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.named("jar") {
+	from(rootProject.file("LICENSE")) { rename { "LICENSE_Music-Player" } }
+	from(rootProject.file("NOTICE"))
+}
+
+tasks.named("sourcesJar") {
+	from(rootProject.file("LICENSE")) { rename { "LICENSE_Music-Player" } }
+	from(rootProject.file("NOTICE"))
+}

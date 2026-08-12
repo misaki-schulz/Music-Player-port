@@ -37,8 +37,8 @@ public class GuiMusicPlaylistListEntryPlaylistStart extends GuiMusicPlaylistList
 	
 	@Override
 	public void drawEntryExtended(GuiGraphics guiGraphics, int entryX, int entryY, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean mouseInList, float partialTicks) {
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, name, entryX + 5, entryY + 15, 0xF4E242, false);
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, duration, entryX + entryWidth - 140, entryY + 15, 0xFFFF00, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, info.u_team.music_player.gui.util.GuiTrackUtils.trimToWith(name, Math.max(20, entryWidth - 155)), entryX + 5, entryY + 12, 0xFFF4E242, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, duration, entryX + entryWidth - 145, entryY + 12, 0xFFFFFF00, false);
 	}
 	
 	public void addEntry(GuiMusicPlaylistListEntryPlaylistTrack entry) {

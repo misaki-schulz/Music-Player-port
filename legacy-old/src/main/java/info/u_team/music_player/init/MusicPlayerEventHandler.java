@@ -5,15 +5,18 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.Window;
 import info.u_team.music_player.MusicPlayerMod;
+import info.u_team.music_player.audio.AudioDuckingController;
 import info.u_team.music_player.gui.GuiMusicPlayer;
+import info.u_team.music_player.gui.GuiMiniPlayerInteraction;
 import info.u_team.music_player.gui.controls.GuiControls;
 import info.u_team.music_player.gui.util.LegacyGuiTransform;
 import info.u_team.music_player.lavaplayer.api.queue.ITrackManager;
 import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.musicplayer.MusicPlayerUtils;
 import info.u_team.music_player.musicplayer.SettingsManager;
-import info.u_team.music_player.musicplayer.settings.IngameOverlayPosition;
 import info.u_team.music_player.render.RenderOverlayMusicDisplay;
+import info.u_team.music_player.render.OverlayPlacement;
+import info.u_team.music_player.musicplayer.settings.Settings;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -36,10 +39,12 @@ public class MusicPlayerEventHandler {
 	private static ScrollingText authorRender;
 
 	private static void onClientKeyboard(Minecraft client) {
+		MusicPlayerManager.tick();
+		AudioDuckingController.tick();
 		if (client.screen != null) {
 			return;
 		}
-		handleKeyboard(client, MusicPlayerKeys.OPEN.consumeClick(), MusicPlayerKeys.PAUSE.consumeClick(),
+		handleKeyboard(client, MusicPlayerKeys.OPEN.consumeClick(), MusicPlayerKeys.HUD_CONTROLS.consumeClick(), MusicPlayerKeys.PAUSE.consumeClick(),
 				MusicPlayerKeys.SKIP_FORWARD.consumeClick(), MusicPlayerKeys.SKIP_BACK.consumeClick());
 	}
 
@@ -48,16 +53,21 @@ public class MusicPlayerEventHandler {
 		if (!open && !settingsManager.getSettings().isKeyWorkInGui()) {
 			return;
 		}
-		handleKeyboard(Minecraft.getInstance(), open, MusicPlayerKeys.PAUSE.matches(keyCode, scanCode),
+		handleKeyboard(Minecraft.getInstance(), open, MusicPlayerKeys.HUD_CONTROLS.matches(keyCode, scanCode), MusicPlayerKeys.PAUSE.matches(keyCode, scanCode),
 				MusicPlayerKeys.SKIP_FORWARD.matches(keyCode, scanCode), MusicPlayerKeys.SKIP_BACK.matches(keyCode, scanCode));
 	}
 
-	private static void handleKeyboard(Minecraft client, boolean open, boolean pause, boolean skipForward, boolean skipBack) {
+	private static void handleKeyboard(Minecraft client, boolean open, boolean hudControls, boolean pause, boolean skipForward, boolean skipBack) {
 		if (open) {
 			if (!(client.screen instanceof GuiMusicPlayer)) {
 				MusicPlayerMod.LOGGER.info("Opening music player screen");
 				client.setScreen(new GuiMusicPlayer());
 			}
+			return;
+		}
+		if (hudControls) {
+			if (client.screen instanceof GuiMiniPlayerInteraction) client.setScreen(null);
+			else if (settingsManager.getSettings().isShowIngameOverlay() && MusicPlayerManager.getPlayer().getTrackManager().getCurrentTrack() != null) client.setScreen(new GuiMiniPlayerInteraction());
 			return;
 		}
 		if (!pause && !skipForward && !skipBack) {
@@ -95,14 +105,12 @@ public class MusicPlayerEventHandler {
 		final int screenHeight = window.getGuiScaledHeight();
 		final int baseWidth = overlayRender.getWidth();
 		final int baseHeight = overlayRender.getHeight();
-		final float requestedScale = settingsManager.getSettings().getOverlayScale();
-		final float fitScale = Math.min((screenWidth - 6F) / baseWidth, (screenHeight - 6F) / baseHeight);
-		final float scale = Math.max(0.1F, Math.min(requestedScale, fitScale));
+		final Settings settings = settingsManager.getSettings();
+		final float scale = OverlayPlacement.scale(settings, screenWidth, screenHeight, baseWidth, baseHeight);
 		final int width = Math.round(baseWidth * scale);
 		final int height = Math.round(baseHeight * scale);
-		final IngameOverlayPosition position = settingsManager.getSettings().getIngameOverlayPosition();
-		final int x = position.isLeft() ? 3 : screenWidth - 3 - width;
-		final int y = position.isUp() ? 3 : screenHeight - 3 - height;
+		final int x = OverlayPlacement.x(settings, screenWidth, width);
+		final int y = OverlayPlacement.y(settings, screenHeight, height);
 
 		LegacyGuiTransform.transformed(graphics, x, y, scale,
 				() -> overlayRender.render(graphics, 0, 0, partialTick.getGameTimeDeltaPartialTick(false)));

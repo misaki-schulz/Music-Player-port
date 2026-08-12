@@ -1,5 +1,9 @@
 package info.u_team.music_player.gui.playlist;
 
+import static info.u_team.music_player.init.MusicPlayerLocalization.GUI_PLAYLIST_FILTER;
+import static info.u_team.music_player.init.MusicPlayerLocalization.GUI_PLAYLIST_REORDER_HINT;
+import static info.u_team.music_player.init.MusicPlayerLocalization.getTranslation;
+
 import info.u_team.music_player.gui.BetterScreen;
 import info.u_team.music_player.gui.GuiMusicPlayer;
 import info.u_team.music_player.gui.controls.GuiControls;
@@ -7,9 +11,11 @@ import info.u_team.music_player.gui.playlist.search.GuiMusicSearch;
 import info.u_team.music_player.init.MusicPlayerResources;
 import info.u_team.music_player.musicplayer.playlist.Playlist;
 import info.u_team.music_player.gui.widget.ImageButton;
+import info.u_team.music_player.gui.widget.UButton;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 public class GuiMusicPlaylist extends BetterScreen {
@@ -19,6 +25,9 @@ public class GuiMusicPlaylist extends BetterScreen {
 	private final GuiMusicPlaylistList trackList;
 	
 	private ImageButton addTracksButton;
+	private EditBox filterField;
+	private String filter = "";
+	private String transferStatus = getTranslation(GUI_PLAYLIST_REORDER_HINT);
 	
 	private GuiControls controls;
 	
@@ -48,15 +57,22 @@ public class GuiMusicPlaylist extends BetterScreen {
 	protected void init() {
 		final ImageButton backButton = addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK));
 		backButton.setPressable(() -> minecraft.setScreen(new GuiMusicPlayer()));
+		filterField = new EditBox(font, 12, 34, Math.max(20, width - 106), 18, Component.literal(getTranslation(GUI_PLAYLIST_FILTER)));
+		filterField.setMaxLength(200);
+		filterField.setValue(filter);
+		filterField.setResponder(value -> { filter = value; trackList.setFilter(value); });
+		addWidget(filterField);
+		addRenderableWidget(new UButton(width - 88, 33, 38, 20, Component.literal("M3U"), button ->
+				PlaylistFileDialogs.exportM3u(playlist, value -> transferStatus = value)));
 		
-		addTracksButton = addRenderableWidget(new ImageButton(width - 35, 20, 22, 22, MusicPlayerResources.TEXTURE_ADD));
+		addTracksButton = addRenderableWidget(new ImageButton(width - 44, 33, 20, 20, MusicPlayerResources.TEXTURE_ADD));
 		addTracksButton.setPressable(() -> minecraft.setScreen(new GuiMusicSearch(playlist)));
 		
 		if (!playlist.isLoaded()) {
 			addTracksButton.active = false;
 		}
 		
-		trackList.updateSettings(12, 50, width - 24, height - 60);
+		trackList.updateSettings(12, 67, width - 24, Math.max(1, height - 73));
 		trackList.addAllEntries();
 		addWidget(trackList);
 		
@@ -83,6 +99,8 @@ public class GuiMusicPlaylist extends BetterScreen {
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 		trackList.render(guiGraphics, mouseX, mouseY, partialTicks);
+		filterField.render(guiGraphics, mouseX, mouseY, partialTicks);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, font, info.u_team.music_player.gui.util.GuiTrackUtils.trimToWith(transferStatus, Math.max(20, width - 24)), 12, 56, 0xFFB8E986, false);
 		controls.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	

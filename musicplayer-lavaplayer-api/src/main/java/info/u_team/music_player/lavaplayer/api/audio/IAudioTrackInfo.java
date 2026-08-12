@@ -9,6 +9,8 @@ public interface IAudioTrackInfo {
 	String getIdentifier();
 	
 	String getURI();
+
+	String getArtworkURL();
 	
 	boolean isStream();
 	

@@ -246,12 +246,12 @@ public class GuiMusicSearch extends BetterScreen {
 	 */
 	private static String getSearchLoadFileTitle(String lang) {
 		return switch (lang) {
-		case "jp_jp" -> "ファイルを読み込む";
+		case "ja_jp" -> "ファイルを読み込む";
 		case "ko_kr" -> "파일 불러오기";
 		case "pt_br" -> "Subir arquivo";
 		case "ru_ru" -> "Загрузить файл";
-		case "zn_cn" -> "加载文件";
-		case "zn_tw" -> "載入檔案";
+		case "zh_cn" -> "加载文件";
+		case "zh_tw" -> "載入檔案";
 		case "de_de" -> "Lade eine Datei";
 		default -> "Load file";
 		};
@@ -263,12 +263,12 @@ public class GuiMusicSearch extends BetterScreen {
 	 */
 	private static String getSearchLoadFiles(String lang) {
 		return switch (lang) {
-		case "jp_jp" -> "ミュージックファイル";
+		case "ja_jp" -> "ミュージックファイル";
 		case "ko_kr" -> "음악 파일";
 		case "pt_br" -> "arquivos de música";
 		case "ru_ru" -> "Файлы с музыкой";
-		case "zn_cn" -> "音乐文件";
-		case "zn_tw" -> "音樂檔案";
+		case "zh_cn" -> "音乐文件";
+		case "zh_tw" -> "音樂檔案";
 		case "de_de" -> "Musikdatein";
 		default -> "Music files";
 		};
@@ -280,12 +280,12 @@ public class GuiMusicSearch extends BetterScreen {
 	 */
 	private static String getSearchLoadFolderTitle(String lang) {
 		return switch (lang) {
-		case "jp_jp" -> "フォルダを読み込む";
+		case "ja_jp" -> "フォルダを読み込む";
 		case "ko_kr" -> "폴더 불러오기";
 		case "pt_br" -> "Pasta de download";
 		case "ru_ru" -> "Загрузить папку";
-		case "zn_cn" -> "加载文件夹";
-		case "zn_tw" -> "載入資料夾";
+		case "zh_cn" -> "加载文件夹";
+		case "zh_tw" -> "載入資料夾";
 		case "de_de" -> "Lade einen Ordner";
 		default -> "Load folder";
 		};

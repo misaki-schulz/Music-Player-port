@@ -32,5 +32,6 @@
 	"key.musicplayer.open": "음악 플레이어 열기",
 	"key.musicplayer.pause": "음악 플레이어 일시 중지",
 	"key.musicplayer.skip.back": "뒤로 건너뛰기",
-	"key.musicplayer.skip.forward": "앞으로 건너뛰기"
+	"key.musicplayer.skip.forward": "앞으로 건너뛰기",
+	"key.musicplayer.hud_controls": "HUD 미니 플레이어 조작"
 }

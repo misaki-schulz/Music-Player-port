@@ -14,12 +14,15 @@
   "license": "Apache-2.0",
   "icon": "logo.png",
   "environment": "client",
+  "mixins": ["musicplayer.mixins.json"],
   "entrypoints": {
-    "client": ["info.u_team.music_player.MusicPlayerMod"]
+    "client": ["info.u_team.music_player.MusicPlayerMod"],
+    "modmenu": ["info.u_team.music_player.integration.MusicPlayerModMenu"]
   },
   "depends": {
     "fabricloader": ">=0.18.4",
     "fabric-api": ">=0.134.1",
+    "modmenu": "*",
     "minecraft": ">=1.21.9 <=1.21.11",
     "java": ">=21"
   }

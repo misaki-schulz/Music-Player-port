@@ -9,6 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import info.u_team.music_player.gui.controls.GuiControls;
 import info.u_team.music_player.init.MusicPlayerResources;
 import info.u_team.music_player.gui.widget.ImageButton;
+import info.u_team.music_player.gui.widget.UButton;
+import info.u_team.music_player.gui.playlist.PlaylistFileDialogs;
+import info.u_team.music_player.gui.history.GuiMusicHistory;
+import info.u_team.music_player.gui.settings.GuiSleepTimer;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -22,6 +26,7 @@ public class GuiMusicPlayer extends BetterScreen {
 	private GuiMusicPlayerList playlistsList;
 	
 	private GuiControls controls;
+	private String transferStatus = "";
 	
 	public GuiMusicPlayer() {
 		super(Component.literal("musicplayer"));
@@ -46,7 +51,14 @@ public class GuiMusicPlayer extends BetterScreen {
 			namePlaylistField.setValue("");
 		});
 		
-		playlistsList = new GuiMusicPlayerList(12, 90, width - 24, height - 100);
+		final int actionWidth = Math.max(52, Math.min(80, (width - 36) / 4));
+		addRenderableWidget(new UButton(12, 88, actionWidth, 20, Component.literal(getTranslation("gui.main.import")), button ->
+				PlaylistFileDialogs.importLibrary(() -> playlistsList.refresh(), value -> transferStatus = value)));
+		addRenderableWidget(new UButton(16 + actionWidth, 88, actionWidth, 20, Component.literal(getTranslation("gui.main.export")), button ->
+				PlaylistFileDialogs.exportLibrary(value -> transferStatus = value)));
+		addRenderableWidget(new UButton(20 + actionWidth * 2, 88, actionWidth, 20, Component.literal(getTranslation("gui.main.history")), button -> minecraft.setScreen(new GuiMusicHistory(this))));
+		addRenderableWidget(new UButton(24 + actionWidth * 3, 88, actionWidth, 20, Component.literal(getTranslation("gui.main.sleep")), button -> minecraft.setScreen(new GuiSleepTimer(this))));
+		playlistsList = new GuiMusicPlayerList(12, 124, width - 24, height - 134);
 		addWidget(playlistsList);
 		
 		controls = new GuiControls(this, 5, width);
@@ -74,6 +86,7 @@ public class GuiMusicPlayer extends BetterScreen {
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
 		playlistsList.render(guiGraphics, mouseX, mouseY, partialTicks);
 		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, font, getTranslation(GUI_CREATE_PLAYLIST_ADD_LIST), 20, 65, 0xFFFFFF, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, font, transferStatus, 12, 112, 0xB8E986, false);
 		namePlaylistField.render(guiGraphics, mouseX, mouseY, partialTicks);
 		controls.render(guiGraphics, mouseX, mouseY, partialTicks);
 	}

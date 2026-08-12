@@ -2,9 +2,8 @@ package info.u_team.music_player.gui.controls;
 
 import info.u_team.music_player.gui.widget.USlider;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 
 public class GuiVolumeSlider extends USlider {
 	
@@ -23,7 +22,7 @@ public class GuiVolumeSlider extends USlider {
 	@Override
 	public void onRelease(double mouseX, double mouseY) {
 		if (isHoveredOrFocused() && clicked) {
-			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+			AbstractWidget.playButtonClickSound(Minecraft.getInstance().getSoundManager());
 		}
 		clicked = false;
 	}

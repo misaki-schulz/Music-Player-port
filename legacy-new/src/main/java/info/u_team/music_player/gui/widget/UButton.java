@@ -3,6 +3,7 @@ package info.u_team.music_player.gui.widget;
 
 import info.u_team.music_player.gui.util.WidgetTextCompat;
 import info.u_team.music_player.util.RGBA;
+import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class UButton extends AbstractButton {
+	private final long animationStartedNanos = System.nanoTime();
 
 	private static final WidgetSprites SPRITES = new WidgetSprites(
 			ResourceLocation.withDefaultNamespace("widget/button"),
@@ -54,7 +56,13 @@ public class UButton extends AbstractButton {
 
 	@Override
 	public void renderString(GuiGraphics graphics, Font font, int color) {
+		setAlpha(animationAlpha());
 		renderButtonLabel(graphics, font);
+	}
+
+	private float animationAlpha() {
+		if (!MusicPlayerManager.getSettingsManager().getSettings().isInterfaceAnimations()) return 1F;
+		return Math.clamp((System.nanoTime() - animationStartedNanos) / 180_000_000F, 0F, 1F);
 	}
 
 	/**

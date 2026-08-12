@@ -12,4 +12,4 @@ pluginManagement {
 
 rootProject.name = "Music-Player-port"
 
-include("musicplayer-lavaplayer-api", "musicplayer-lavaplayer", "legacy-old", "legacy-new")
+include("musicplayer-lavaplayer-api", "musicplayer-lavaplayer", "legacy-old", "legacy-new", "server-companion")

@@ -38,8 +38,8 @@ public class GuiMusicPlaylistListEntryPlaylistStart extends GuiMusicPlaylistList
 	
 	@Override
 	public void drawEntryExtended(GuiGraphicsExtractor guiGraphics, int entryX, int entryY, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean mouseInList, float partialTicks) {
-		guiGraphics.text(minecraft.font, name, entryX + 5, entryY + 15, 0xFFF4E242, false);
-		guiGraphics.text(minecraft.font, duration, entryX + entryWidth - 140, entryY + 15, 0xFFFFFF00, false);
+		guiGraphics.text(minecraft.font, info.u_team.music_player.gui.util.GuiTrackUtils.trimToWith(name, Math.max(20, entryWidth - 155)), entryX + 5, entryY + 12, 0xFFF4E242, false);
+		guiGraphics.text(minecraft.font, duration, entryX + entryWidth - 145, entryY + 12, 0xFFFFFF00, false);
 	}
 	
 	public void addEntry(GuiMusicPlaylistListEntryPlaylistTrack entry) {

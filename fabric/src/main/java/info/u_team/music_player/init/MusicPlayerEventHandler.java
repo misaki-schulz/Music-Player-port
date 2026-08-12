@@ -7,13 +7,16 @@ import com.mojang.blaze3d.platform.Window;
 import org.joml.Matrix3x2fStack;
 
 import info.u_team.music_player.gui.GuiMusicPlayer;
+import info.u_team.music_player.gui.GuiMiniPlayerInteraction;
+import info.u_team.music_player.audio.AudioDuckingController;
 import info.u_team.music_player.gui.controls.GuiControls;
 import info.u_team.music_player.lavaplayer.api.queue.ITrackManager;
 import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.musicplayer.MusicPlayerUtils;
 import info.u_team.music_player.musicplayer.SettingsManager;
-import info.u_team.music_player.musicplayer.settings.IngameOverlayPosition;
 import info.u_team.music_player.render.RenderOverlayMusicDisplay;
+import info.u_team.music_player.render.OverlayPlacement;
+import info.u_team.music_player.musicplayer.settings.Settings;
 import info.u_team.music_player.util.MinecraftGuiCompat;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -49,6 +52,10 @@ public class MusicPlayerEventHandler {
 			openMusicPlayer();
 			return true;
 		}
+		if (isKeyDown(MusicPlayerKeys.HUD_CONTROLS, true, event)) {
+			toggleHudControls();
+			return true;
+		}
 		if (settingsManager.getSettings().isKeyWorkInGui()) {
 			return handlePlaybackKeyboard(true, event);
 		}
@@ -58,6 +65,10 @@ public class MusicPlayerEventHandler {
 	private static boolean handleKeyboard(boolean gui, KeyEvent event) {
 		if (isKeyDown(MusicPlayerKeys.OPEN, gui, event)) {
 			openMusicPlayer();
+			return true;
+		}
+		if (isKeyDown(MusicPlayerKeys.HUD_CONTROLS, gui, event)) {
+			toggleHudControls();
 			return true;
 		}
 		return handlePlaybackKeyboard(gui, event);
@@ -91,6 +102,16 @@ public class MusicPlayerEventHandler {
 		}
 	}
 
+	private static void toggleHudControls() {
+		final Minecraft mc = Minecraft.getInstance();
+		if (MinecraftGuiCompat.getScreen(mc) instanceof GuiMiniPlayerInteraction) {
+			MinecraftGuiCompat.setScreen(mc, null);
+		} else if (settingsManager.getSettings().isShowIngameOverlay()
+				&& MusicPlayerManager.getPlayer().getTrackManager().getCurrentTrack() != null) {
+			MinecraftGuiCompat.setScreen(mc, new GuiMiniPlayerInteraction());
+		}
+	}
+
 	private static boolean isKeyDown(KeyMapping binding, boolean gui, KeyEvent event) {
 		return gui ? binding.matches(event) : binding.consumeClick();
 	}
@@ -103,7 +124,7 @@ public class MusicPlayerEventHandler {
 		final Minecraft mc = Minecraft.getInstance();
 		if (MinecraftGuiCompat.getScreen(mc) == null) {
 			if (settingsManager.getSettings().isShowIngameOverlay()) {
-				final IngameOverlayPosition position = settingsManager.getSettings().getIngameOverlayPosition();
+				final Settings settings = settingsManager.getSettings();
 				
 				if (overlayRender == null) {
 					overlayRender = new RenderOverlayMusicDisplay();
@@ -115,25 +136,11 @@ public class MusicPlayerEventHandler {
 				
 				final int baseHeight = overlayRender.getHeight();
 				final int baseWidth = overlayRender.getWidth();
-				final float requestedScale = settingsManager.getSettings().getOverlayScale();
-				final float fitScale = Math.min((screenWidth - 6F) / baseWidth, (screenHeight - 6F) / baseHeight);
-				final float scale = Math.max(0.1F, Math.min(requestedScale, fitScale));
+				final float scale = OverlayPlacement.scale(settings, screenWidth, screenHeight, baseWidth, baseHeight);
 				final int height = Math.round(baseHeight * scale);
 				final int width = Math.round(baseWidth * scale);
-				
-				final int x;
-				if (position.isLeft()) {
-					x = 3;
-				} else {
-					x = screenWidth - 3 - width;
-				}
-				
-				final int y;
-				if (position.isUp()) {
-					y = 3;
-				} else {
-					y = screenHeight - 3 - height;
-				}
+				final int x = OverlayPlacement.x(settings, screenWidth, width);
+				final int y = OverlayPlacement.y(settings, screenHeight, height);
 				
 				final Matrix3x2fStack poseStack = guiGraphics.pose();
 				
@@ -212,6 +219,8 @@ public class MusicPlayerEventHandler {
 	
 	public static void register() {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			MusicPlayerManager.tick();
+			AudioDuckingController.tick();
 			if (MinecraftGuiCompat.getScreen(client) == null) {
 				onKeyInput();
 			}

@@ -48,7 +48,7 @@ class GuiMusicPlayerListEntry extends BetterScrollableListEntry<GuiMusicPlayerLi
 			playlists.setPlaying(null);
 			gui.children().stream().filter(entry -> entry != this).forEach(entry -> entry.playPlaylistButton.setToggled(false)); // Reset all playlist buttons except this one
 			
-			final Runnable runnable = () -> {
+			final Runnable runnable = () -> minecraft.execute(() -> {
 				final ITrackManager manager = MusicPlayerManager.getPlayer().getTrackManager();
 				
 				// Start playlist
@@ -82,7 +82,7 @@ class GuiMusicPlayerListEntry extends BetterScrollableListEntry<GuiMusicPlayerLi
 				} else if (MinecraftGuiCompat.getScreen(minecraft) instanceof final GuiMusicPlaylist musicplaylistgui) {
 					musicplaylistgui.getTrackList().updateAllEntries();
 				}
-			};
+			});
 			
 			gui.children().forEach(entry -> entry.playPlaylistButton.active = false);
 			playlists.setPlayingLock();

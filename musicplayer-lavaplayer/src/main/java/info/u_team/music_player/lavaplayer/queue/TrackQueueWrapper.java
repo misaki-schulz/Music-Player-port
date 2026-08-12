@@ -17,6 +17,10 @@ public class TrackQueueWrapper {
 	public boolean calculateNext() {
 		return queue.calculateNext();
 	}
+
+	public boolean calculateNext(boolean forceFinite) {
+		return queue.calculateNext(forceFinite);
+	}
 	
 	public AudioTrack getNext() {
 		final IAudioTrack track = queue.getNext();

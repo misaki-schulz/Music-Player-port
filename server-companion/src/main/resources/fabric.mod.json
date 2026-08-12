@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "musicplayer_server",
+  "version": "${version}",
+  "name": "Music Player Server Companion",
+  "description": "Optional metadata-only shared-listening relay for Music Player clients.",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "info.u_team.music_player.server.MusicPlayerServerCompanion"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": ">=1.21.2",
+    "java": ">=21"
+  }
+}

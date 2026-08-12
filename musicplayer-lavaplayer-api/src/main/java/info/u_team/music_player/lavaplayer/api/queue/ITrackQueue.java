@@ -10,6 +10,11 @@ public interface ITrackQueue {
 	 * @return true if a next track could be calculated false otherwise
 	 */
 	boolean calculateNext();
+
+	/** Calculates a next track without wrapping/repeating when a finite queue boundary is requested. */
+	default boolean calculateNext(boolean forceFinite) {
+		return calculateNext();
+	}
 	
 	/**
 	 * Get the calculated {@link IAudioTrack}. This method is a getter and can only return an {@link IAudioTrack} if

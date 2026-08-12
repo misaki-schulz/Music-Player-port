@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "info.u_team.music_player.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "SoundManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

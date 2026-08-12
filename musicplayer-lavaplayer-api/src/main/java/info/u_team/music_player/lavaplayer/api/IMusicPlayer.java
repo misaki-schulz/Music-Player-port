@@ -15,6 +15,8 @@ public interface IMusicPlayer {
 	void startAudioOutput();
 	
 	void setMixer(String name);
+
+	void setAutomaticAudioRecovery(boolean enabled);
 	
 	String getMixer();
 	
@@ -31,6 +33,21 @@ public interface IMusicPlayer {
 	float getPitch();
 	
 	void setPitch(float pitch);
+
+	void setEqualizer(boolean enabled, float[] gains, float[] positions, boolean bassBoost);
+
+	/** Applies client-side stereo processing without changing Minecraft's own sound sliders. */
+	void setChannelMix(boolean mono, float balance, boolean swapChannels);
+
+	void setDuckingGain(float gain);
+
+	void setTransitionGain(float gain);
 	
 	void setOutputConsumer(IOutputConsumer consumer);
+
+	/**
+	 * Stops playback and releases every thread, audio device and source-manager resource owned by the player.
+	 * Implementations must make this method idempotent.
+	 */
+	void shutdown();
 }

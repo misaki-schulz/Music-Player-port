@@ -34,5 +34,6 @@
 	"key.musicplayer.open": "Müzik Çaları Aç",
 	"key.musicplayer.pause": "Müzik Çaları Duraklat",
 	"key.musicplayer.skip.back": "Geri Atla",
-	"key.musicplayer.skip.forward": "İleri Atla"
+	"key.musicplayer.skip.forward": "İleri Atla",
+	"key.musicplayer.hud_controls": "HUD mini oynatıcıyı kontrol et"
 }

@@ -2,6 +2,7 @@
 package info.u_team.music_player.gui.widget;
 
 import info.u_team.music_player.util.RGBA;
+import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -12,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 public class UButton extends AbstractButton {
+	private final long animationStartedNanos = System.nanoTime();
 
 	private static final WidgetSprites SPRITES = new WidgetSprites(
 			Identifier.withDefaultNamespace("widget/button"),
@@ -51,6 +53,7 @@ public class UButton extends AbstractButton {
 
 	@Override
 	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		setAlpha(animationAlpha());
 		final RGBA background = getCurrentBackgroundColor(graphics, mouseX, mouseY, partialTick);
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITES.get(active, isHoveredOrFocused()), getX(), getY(), getWidth(), getHeight(), background.getColorARGB(getAlpha()));
 
@@ -60,6 +63,11 @@ public class UButton extends AbstractButton {
 				graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE),
 				label,
 				2);
+	}
+
+	private float animationAlpha() {
+		if (!MusicPlayerManager.getSettingsManager().getSettings().isInterfaceAnimations()) return 1F;
+		return Math.clamp((System.nanoTime() - animationStartedNanos) / 180_000_000F, 0F, 1F);
 	}
 
 	public RGBA getCurrentBackgroundColor(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {

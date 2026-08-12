@@ -16,7 +16,7 @@ public class GuiMusicPlaylistListEntryError extends GuiMusicPlaylistListEntryFun
 	
 	@Override
 	public void drawEntryExtended(GuiGraphics guiGraphics, int entryX, int entryY, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean mouseInList, float partialTicks) {
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, error, entryX + 5, entryY + 5, 0xFF0000, false);
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, uri.get(), entryX + 5, entryY + 25, 0xFF0000, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, info.u_team.music_player.gui.util.GuiTrackUtils.trimToWith(error, Math.max(20, entryWidth - 30)), entryX + 5, entryY + 4, 0xFFFF5555, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(guiGraphics, minecraft.font, info.u_team.music_player.gui.util.GuiTrackUtils.trimToWith(uri.get(), Math.max(20, entryWidth - 30)), entryX + 5, entryY + 19, 0xFFFF7777, false);
 	}
 }

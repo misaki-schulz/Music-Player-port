@@ -8,6 +8,8 @@ import java.util.List;
 
 import info.u_team.music_player.gui.BetterNestedGui;
 import info.u_team.music_player.gui.GuiMusicPlayer;
+import info.u_team.music_player.gui.GuiNowPlaying;
+import info.u_team.music_player.gui.playlist.GuiMusicPlaylist;
 import info.u_team.music_player.gui.settings.GuiMusicPlayerSettings;
 import info.u_team.music_player.gui.util.GuiTrackUtils;
 import info.u_team.music_player.init.MusicPlayerColors;
@@ -67,7 +69,7 @@ public class GuiControls extends AbstractContainerEventHandler implements Better
 		final boolean isSettings = gui instanceof GuiMusicPlayerSettings;
 		final boolean isIngame = gui instanceof PauseScreen;
 		
-		final boolean small = isIngame;
+		final boolean small = isIngame || gui instanceof GuiMusicPlaylist;
 		
 		buttonSize = small ? 15 : 20;
 		halfButtonSize = buttonSize / 2;
@@ -119,6 +121,9 @@ public class GuiControls extends AbstractContainerEventHandler implements Better
 		if (!isSettings) {
 			final ImageButton settingsButton = addButtonNonDisable(new ImageButton(width - (15 + 1), 1, 15, 15, MusicPlayerResources.TEXTURE_SETTINGS));
 			settingsButton.setPressable(() -> mc.setScreen(new GuiMusicPlayerSettings(gui)));
+			final int nowPlayingX = width - (isIngame ? 15 * 3 + 3 : 15 * 2 + 2);
+			final ImageButton nowPlayingButton = addButtonNonDisable(new ImageButton(nowPlayingX, 1, 15, 15, MusicPlayerResources.TEXTURE_PLAY));
+			nowPlayingButton.setPressable(() -> mc.setScreen(new GuiNowPlaying(gui)));
 		}
 		
 		// Open musicplayer gui
@@ -128,8 +133,8 @@ public class GuiControls extends AbstractContainerEventHandler implements Better
 		}
 		
 		// Volume
-		final int volumeY = width - (70 + (isIngame ? 15 * 2 + 3 : (!isSettings ? 15 + 2 : 1)));
-		final GuiVolumeSlider volumeSlider = addButtonNonDisable(new GuiVolumeSlider(volumeY, 1, 70, 15, Component.nullToEmpty(getTranslation(GUI_CONTROLS_VOLUME) + ": "), Component.nullToEmpty("%"), 0, 100, settings.getVolume(), false, true, slider -> {
+		final int volumeY = width - (70 + (isIngame ? 15 * 3 + 4 : (!isSettings ? 15 * 2 + 3 : 1)));
+		final GuiVolumeSlider volumeSlider = addButtonNonDisable(new GuiVolumeSlider(volumeY, 1, 70, 15, Component.nullToEmpty(getTranslation(GUI_CONTROLS_VOLUME) + ": "), Component.nullToEmpty("%"), 0, Settings.MAX_VOLUME, settings.getVolume(), false, true, slider -> {
 			settings.setVolume(slider.getValueInt());
 			MusicPlayerManager.getPlayer().setVolume(settings.getVolume());
 		}));

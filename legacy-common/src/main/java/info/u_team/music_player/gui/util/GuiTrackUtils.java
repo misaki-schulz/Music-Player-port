@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.function.Function;
 
 import info.u_team.music_player.lavaplayer.api.audio.IAudioTrack;
+import info.u_team.music_player.artwork.ArtworkRenderer;
 import info.u_team.music_player.lavaplayer.api.audio.IAudioTrackInfo;
 import info.u_team.music_player.musicplayer.MusicPlayerManager;
 import info.u_team.music_player.util.TimeUtil;
@@ -32,11 +33,15 @@ public final class GuiTrackUtils {
 	}
 
 	public static void addTrackInfo(GuiGraphics graphics, IAudioTrack track, int x, int y, int entryWidth, int leftMargin, int titleColor) {
-		final int textSize = entryWidth - 150 - leftMargin;
+		final boolean artwork = MusicPlayerManager.getSettingsManager().getSettings().isShowTrackArtwork();
+		final int artworkSize = 28;
+		final int textLeft = leftMargin + (artwork ? artworkSize + 6 : 0);
+		final int textSize = Math.max(20, entryWidth - 155 - textLeft);
 		final IAudioTrackInfo trackInfo = track.getInfo();
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(graphics, MINECRAFT.font, trimToWith(trackInfo.getFixedTitle(), textSize), x + leftMargin, y + 5, titleColor, false);
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(graphics, MINECRAFT.font, trimToWith(trackInfo.getFixedAuthor(), textSize), x + leftMargin + 4, y + 25, 0xFFD86D1C, false);
-		info.u_team.music_player.gui.util.GuiTextCompat.draw(graphics, MINECRAFT.font, getFormattedDuration(track), x + entryWidth - 140, y + 15, 0xFFFFFF00, false);
+		if (artwork) ArtworkRenderer.render(graphics, track, x + leftMargin, y + 3, artworkSize);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(graphics, MINECRAFT.font, trimToWith(trackInfo.getFixedTitle(), textSize), x + textLeft, y + 4, titleColor, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(graphics, MINECRAFT.font, trimToWith(trackInfo.getFixedAuthor(), textSize), x + textLeft + 3, y + 19, 0xFFD86D1C, false);
+		info.u_team.music_player.gui.util.GuiTextCompat.draw(graphics, MINECRAFT.font, getFormattedDuration(track), x + entryWidth - 145, y + 12, 0xFFFFFF00, false);
 	}
 
 	public static boolean openURI(String uri) {

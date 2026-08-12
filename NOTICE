@@ -16,3 +16,7 @@ Selected GUI widget and RGBA utility classes were derived from U Team Core
 The port is unofficial and is not affiliated with or endorsed by U-Team.
 All code remains licensed under the Apache License, Version 2.0, except where
 an included third-party notice states otherwise.
+
+Track-card QR generation includes ZXing Core 3.5.4, relocated into the
+Music Player namespace. ZXing is licensed under the Apache License, Version
+2.0. See THIRD_PARTY_LICENSES/ZXing-NOTICE.txt.

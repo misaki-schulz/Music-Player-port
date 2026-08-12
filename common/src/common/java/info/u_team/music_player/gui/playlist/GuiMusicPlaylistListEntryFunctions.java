@@ -22,9 +22,9 @@ abstract class GuiMusicPlaylistListEntryFunctions extends GuiMusicPlaylistListEn
 		super(playlists, playlist, loadedTrack, track);
 		this.playlist = playlist;
 		uri = loadedTrack.getUri();
-		deleteTrackButton = addChildren(new ImageButton(0, 0, 20, 20, MusicPlayerResources.TEXTURE_CLEAR));
-		upButton = addChildren(new ImageButton(0, 0, 20, 10, MusicPlayerResources.TEXTURE_UP));
-		downButton = addChildren(new ImageButton(0, 0, 20, 10, MusicPlayerResources.TEXTURE_DOWN));
+		deleteTrackButton = addChildren(new ImageButton(0, 0, 16, 16, MusicPlayerResources.TEXTURE_CLEAR));
+		upButton = addChildren(new ImageButton(0, 0, 16, 8, MusicPlayerResources.TEXTURE_UP));
+		downButton = addChildren(new ImageButton(0, 0, 16, 8, MusicPlayerResources.TEXTURE_DOWN));
 		
 		deleteTrackButton.setPressable(() -> {
 			playlist.remove(uri);
@@ -48,19 +48,21 @@ abstract class GuiMusicPlaylistListEntryFunctions extends GuiMusicPlaylistListEn
 		super.render(guiGraphics, slotIndex, entryY, entryX, entryWidth, entryHeight, mouseX, mouseY, hovered, partialTicks);
 		drawEntryExtended(guiGraphics, entryX, entryY, entryWidth, entryHeight, mouseX, mouseY, hovered, partialTicks);
 		
-		deleteTrackButton.setX(entryWidth - 15);
-		deleteTrackButton.setY(entryY + 8);
+		deleteTrackButton.setX(entryWidth - 20);
+		deleteTrackButton.setY(entryY + 9);
 		deleteTrackButton.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		
 		upButton.setX(entryWidth - 40);
-		upButton.setY(entryY + 8);
+		upButton.setY(entryY + 9);
 		upButton.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		
 		downButton.setX(entryWidth - 40);
-		downButton.setY(entryY + 18);
+		downButton.setY(entryY + 17);
 		downButton.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	
 	public abstract void drawEntryExtended(GuiGraphicsExtractor guiGraphics, int entryX, int entryY, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean mouseInList, float partialTicks);
+
+	WrappedObject<String> getSourceUri() { return uri; }
 	
 }

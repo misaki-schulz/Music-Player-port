@@ -1,16 +1,16 @@
 package info.u_team.music_player.lavaplayer.util;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ObservableValue<T> {
 	
-	private T value;
+	private volatile T value;
 	private final List<ChangeListener<T>> changeListener;
 	
 	public ObservableValue(T value) {
 		this.value = value;
-		changeListener = new ArrayList<>();
+		changeListener = new CopyOnWriteArrayList<>();
 	}
 	
 	public void registerListener(ChangeListener<T> listener) {

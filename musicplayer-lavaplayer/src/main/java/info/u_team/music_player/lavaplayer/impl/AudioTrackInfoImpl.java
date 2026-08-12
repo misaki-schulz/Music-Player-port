@@ -31,6 +31,11 @@ public class AudioTrackInfoImpl implements IAudioTrackInfo {
 	public String getURI() {
 		return info.uri;
 	}
+
+	@Override
+	public String getArtworkURL() {
+		return info.artworkUrl;
+	}
 	
 	@Override
 	public boolean isStream() {

@@ -33,6 +33,7 @@ public class MusicPlayerLocalization {
 	public static final String KEY_PAUSE = "key.musicplayer.pause";
 	public static final String KEY_SKIP_FORWARD = "key.musicplayer.skip.forward";
 	public static final String KEY_SKIP_BACK = "key.musicplayer.skip.back";
+	public static final String KEY_HUD_CONTROLS = "key.musicplayer.hud_controls";
 	
 	// Guis
 	public static final String GUI_CREATE_PLAYLIST_INSERT_NAME = "gui.musicplayer.create_playlist.insert_name";
@@ -45,6 +46,8 @@ public class MusicPlayerLocalization {
 	public static final String GUI_CONTROLS_VOLUME = "gui.controls.volume";
 	
 	public static final String GUI_PLAYLIST_LOADING = "gui.playlist.loading";
+	public static final String GUI_PLAYLIST_FILTER = "gui.playlist.filter";
+	public static final String GUI_PLAYLIST_REORDER_HINT = "gui.playlist.reorder_hint";
 	
 	public static final String GUI_TRACK_DURATION_UNDEFINED = "gui.track.duration_undefined";
 	

@@ -32,5 +32,6 @@
   "key.musicplayer.open": "ミュージックプレイヤーを開く",
   "key.musicplayer.pause": "ミュージックプレイヤーを止める",
   "key.musicplayer.skip.back": "前の曲へ",
-  "key.musicplayer.skip.forward": "次の曲へ"
+  "key.musicplayer.skip.forward": "次の曲へ",
+  "key.musicplayer.hud_controls": "HUDミニプレイヤーを操作"
 }

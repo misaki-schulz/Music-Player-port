@@ -35,6 +35,7 @@ public class DependencyManager {
 	private static final Marker MARKER_ADD = MarkerManager.getMarker("Add");
 	
 	private static final String FILE_ENDING = ".jar.packed";
+	private static Path extractionDirectory;
 	
 	public static final DependencyClassLoader MUSICPLAYER_CLASSLOADER = new DependencyClassLoader();
 	
@@ -69,20 +70,13 @@ public class DependencyManager {
 	private static Path createExtractDirectory() {
 		try {
 			final Path baseDirectory = Paths.get(System.getProperty("java.io.tmpdir", "/tmp"), MusicPlayerReference.MODID + "-extraction-tmp");
-			final Path specificDirectory = baseDirectory.resolve(String.valueOf(System.currentTimeMillis()));
-			
-			// Try to clean base directory before
-			try {
-				FileUtils.deleteDirectory(baseDirectory.toFile());
-			} catch (final Exception ex) {
-				LOGGER.debug(MARKER_LOAD, "Cannot clean previous dependency extraction directory", ex);
-			}
-			
-			Files.createDirectories(specificDirectory);
-			return specificDirectory;
+			Files.createDirectories(baseDirectory);
+			extractionDirectory = Files.createTempDirectory(baseDirectory, "instance-" + ProcessHandle.current().pid() + "-");
+			return extractionDirectory;
 		} catch (final IOException unused) {
 			try {
-				return Files.createTempDirectory(MusicPlayerReference.MODID + "-extraction-tmp");
+				extractionDirectory = Files.createTempDirectory(MusicPlayerReference.MODID + "-extraction-tmp-");
+				return extractionDirectory;
 			} catch (final IOException ex) {
 				throw new RuntimeException("Cannot create extract directory for musicplayer files", ex);
 			}
@@ -92,7 +86,7 @@ public class DependencyManager {
 	private static Path extractFile(Path extractDirectory, Path path) {
 		final Path extractPath = extractDirectory.resolve(path.getFileName().toString());
 		try (final InputStream inputStream = Files.newInputStream(path); //
-				final OutputStream outputStream = Files.newOutputStream(extractPath, StandardOpenOption.CREATE);) {
+				final OutputStream outputStream = Files.newOutputStream(extractPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);) {
 			inputStream.transferTo(outputStream);
 			LOGGER.debug(MARKER_LOAD, "Copied file from ({}) to ({})", path, extractPath);
 		} catch (final IOException ex) {
@@ -138,6 +132,23 @@ public class DependencyManager {
 	private static void addToMusicPlayerDependencies(URL url) {
 		MUSICPLAYER_CLASSLOADER.addURL(url);
 		LOGGER.debug(MARKER_ADD, "Added new jar file ({}) to the musicplayer dependency classloader.", url);
+	}
+
+	public static void shutdown() {
+		try {
+			MUSICPLAYER_CLASSLOADER.close();
+		} catch (final IOException ex) {
+			LOGGER.debug(MARKER_LOAD, "Cannot close music player dependency classloader", ex);
+		}
+		final Path directory = extractionDirectory;
+		extractionDirectory = null;
+		if (directory != null) {
+			try {
+				FileUtils.deleteDirectory(directory.toFile());
+			} catch (final IOException ex) {
+				LOGGER.debug(MARKER_LOAD, "Cannot clean this instance's dependency extraction directory", ex);
+			}
+		}
 	}
 	
 }

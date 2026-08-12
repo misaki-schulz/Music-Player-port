@@ -12,13 +12,17 @@ base {
 }
 
 repositories {
+	maven {
+		name = "Terraformers"
+		url = "https://maven.terraformersmc.com/releases/"
+	}
 	mavenCentral()
 }
 
 sourceSets {
 	main {
 		java {
-			srcDirs += [rootProject.file("legacy-common/src/main/java")]
+			srcDirs += [rootProject.file("shared/src/main/java"), rootProject.file("legacy-common/src/main/java")]
 		}
 		resources {
 			srcDirs += [
@@ -39,12 +43,15 @@ dependencies {
 	mappings loom.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:0.18.4"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:0.106.1+1.21.2"
+	modCompileOnly "com.terraformersmc:modmenu:12.0.0-beta.1"
+	modRuntimeOnly "com.terraformersmc:modmenu:12.0.0-beta.1"
 
 	compileOnly project(":musicplayer-lavaplayer-api")
 	runtimeOnly project(":musicplayer-lavaplayer-api")
 	shade("net.harawata:appdirs:1.4.0") {
 		transitive = false
 	}
+	shade("com.google.zxing:core:3.5.4") { transitive = false }
 }
 
 loom {
@@ -99,6 +106,7 @@ tasks.named("shadowJar") {
 		from playerBuild.dir("dependencies")
 	}
 	relocate "net.harawata.appdirs", "info.u_team.music_player.shade.net.harawata.appdirs"
+	relocate "com.google.zxing", "info.u_team.music_player.shade.com.google.zxing"
 	exclude "META-INF/maven/**"
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	addLegalFiles(delegate)

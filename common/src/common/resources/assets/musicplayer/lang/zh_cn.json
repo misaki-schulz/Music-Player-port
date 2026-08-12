@@ -32,5 +32,6 @@
 	"key.musicplayer.open": "打开音乐播放器",
 	"key.musicplayer.pause": "暂停音乐播放器",
 	"key.musicplayer.skip.back": "上一首",
-	"key.musicplayer.skip.forward": "下一首"
+	"key.musicplayer.skip.forward": "下一首",
+	"key.musicplayer.hud_controls": "操作 HUD 迷你播放器"
 }

@@ -19,6 +19,11 @@ public class PlayingTrackImpl extends AudioTrackImpl implements IPlayingTrack {
 	public IAudioTrack getOriginalTrack() {
 		return track.getUserData(IAudioTrack.class);
 	}
+
+	@Override
+	public long getPlaybackId() {
+		return musicPlayer.getPlaybackSequence();
+	}
 	
 	@Override
 	public long getPosition() {

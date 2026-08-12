@@ -1,12 +1,18 @@
 package info.u_team.music_player.lavaplayer;
 
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sound.sampled.DataLine.Info;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.format.AudioDataFormat;
 import com.sedmelluq.discord.lavaplayer.format.Pcm16AudioDataFormat;
 import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration.ResamplingQuality;
@@ -38,12 +44,18 @@ public class MusicPlayer implements IMusicPlayer {
 	private final TrackSearch trackSearch;
 	private final TrackManager trackManager;
 	
-	private IOutputConsumer outputConsumer;
+	private volatile IOutputConsumer outputConsumer;
 	
 	private final ObservableValue<Float> speed;
 	private final ObservableValue<Float> pitch;
+	private volatile boolean equalizerEnabled;
+	private volatile boolean bassBoost;
+	private volatile float[] equalizerGains = new float[10];
+	private volatile float[] equalizerPositions = defaultEqualizerPositions(10);
 	
-	private long currentTrackPosition;
+	private final AtomicLong currentTrackPosition;
+	private final AtomicLong playbackSequence;
+	private final AtomicBoolean shutdown;
 	
 	public MusicPlayer() {
 		audioPlayerManager = new DefaultAudioPlayerManager();
@@ -56,6 +68,9 @@ public class MusicPlayer implements IMusicPlayer {
 		
 		speed = new ObservableValue<>(1F);
 		pitch = new ObservableValue<>(1F);
+		currentTrackPosition = new AtomicLong();
+		playbackSequence = new AtomicLong();
+		shutdown = new AtomicBoolean();
 		
 		setup();
 	}
@@ -76,7 +91,8 @@ public class MusicPlayer implements IMusicPlayer {
 			
 			@Override
 			public void onTrackStart(AudioPlayer player, AudioTrack track) {
-				currentTrackPosition = track.getPosition();
+				currentTrackPosition.set(track.getPosition());
+				playbackSequence.incrementAndGet();
 			}
 		});
 		
@@ -94,7 +110,7 @@ public class MusicPlayer implements IMusicPlayer {
 			
 			private AudioFrame updateTrackPosition(AudioFrame frame) {
 				if (frame != null && !frame.isTerminator()) {
-					currentTrackPosition += frame.getFormat().frameDuration() * speed.getValue();
+					currentTrackPosition.addAndGet((long) (frame.getFormat().frameDuration() * speed.getValue()));
 				}
 				return frame;
 			}
@@ -105,14 +121,35 @@ public class MusicPlayer implements IMusicPlayer {
 	}
 	
 	private void updateFilters(float speed, float pitch) {
-		if (Math.abs(speed - 1) < 0.01 && Math.abs(pitch - 1) < 0.01) {
+		final boolean useTimescale = Math.abs(speed - 1) >= 0.01 || Math.abs(pitch - 1) >= 0.01;
+		final boolean useEqualizer = equalizerEnabled || bassBoost;
+		if (!useTimescale && !useEqualizer) {
 			audioPlayer.setFilterFactory((track, format, output) -> Collections.emptyList());
 		} else {
 			audioPlayer.setFilterFactory((track, format, output) -> {
-				final TimescalePcmAudioFilter filter = new TimescalePcmAudioFilter(output, format.channelCount, format.sampleRate);
-				filter.setSpeed(speed);
-				filter.setPitch(pitch);
-				return Collections.singletonList(filter);
+				final List<AudioFilter> filters = new ArrayList<>();
+				var downstream = (com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter) output;
+				if (useEqualizer) {
+					final float[] gains = equalizerGains.clone();
+					final float[] positions = equalizerPositions.clone();
+					final Equalizer equalizer = new Equalizer(format.channelCount, downstream);
+					for (int band = 0; band < Equalizer.BAND_COUNT; band++) {
+						final float point = band / (Equalizer.BAND_COUNT - 1F);
+						final float db = interpolateGain(gains, positions, point) + (bassBoost ? Math.max(0F, 9F - band * 1.8F) : 0F);
+						final float lavaplayerGain = db < 0F ? db / 96F : db / 24F;
+						equalizer.setGain(band, Math.clamp(lavaplayerGain, -0.25F, 1F));
+					}
+					filters.add(equalizer);
+					downstream = equalizer;
+				}
+				if (useTimescale) {
+					final TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(downstream, format.channelCount, format.sampleRate);
+					timescale.setSpeed(speed);
+					timescale.setPitch(pitch);
+					filters.add(timescale);
+				}
+				Collections.reverse(filters);
+				return filters;
 			});
 		}
 	}
@@ -134,11 +171,11 @@ public class MusicPlayer implements IMusicPlayer {
 	}
 	
 	public long getCurrentTrackPosition() {
-		return currentTrackPosition;
+		return currentTrackPosition.get();
 	}
 	
 	public void setCurrentTrackPosition(long currentTrackPosition) {
-		this.currentTrackPosition = currentTrackPosition;
+		this.currentTrackPosition.set(currentTrackPosition);
 	}
 	
 	@Override
@@ -159,6 +196,15 @@ public class MusicPlayer implements IMusicPlayer {
 	@Override
 	public void setMixer(String name) {
 		audioOutput.setMixer(name);
+	}
+
+	public long getPlaybackSequence() {
+		return playbackSequence.get();
+	}
+
+	@Override
+	public void setAutomaticAudioRecovery(boolean enabled) {
+		audioOutput.setAutomaticRecovery(enabled);
 	}
 	
 	@Override
@@ -204,5 +250,53 @@ public class MusicPlayer implements IMusicPlayer {
 	@Override
 	public void setOutputConsumer(IOutputConsumer consumer) {
 		outputConsumer = consumer;
+	}
+
+	@Override
+	public void setEqualizer(boolean enabled, float[] gains, float[] positions, boolean bassBoost) {
+		equalizerEnabled = enabled;
+		this.bassBoost = bassBoost;
+		equalizerGains = gains == null ? new float[10] : gains.clone();
+		equalizerPositions = positions == null || positions.length != equalizerGains.length ? defaultEqualizerPositions(equalizerGains.length) : positions.clone();
+		updateFilters(speed.getValue(), pitch.getValue());
+	}
+
+	private static float interpolateGain(float[] gains, float[] positions, float point) {
+		if (point <= positions[0]) return gains[0];
+		for (int upper = 1; upper < positions.length; upper++) {
+			if (point <= positions[upper]) {
+				final int lower = upper - 1;
+				final float span = Math.max(0.0001F, positions[upper] - positions[lower]);
+				final float fraction = (point - positions[lower]) / span;
+				final float smooth = (1F - (float) Math.cos(fraction * Math.PI)) * 0.5F;
+				return gains[lower] + (gains[upper] - gains[lower]) * smooth;
+			}
+		}
+		return gains[gains.length - 1];
+	}
+
+	private static float[] defaultEqualizerPositions(int count) {
+		final float[] positions = new float[count];
+		for (int index = 0; index < count; index++) positions[index] = index / Math.max(1F, count - 1F);
+		return positions;
+	}
+
+	@Override
+	public void setChannelMix(boolean mono, float balance, boolean swapChannels) {
+		audioOutput.setChannelMix(mono, balance, swapChannels);
+	}
+
+	@Override public void setDuckingGain(float gain) { audioOutput.setDuckingGain(gain); }
+	@Override public void setTransitionGain(float gain) { audioOutput.setTransitionGain(gain); }
+
+	@Override
+	public void shutdown() {
+		if (!shutdown.compareAndSet(false, true)) {
+			return;
+		}
+		trackManager.stop();
+		audioOutput.shutdown();
+		audioPlayerManager.shutdown();
+		outputConsumer = null;
 	}
 }

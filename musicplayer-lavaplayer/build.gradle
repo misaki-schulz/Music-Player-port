@@ -14,6 +14,9 @@ sourceSets {
 	}
 }
 
+sourceSets.test_player.compileClasspath += sourceSets.main.output
+sourceSets.test_player.runtimeClasspath += sourceSets.main.output
+
 java {
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
@@ -28,6 +31,8 @@ configurations {
 	musicplayer
 	musicplayer.exclude group: "commons-logging", module: "commons-logging"
 	implementation.extendsFrom(musicplayer)
+	test_playerImplementation.extendsFrom(implementation)
+	test_playerRuntimeOnly.extendsFrom(runtimeOnly)
 }
 
 evaluationDependsOn(":musicplayer-lavaplayer-api")
@@ -85,4 +90,11 @@ dependencies {
 	implementation "org.slf4j:slf4j-simple:2.0.17"
 	
 	implementation project(":musicplayer-lavaplayer-api")
+}
+
+tasks.register("lifecycleSmokeTest", JavaExec) {
+	dependsOn tasks.named("test_playerClasses")
+	classpath = sourceSets.test_player.runtimeClasspath
+	mainClass = "info.u_team.music_player.lavaplayer.LifecycleSmokeTest"
+	maxHeapSize = "256m"
 }
