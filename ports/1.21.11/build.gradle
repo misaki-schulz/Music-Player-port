@@ -1,0 +1,160 @@
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+
+plugins {
+	id "net.fabricmc.fabric-loom-remap" version "${loom_version}"
+	id "com.gradleup.shadow" version "9.6.1"
+}
+
+def targetVersion = providers.gradleProperty("targetVersion").orElse("1.21.11").get()
+def fabricApiByVersion = ["1.21.11": "0.141.6+1.21.11"]
+if (!fabricApiByVersion.containsKey(targetVersion)) {
+	throw new GradleException("Unsupported Minecraft version: ${targetVersion}")
+}
+def fabricApiVersion = fabricApiByVersion[targetVersion]
+def packFormatByVersion = ["1.21.11": 75]
+def packFormat = packFormatByVersion[targetVersion]
+group = project.maven_group
+version = "2.7.1.351+mc${targetVersion}.port.8"
+
+base {
+	archivesName = "music_player-fabric-${targetVersion}"
+}
+
+repositories {
+	maven {
+		url = "https://repo.u-team.info"
+	}
+	mavenCentral()
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ["common/src/common/java", "fabric/src/main/java"]
+		}
+		resources {
+			srcDirs = ["common/src/common/resources", "common/src/common_generated/resources", "fabric/src/main/resources"]
+		}
+	}
+}
+
+configurations {
+	shade
+	implementation.extendsFrom(shade)
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${targetVersion}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
+
+	compileOnly project(":musicplayer-lavaplayer-api")
+	runtimeOnly project(":musicplayer-lavaplayer-api")
+	shade("net.harawata:appdirs:1.4.0") {
+		transitive = false
+	}
+}
+
+loom {
+	runs {
+		client {
+			client()
+			runDir "run/client"
+			def playerBuild = project(":musicplayer-lavaplayer").layout.buildDirectory.get().asFile
+			def devDependencies = [
+				new File(playerBuild, "libs").canonicalPath,
+				new File(playerBuild, "dependencies").canonicalPath
+			].join(File.pathSeparator)
+			property "musicplayer.dev", devDependencies
+		}
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "minecraftVersion", targetVersion
+	inputs.property "fabricApiVersion", fabricApiVersion
+	inputs.property "packFormat", packFormat
+
+	filesMatching("fabric.mod.json") {
+		def versionValue = project.version.toString()
+		filter { String line ->
+			line.replace('${version}', versionValue)
+				.replace('${minecraft_version}', targetVersion)
+				.replace('${fabric_api_version}', fabricApiVersion)
+				.replace('${loader_version}', project.loader_version.toString())
+		}
+	}
+	filesMatching("pack.mcmeta") {
+		filter { String line -> line.replace('${pack_format}', packFormat.toString()) }
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 21
+	options.encoding = "UTF-8"
+	options.compilerArgs.addAll(["-Xmaxerrs", "500"])
+}
+
+java {
+	withSourcesJar()
+	toolchain.languageVersion = JavaLanguageVersion.of(25)
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+def addLegalFiles = { task ->
+	task.from(rootProject.file("LICENSE")) {
+		rename { "LICENSE_Music-Player" }
+	}
+	task.from(rootProject.file("NOTICE"))
+	task.from(rootProject.file("THIRD_PARTY_LICENSES")) {
+		into "THIRD_PARTY_LICENSES"
+	}
+}
+
+tasks.named("shadowJar") {
+	dependsOn project(":musicplayer-lavaplayer-api").tasks.named("classes")
+	dependsOn project(":musicplayer-lavaplayer").tasks.named("assemble")
+
+	archiveClassifier = "dev-shadow"
+	configurations = [project.configurations.shade]
+
+	from project(":musicplayer-lavaplayer-api").sourceSets.main.output
+	from project(":musicplayer-lavaplayer").file("src/main/resources/LICENSE-DEPENDENCIES")
+
+	into("dependencies") {
+		def playerBuild = project(":musicplayer-lavaplayer").layout.buildDirectory
+		from playerBuild.dir("libs").map { it.file("musicplayer-lavaplayer.jar.packed") }
+		from playerBuild.dir("dependencies")
+	}
+
+	relocate "net.harawata.appdirs", "info.u_team.music_player.shade.net.harawata.appdirs"
+	exclude "META-INF/maven/**"
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	addLegalFiles(delegate)
+}
+
+tasks.named("jar") {
+	archiveClassifier = "thin"
+	addLegalFiles(delegate)
+}
+
+tasks.named("sourcesJar") {
+	addLegalFiles(delegate)
+}
+
+apply from: "${rootDir}/../pack-format.gradle"
+
+tasks.named("assemble") {
+	dependsOn tasks.named("remapJar")
+}
+
+tasks.named("remapJar") {
+	dependsOn tasks.named("shadowJar")
+	inputFile = tasks.named("shadowJar").flatMap { it.archiveFile }
+	archiveClassifier = ""
+	destinationDirectory = layout.buildDirectory.dir("${targetVersion}/libs")
+	addNestedDependencies = false
+}

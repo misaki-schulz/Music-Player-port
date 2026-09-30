@@ -1,0 +1,17 @@
+[
+  {"minecraft":"1.21.2","group":"1.21.2-1.21.3","java":21,"fabric_api":"0.106.1+1.21.2"},
+  {"minecraft":"1.21.3","group":"1.21.2-1.21.3","java":21,"fabric_api":"0.114.1+1.21.3"},
+  {"minecraft":"1.21.4","group":"1.21.4","java":21,"fabric_api":"0.119.4+1.21.4"},
+  {"minecraft":"1.21.5","group":"1.21.5","java":21,"fabric_api":"0.128.2+1.21.5"},
+  {"minecraft":"1.21.6","group":"1.21.6-1.21.8","java":21,"fabric_api":"0.128.2+1.21.6"},
+  {"minecraft":"1.21.7","group":"1.21.6-1.21.8","java":21,"fabric_api":"0.129.0+1.21.7"},
+  {"minecraft":"1.21.8","group":"1.21.6-1.21.8","java":21,"fabric_api":"0.136.1+1.21.8"},
+  {"minecraft":"1.21.9","group":"1.21.9-1.21.10","java":21,"fabric_api":"0.134.1+1.21.9"},
+  {"minecraft":"1.21.10","group":"1.21.9-1.21.10","java":21,"fabric_api":"0.138.4+1.21.10"},
+  {"minecraft":"1.21.11","group":"1.21.11","java":21,"fabric_api":"0.141.6+1.21.11"},
+  {"minecraft":"26.1","group":"26.1","java":25,"fabric_api":"0.145.1+26.1"},
+  {"minecraft":"26.1.1","group":"26.1","java":25,"fabric_api":"0.145.4+26.1.1"},
+  {"minecraft":"26.1.2","group":"26.1","java":25,"fabric_api":"0.155.3+26.1.2"},
+  {"minecraft":"26.2","group":"26.2","java":25,"fabric_api":"0.156.0+26.2"},
+  {"minecraft":"26.3","group":"26.3","java":25,"fabric_api":"0.161.0+26.3"}
+]

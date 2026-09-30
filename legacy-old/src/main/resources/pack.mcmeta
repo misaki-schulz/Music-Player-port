@@ -1,7 +1,0 @@
-{
-	"pack": {
-		"description": "Music Player",
-		"pack_format": 42,
-		"supported_formats": [42, 64]
-	}
-}

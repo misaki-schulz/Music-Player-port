@@ -1,0 +1,28 @@
+// Read the target game's own version.json; hotfixes can change the resource format.
+def packTarget = project.version.toString().replaceFirst(/^.*\+mc/, '').replaceFirst(/\.port\.\d+$/, '')
+def packClientJar = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${packTarget}/minecraft-client.jar")
+def packNumbers = null
+
+tasks.named('processResources') {
+	filesMatching('pack.mcmeta') {
+		filter { String line ->
+			if (packNumbers == null) {
+				if (!packClientJar.isFile()) throw new GradleException("Missing Minecraft client archive: ${packClientJar}")
+				def zip = new java.util.zip.ZipFile(packClientJar)
+				try {
+					def entry = zip.getEntry('version.json')
+					if (entry == null) throw new GradleException("Missing version.json in ${packClientJar}")
+					def info = new groovy.json.JsonSlurper().parse(zip.getInputStream(entry))
+					def resource = info.pack_version
+					packNumbers = [resource.resource_major ?: resource.resource, resource.resource_minor ?: 0]
+					if (packNumbers[0] == null) throw new GradleException("Missing resource pack version in ${packClientJar}")
+				} finally {
+					zip.close()
+				}
+			}
+			line.replaceAll(/"pack_format"\s*:\s*\d+/, "\"pack_format\": ${packNumbers[0]}")
+				.replaceAll(/"min_format"\s*:\s*\[\s*\d+\s*,\s*\d+\s*\]/, "\"min_format\": [${packNumbers[0]}, ${packNumbers[1]}]")
+				.replaceAll(/"max_format"\s*:\s*\[\s*\d+\s*,\s*\d+\s*\]/, "\"max_format\": [${packNumbers[0]}, ${packNumbers[1]}]")
+		}
+	}
+}

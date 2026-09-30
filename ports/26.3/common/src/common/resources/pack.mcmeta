@@ -1,0 +1,8 @@
+{
+	"pack": {
+		"description": "Music Player",
+		"pack_format": 97,
+		"min_format": [97, 1],
+		"max_format": [97, 1]
+	}
+}

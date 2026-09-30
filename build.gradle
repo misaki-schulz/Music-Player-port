@@ -1,4 +1,4 @@
-// Modified for Minecraft 26.x by misaki-schulz; see NOTICE.
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
 
 plugins {
 	id "net.fabricmc.fabric-loom" version "${loom_version}"
@@ -6,19 +6,15 @@ plugins {
 }
 
 group = project.maven_group
-version = "${project.upstream_mod_version}+mc${project.target_label}.port.${project.port_version}"
+version = project.mod_version
 
 base {
-	archivesName = "music_player-fabric-${target_label}"
+	archivesName = "music_player-fabric-${minecraft_version}"
 }
 
 repositories {
 	maven {
 		url = "https://repo.u-team.info"
-	}
-	maven {
-		name = "Terraformers"
-		url = "https://maven.terraformersmc.com/releases/"
 	}
 	mavenCentral()
 }
@@ -26,7 +22,7 @@ repositories {
 sourceSets {
 	main {
 		java {
-			srcDirs = ["shared/src/main/java", "common/src/common/java", "fabric/src/main/java"]
+			srcDirs = ["common/src/common/java", "fabric/src/main/java"]
 		}
 		resources {
 			srcDirs = ["common/src/common/resources", "common/src/common_generated/resources", "fabric/src/main/resources"]
@@ -43,14 +39,12 @@ dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
-	implementation "com.terraformersmc:modmenu:18.0.0"
 
 	compileOnly project(":musicplayer-lavaplayer-api")
 	runtimeOnly project(":musicplayer-lavaplayer-api")
 	shade("net.harawata:appdirs:1.4.0") {
 		transitive = false
 	}
-	shade("com.google.zxing:core:3.5.4") { transitive = false }
 }
 
 loom {
@@ -70,20 +64,11 @@ loom {
 
 processResources {
 	inputs.property "version", project.version
-	inputs.property "minecraft_dependency", project.minecraft_dependency
-	inputs.property "loader_min_version", project.loader_min_version
-	inputs.property "fabric_api_min_version", project.fabric_api_min_version
 
 	filesMatching("fabric.mod.json") {
 		def versionValue = project.version.toString()
-		def minecraftDependencyValue = project.minecraft_dependency.toString()
-		def loaderMinVersionValue = project.loader_min_version.toString()
-		def fabricApiMinVersionValue = project.fabric_api_min_version.toString()
 		filter { String line ->
 			line.replace('${version}', versionValue)
-					.replace('${minecraft_dependency}', minecraftDependencyValue)
-					.replace('${loader_min_version}', loaderMinVersionValue)
-					.replace('${fabric_api_min_version}', fabricApiMinVersionValue)
 		}
 	}
 }
@@ -127,7 +112,6 @@ tasks.named("shadowJar") {
 	}
 
 	relocate "net.harawata.appdirs", "info.u_team.music_player.shade.net.harawata.appdirs"
-	relocate "com.google.zxing", "info.u_team.music_player.shade.com.google.zxing"
 	exclude "META-INF/maven/**"
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	addLegalFiles(delegate)
