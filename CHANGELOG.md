@@ -1,26 +1,47 @@
 # Changelog
 
-## port.10 — search saved songs and playlists for all supported targets
+## port.10 — 2026-10-01 — search saved songs and playlists
 
-- Added a title filter for songs already in a playlist, including individual tracks inside provider playlists.
-- Added a name filter to the main playlist list with translated hints and empty-result messages in all nine languages.
-- Kept filters when resizing or returning from sorting; clearing a filter restores the complete list.
-- Protected focused text fields from music menu and playback hotkeys while typing.
-- Filtering only changes the visible list; saved tracks, their order, and the playback queue stay unchanged.
-- Preserved port.9 sorting and ordered folder imports, and the port.8 YouTube routing fix.
+Supports Minecraft 1.21.2 through 26.3: 15 exact build targets, packaged into eight release JARs.
 
-## port.9 — playlist sorting for all Minecraft targets 1.21.2 through 26.3
+### Added
 
-- Added a playlist sorting screen with title, artist, and file name / URI in both directions.
+- Live search by playlist name on the main player screen.
+- Live search by title for songs already added to a playlist, including individual songs inside provider playlists.
+- Case-insensitive substring matching that ignores surrounding spaces in the query.
+- Search hints and empty-result messages in all nine bundled languages.
+
+### Behavior and fixes
+
+- Clearing a search restores the complete list, including duplicate and unavailable entries.
+- Filtering leaves saved playlists, track order, and the playback queue unchanged.
+- Search queries remain after resizing the window or returning from the sorting screen.
+- Focused text fields no longer trigger the music menu or playback hotkeys while typing.
+
+### Validation
+
+- All 15 Minecraft targets compiled successfully; the eight grouped JARs passed bytecode, dependency, and SHA-256 checks, with matching code and assets within each shared version group.
+- Offline regressions passed for the production song and playlist lists, nested songs, duplicates, loading, empty results, clearing, serialization, playback, sorting, callback ordering, and YouTube source routing.
+- The GitHub build passed. Minecraft runtime behavior and screen appearance have not been manually tested.
+
+Release: [port.10](https://github.com/misaki-schulz/Music-Player-port/releases/tag/port.10)
+
+## port.9 — 2026-10-01 — playlist sorting and ordered folder imports
+
+Supports all Minecraft targets from 1.21.2 through 26.3.
+
+- Added six playlist sort options: title, artist, and file name / URI, each ascending or descending.
 - Used stable, case-insensitive natural ordering so Track 2 precedes Track 10.
-- Saved the sorted URI order without changing the playlist file format or interrupting the current track.
-- Kept duplicate and unavailable entries; nested provider playlists remain grouped.
+- Saved the sorted order without changing the playlist file format or interrupting the current track.
+- Retained duplicate and unavailable entries; nested provider playlists remain grouped.
 - Sorted folder imports by file name and preserved that order across asynchronous metadata callbacks.
-- Disabled Add all until loading completes and ignored results from replaced searches or closed screens.
-- Added labels for all nine languages and offline regressions for sorting, saved reloads, playback and callback ordering.
-- Preserved the port.8 YouTube routing fix. Minecraft runtime and screen appearance need manual testing.
+- Disabled Add all until loading completes; ignored results from replaced searches and closed screens.
+- Added sorting labels in all nine languages and offline regressions for saved reloads, playback, sorting, and callback ordering.
+- Included the port.8 fix for saved YouTube links after restarting Minecraft.
+- Fixed clean builds after the upstream Maven server stopped serving lavadsp 0.7.8 and native-loader 0.0.1: preserved the exact release artifacts, metadata, hashes, and licenses in the local vendor repository used by every source profile.
+- Verified the preserved dependency JARs against the published port.9 JARs and tested dependency resolution with an empty Gradle cache. Audio implementation and dependency versions did not change.
 
-- Build repair: preserved the exact lavadsp and native-loader release artifacts locally after upstream Maven started returning 404; audio code and versions are unchanged.
+Release: [port.9](https://github.com/misaki-schulz/Music-Player-port/releases/tag/port.9)
 
 ## port.8 — all Minecraft targets 1.21.2 through 26.3
 
