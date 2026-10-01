@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "추가한 곡 검색...",
+  "gui.playlists.filter": "재생목록 검색...",
+  "gui.playlist.filter.no_matches": "일치하는 곡이 없습니다",
+  "gui.playlists.filter.no_matches": "일치하는 재생목록이 없습니다",
 	"gui.controls.volume": "볼륨",
 	"gui.musicplayer.create_playlist.add_list": "플레이리스트 추가",
 	"gui.musicplayer.create_playlist.insert_name": "이름 입력",

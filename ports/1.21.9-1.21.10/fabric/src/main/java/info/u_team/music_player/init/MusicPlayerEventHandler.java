@@ -28,6 +28,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +44,9 @@ public class MusicPlayerEventHandler {
 	}
 	
 	public static boolean onKeyboardPressed(Screen screen, KeyEvent event) {
+		if (screen.getFocused() instanceof EditBox editBox && editBox.isFocused()) {
+			return false;
+		}
 		// The player menu must always remain reachable, including from the title,
 		// pause and mod menus. The GUI hotkey setting only controls playback keys.
 		if (isKeyDown(MusicPlayerKeys.OPEN, true, event)) {

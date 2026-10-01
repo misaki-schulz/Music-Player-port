@@ -12,7 +12,7 @@ group = sys.argv[1] if len(sys.argv) > 1 else 'root'
 profile = ROOT if group == 'root' else PORTS / group
 cache = Path.home() / '.gradle/caches/modules-2/files-2.1'
 dependencies = []
-for artifact in ('com.google.code.gson/gson', 'org.apache.commons/commons-lang3'):
+for artifact in ('com.google.code.gson/gson', 'org.apache.commons/commons-lang3', 'com.google.guava/guava'):
     jars = sorted((cache / artifact).rglob('*.jar'))
     if not jars:
         raise SystemExit(f'Missing cached {artifact}; build a profile first')
@@ -21,9 +21,11 @@ cp = os.pathsep.join(map(str, dependencies))
 output = PORTS / 'tests/build/sorting' / group
 output.mkdir(parents=True, exist_ok=True)
 sources = [profile / JAVA / path for path in (
-    'util/NaturalOrder.java', 'util/OrderedTrackLoader.java', 'util/WrappedObject.java',
+    'util/TitleFilter.java', 'util/NaturalOrder.java', 'util/OrderedTrackLoader.java', 'util/WrappedObject.java',
     'musicplayer/playlist/PlaylistSort.java', 'musicplayer/playlist/Playlist.java',
-    'musicplayer/playlist/LoadedTracks.java', 'musicplayer/playlist/Skip.java')]
+    'musicplayer/playlist/LoadedTracks.java', 'musicplayer/playlist/Skip.java',
+    'musicplayer/playlist/Playlists.java', 'gui/GuiMusicPlayerList.java',
+    'gui/playlist/GuiMusicPlaylistList.java')]
 api = profile / 'musicplayer-lavaplayer-api/src/main/java/info/u_team/music_player/lavaplayer/api'
 sources += list((api / 'audio').glob('IAudioTrack*.java'))
 sources += [api / 'search/ITrackSearch.java', api / 'search/ISearchResult.java', api / 'queue/ITrackQueue.java']

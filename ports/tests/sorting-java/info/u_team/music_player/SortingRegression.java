@@ -27,6 +27,9 @@ import info.u_team.music_player.musicplayer.playlist.Skip;
 import info.u_team.music_player.util.NaturalOrder;
 import info.u_team.music_player.util.OrderedTrackLoader;
 import info.u_team.music_player.util.WrappedObject;
+import info.u_team.music_player.util.TitleFilter;
+import info.u_team.music_player.gui.GuiMusicPlayerList;
+import info.u_team.music_player.gui.playlist.GuiMusicPlaylistList;
 
 public final class SortingRegression {
 
@@ -38,7 +41,92 @@ public final class SortingRegression {
 		naturalOrder();
 		orderedLoading();
 		playlistSorting();
+		savedMusicFiltering();
 		System.out.println("PASS: natural folder order, async completion/error/cancellation, all six sorts, stable ties, duplicate URIs, serialization/reload, playback and grouped playlists");
+	}
+
+	private static void savedMusicFiltering() throws Exception {
+		check(new TitleFilter("  НОЧИ  ").matches("Песня ночи"), "Unicode title search and whitespace");
+		check(new TitleFilter(" ").matches((String) null), "blank search restores unnamed entries");
+		check(!new TitleFilter("abc").matches((String) null), "null names are safe");
+		final var lists = MusicPlayerManager.lists;
+		final Playlist named = new Playlist("Ночной плейлист");
+		final Playlist other = new Playlist("Workout");
+		lists.add(named);
+		lists.add(other);
+		lists.setPlaying(other);
+		final GuiMusicPlayerList names = new GuiMusicPlayerList(0, 0, 300, 200);
+		int writes = MusicPlayerManager.writes;
+		names.setFilter("  НОЧНОЙ ");
+		check(names.children().size() == 1 && names.children().get(0).getPlaylist() == named, "actual main list finds playlist name");
+		check(lists.size() == 2 && lists.getPlaying() == other && MusicPlayerManager.writes == writes, "playlist filter leaves storage/playback untouched");
+		names.addPlaylist("Ночной джаз");
+		check(names.children().size() == 2, "new matching playlist appears under active filter");
+		names.addPlaylist("Rock");
+		check(names.children().size() == 2 && lists.size() == 4, "new nonmatching playlist remains saved");
+		names.setFilter("missing");
+		check(names.hasNoMatches(), "main list empty-result hint");
+		names.setFilter("");
+		check(names.children().size() == 4 && !names.hasNoMatches(), "clear playlist search restores every playlist");
+
+		final IAudioTrack night = track("file:///night.mp3", "Песня ночи", "Artist Alpha");
+		final IAudioTrack sun = track("file:///sun.mp3", "Sunrise", "Artist Alpha");
+		final IAudioTrack duplicate = track("file:///duplicate.mp3", "Песня ночи", "Artist Beta");
+		final List<IAudioTrack> groupTracks = new ArrayList<>(List.of(sun, night));
+		final IAudioTrackList group = new IAudioTrackList() {
+			public String getName() { return "Album"; }
+			public List<IAudioTrack> getTracks() { return groupTracks; }
+			public IAudioTrack getSelectedTrack() { return null; }
+			public boolean isSearch() { return false; }
+			public boolean hasUri() { return true; }
+			public String getUri() { return "https://example.test/album"; }
+		};
+		load(named);
+		named.add(night);
+		named.add(sun);
+		named.add(duplicate);
+		named.add(group);
+		named.uris.add(new WrappedObject<>("file:///missing.mp3"));
+		final Map<String, ISearchResult> lookup = new HashMap<>();
+		for (IAudioTrack track : List.of(night, sun, duplicate)) lookup.put(track.getInfo().getURI(), result(track.getInfo().getURI(), track, null, false));
+		lookup.put(group.getUri(), result(group.getUri(), null, group, false));
+		MusicPlayerManager.search = (uri, callback) -> callback.accept(lookup.getOrDefault(uri, result(uri, null, null, true)));
+		named.unload();
+		load(named);
+		final LoadedTracks playing = named.getLoadedTracks().stream().filter(entry -> entry.getTrack() == sun).findFirst().orElseThrow();
+		named.setPlayable(playing, sun);
+		final String stored = new Gson().toJson(named);
+		final var savedUris = List.copyOf(named.uris);
+		writes = MusicPlayerManager.writes;
+		final GuiMusicPlaylistList songs = new GuiMusicPlaylistList(named);
+		songs.addAllEntries();
+		check(songs.children().size() == 7, "full list includes duplicates, provider header and tracks, and missing file");
+		songs.setFilter("  ПЕСНЯ ");
+		check(songs.children().size() == 4, "saved title filter includes matching nested song and duplicate titles");
+		check(songs.children().stream().filter(entry -> entry.track == night).count() == 2, "matching song appears both individually and in its provider playlist");
+		songs.setFilter("sun");
+		check(songs.children().size() == 3, "substring search preserves matching group header");
+		songs.setFilter("Artist Alpha");
+		check(songs.hasNoMatches(), "search uses song title, not artist");
+		songs.setFilter("Album");
+		check(songs.hasNoMatches(), "provider name does not cause unrelated songs to match");
+		songs.setFilter("");
+		check(songs.children().size() == 7 && !songs.hasNoMatches(), "clear song filter restores unavailable and all other entries");
+		check(new Gson().toJson(named).equals(stored) && named.uris.equals(savedUris), "search never changes saved list/order");
+		check(named.getNext() == sun && lists.getPlaying() == other && MusicPlayerManager.writes == writes, "search leaves playback and storage writes untouched");
+		check(groupTracks.equals(List.of(sun, night)), "nested queue preserves original order");
+		songs.setFilter("песня");
+		named.sort(PlaylistSort.TITLE_ASCENDING);
+		songs.updateAllEntries();
+		check(songs.children().size() == 4, "sorting retains active title filter");
+		named.unload();
+		songs.setFilter("sun");
+		check(songs.children().size() == 1 && !songs.hasNoMatches(), "search during loading retains loading indicator");
+		load(named);
+		songs.addAllEntries();
+		check(songs.children().size() == 3, "title filter applies after asynchronous playlist load");
+		for (Playlist playlist : lists) playlist.shutdown();
+		System.out.println("PASS: production saved-song and playlist-name lists, nested songs, duplicates, loading, empty results, clearing, unchanged serialization/order/playback");
 	}
 
 	private static void naturalOrder() throws Exception {

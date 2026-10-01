@@ -13,6 +13,7 @@ import static info.u_team.music_player.init.MusicPlayerLocalization.getTranslati
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 public class GuiMusicPlaylist extends BetterScreen {
@@ -24,6 +25,9 @@ public class GuiMusicPlaylist extends BetterScreen {
 	private ImageButton addTracksButton;
 	private UButton sortButton;
 	
+	private EditBox trackFilterField;
+	private String filterText = "";
+
 	private GuiControls controls;
 	
 	public GuiMusicPlaylist(Playlist playlist) {
@@ -68,6 +72,21 @@ public class GuiMusicPlaylist extends BetterScreen {
 		trackList.addAllEntries();
 		addWidget(trackList);
 		
+		final boolean filterFocused = trackFilterField != null && trackFilterField.isFocused();
+		trackFilterField = new EditBox(font, 118, 51, Math.max(20, width - 160), 20, Component.literal(getTranslation("gui.playlist.filter")));
+		trackFilterField.setMaxLength(500);
+		trackFilterField.setHint(Component.literal(getTranslation("gui.playlist.filter")));
+		trackFilterField.setValue(filterText);
+		trackList.setFilter(filterText);
+		trackFilterField.setResponder(query -> {
+			filterText = query;
+			trackList.setFilter(query);
+		});
+		addRenderableWidget(trackFilterField);
+		if (filterFocused) {
+			setFocused(trackFilterField);
+		}
+
 		controls = new GuiControls(this, 5, width);
 		addWidget(controls);
 	}
@@ -102,6 +121,9 @@ public class GuiMusicPlaylist extends BetterScreen {
 	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		trackList.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		if (trackList.hasNoMatches()) {
+			guiGraphics.centeredText(font, getTranslation("gui.playlist.filter.no_matches"), width / 2, 96, 0xFFAAAAAA);
+		}
 		controls.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	

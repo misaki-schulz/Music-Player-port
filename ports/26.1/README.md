@@ -1,4 +1,4 @@
-# Music Player — port.9 / Minecraft 26.1, 26.1.1, 26.1.2
+# Music Player — port.10 / Minecraft 26.1, 26.1.1, 26.1.2
 
 Unofficial Fabric port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.1.351 for Minecraft 26.1, 26.1.1, 26.1.2.
 
@@ -48,7 +48,7 @@ The language button cycles through every bundled translation: English, German, J
 ./gradlew build
 ```
 
-This profile produces an exact-version JAR under `build/<Minecraft version>/libs/`. Run `python ports/package_ports.py` from the repository root to validate all versions and create the grouped release JARs in `dist/port.9/`. Do not distribute `-thin.jar`; it lacks the bundled audio dependencies.
+This profile produces an exact-version JAR under `build/<Minecraft version>/libs/`. Run `python ports/package_ports.py` from the repository root to validate all versions and create the grouped release JARs in `dist/port.10/`. Do not distribute `-thin.jar`; it lacks the bundled audio dependencies.
 
 ## Credits
 
@@ -62,6 +62,10 @@ Port-specific bugs belong in this repository's [issue tracker](https://github.co
 
 Licensed under Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
-## port.9 source-order fix
+## port.10 source-order fix
 
 Saved YouTube URLs are routed before generic HTTP after restarting. Existing playlists remain compatible. See [the shared matrix and verification instructions](../README.md).
+
+## Search saved music
+
+Filter the main playlist list by name. Inside a playlist, filter already added songs by title, including tracks inside provider playlists. Matching ignores case and surrounding spaces. Clearing the field restores the complete list; filtering leaves saved order and playback unchanged.

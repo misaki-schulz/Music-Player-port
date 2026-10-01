@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "Hinzugefügte Songs suchen...",
+  "gui.playlists.filter": "Playlists suchen...",
+  "gui.playlist.filter.no_matches": "Keine passenden Songs",
+  "gui.playlists.filter.no_matches": "Keine passenden Playlists",
 	"gui.controls.volume": "Lautstärke",
 	"gui.musicplayer.create_playlist.add_list": "Füge eine Wiedergabeliste hinzu",
 	"gui.musicplayer.create_playlist.insert_name": "Gebe einen Namen an",

@@ -22,6 +22,9 @@ public class GuiMusicPlayer extends BetterScreen {
 	
 	private GuiMusicPlayerList playlistsList;
 	
+	private EditBox playlistFilterField;
+	private String filterText = "";
+
 	private GuiControls controls;
 	
 	public GuiMusicPlayer() {
@@ -47,9 +50,24 @@ public class GuiMusicPlayer extends BetterScreen {
 			namePlaylistField.setValue("");
 		});
 		
-		playlistsList = new GuiMusicPlayerList(12, 90, width - 24, height - 100);
+		playlistsList = new GuiMusicPlayerList(12, 120, width - 24, height - 130);
 		addWidget(playlistsList);
 		
+		final boolean filterFocused = playlistFilterField != null && playlistFilterField.isFocused();
+		playlistFilterField = new EditBox(font, 20, 90, width - 40, 20, Component.literal(getTranslation("gui.playlists.filter")));
+		playlistFilterField.setMaxLength(500);
+		playlistFilterField.setHint(Component.literal(getTranslation("gui.playlists.filter")));
+		playlistFilterField.setValue(filterText);
+		playlistsList.setFilter(filterText);
+		playlistFilterField.setResponder(query -> {
+			filterText = query;
+			playlistsList.setFilter(query);
+		});
+		addRenderableWidget(playlistFilterField);
+		if (filterFocused) {
+			setFocused(playlistFilterField);
+		}
+
 		controls = new GuiControls(this, 5, width);
 		addWidget(controls);
 	}
@@ -76,6 +94,9 @@ public class GuiMusicPlayer extends BetterScreen {
 		playlistsList.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		guiGraphics.text(font, getTranslation(GUI_CREATE_PLAYLIST_ADD_LIST), 20, 65, 0xFFFFFFFF, false);
 		namePlaylistField.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		if (playlistsList.hasNoMatches()) {
+			guiGraphics.centeredText(font, getTranslation("gui.playlists.filter.no_matches"), width / 2, 136, 0xFFAAAAAA);
+		}
 		controls.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 	

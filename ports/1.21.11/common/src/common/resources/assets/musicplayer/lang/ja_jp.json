@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "追加した曲を検索...",
+  "gui.playlists.filter": "プレイリストを検索...",
+  "gui.playlist.filter.no_matches": "一致する曲がありません",
+  "gui.playlists.filter.no_matches": "一致するプレイリストがありません",
   "gui.controls.volume": "音量",
   "gui.musicplayer.create_playlist.add_list": "再生リストを追加",
   "gui.musicplayer.create_playlist.insert_name": "名前を入力してください",

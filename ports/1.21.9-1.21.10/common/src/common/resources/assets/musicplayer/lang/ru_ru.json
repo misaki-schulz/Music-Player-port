@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "Поиск добавленных песен...",
+  "gui.playlists.filter": "Поиск плейлистов...",
+  "gui.playlist.filter.no_matches": "Песни не найдены",
+  "gui.playlists.filter.no_matches": "Плейлисты не найдены",
 	"gui.controls.volume": "Громкость",
 	"gui.musicplayer.create_playlist.add_list": "Добавить плейлист",
 	"gui.musicplayer.create_playlist.insert_name": "Введите имя",

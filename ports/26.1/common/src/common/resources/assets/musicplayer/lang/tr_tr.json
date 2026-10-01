@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "Eklenen şarkılarda ara...",
+  "gui.playlists.filter": "Çalma listelerinde ara...",
+  "gui.playlist.filter.no_matches": "Eşleşen şarkı yok",
+  "gui.playlists.filter.no_matches": "Eşleşen çalma listesi yok",
 	"gui.controls.volume": "Ses",
 	"gui.musicplayer.create_playlist.add_list": "Müzik ekle",
 	"gui.musicplayer.create_playlist.insert_name": "Bir ad gir",

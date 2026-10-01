@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "Buscar músicas adicionadas...",
+  "gui.playlists.filter": "Buscar playlists...",
+  "gui.playlist.filter.no_matches": "Nenhuma música encontrada",
+  "gui.playlists.filter.no_matches": "Nenhuma playlist encontrada",
 	"gui.controls.volume": "Volume",
 	"gui.musicplayer.create_playlist.add_list": "Adicionar lista de reprodução",
 	"gui.musicplayer.create_playlist.insert_name": "Digite seu nome",

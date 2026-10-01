@@ -1,5 +1,14 @@
 # Changelog
 
+## port.10 — search saved songs and playlists for all supported targets
+
+- Added a title filter for songs already in a playlist, including individual tracks inside provider playlists.
+- Added a name filter to the main playlist list with translated hints and empty-result messages in all nine languages.
+- Kept filters when resizing or returning from sorting; clearing a filter restores the complete list.
+- Protected focused text fields from music menu and playback hotkeys while typing.
+- Filtering only changes the visible list; saved tracks, their order, and the playback queue stay unchanged.
+- Preserved port.9 sorting and ordered folder imports, and the port.8 YouTube routing fix.
+
 ## port.9 — playlist sorting for all Minecraft targets 1.21.2 through 26.3
 
 - Added a playlist sorting screen with title, artist, and file name / URI in both directions.

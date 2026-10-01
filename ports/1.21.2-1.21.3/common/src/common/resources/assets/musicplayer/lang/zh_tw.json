@@ -1,4 +1,8 @@
 {
+  "gui.playlist.filter": "搜尋已加入的歌曲...",
+  "gui.playlists.filter": "搜尋播放清單...",
+  "gui.playlist.filter.no_matches": "沒有符合的歌曲",
+  "gui.playlists.filter.no_matches": "沒有符合的播放清單",
 	"gui.controls.volume": "音量",
 	"gui.musicplayer.create_playlist.add_list": "加入播放清單",
 	"gui.musicplayer.create_playlist.insert_name": "輸入歌曲名稱",

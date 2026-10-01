@@ -1,13 +1,13 @@
-# Music Player — port.9 for Minecraft 1.21.2–26.3
+# Music Player — port.10 for Minecraft 1.21.2–26.3
 
-The multi-version port.9 sources and build matrix are in [ports/](ports/README.md).
+The multi-version port.10 sources and build matrix are in [ports/](ports/README.md).
 There are 15 exact-version build targets, including Minecraft 26.1.1 and 26.1.2,
 packaged into eight multi-version release JARs.
 Use `ports/Build-All.ps1` to build the matrix and `python ports/package_ports.py`
-to validate and collect the release JARs under `dist/port.9/`.
-The 15 exact-version builds are written to `dist/port.9/exact/` when built.
+to validate and collect the release JARs under `dist/port.10/`.
+The 15 exact-version builds are written to `dist/port.10/exact/` when built.
 The previous port.8 had a user-provided successful startup log on Minecraft 26.2.
-The new port.9 sorting screens and Minecraft runtime behavior require manual testing.
+The new port.10 search and sorting screens and Minecraft runtime behavior require manual testing.
 
 On Windows, run `build-menu.bat`; on Linux/macOS, run `sh build-menu.sh`.
 The menu lists eight compatible Minecraft ranges, one entry per release JAR.
@@ -15,17 +15,17 @@ Choose a range, build all eight JARs, or clean generated project files.
 For example, the single 1.21.6–1.21.8 entry builds its three versions and produces
 one shared JAR. Use `--group 1.21.6-1.21.8` to select that range from the command line.
 The clean option removes
-`dist/port.9`, project-local Gradle caches, build folders, and generated logs.
+`dist/port.10`, project-local Gradle caches, build folders, and generated logs.
 It preserves the original source and does not touch the shared `~/.gradle` cache.
 The old port.7 binaries are not included in this source tree: they cannot be
-reproduced exactly from the current port.9 sources and must be archived separately.
+reproduced exactly from the current port.10 sources and must be archived separately.
 
 The root source tree targets Minecraft 26.2 and preserves the port.8 source-order fix.
 YouTube is registered before generic HTTP at startup, so saved video links are no
 longer probed as audio files after restarting or switching Minecraft versions.
 Existing playlist files remain compatible. Previous port.7 release JARs are archived separately.
 
-The exact audio dependencies whose upstream Maven URLs stopped responding are preserved in [vendor/](vendor/README.md), so fresh builds use the same binaries as this release.
+Pinned audio dependencies are preserved in [vendor/](vendor/README.md) so fresh builds resolve the same release binaries even when the original Maven artifacts are unavailable.
 
 ## Original 26.2 baseline
 
@@ -90,3 +90,7 @@ Port-specific bugs belong in this repository's [issue tracker](https://github.co
 ## License
 
 Licensed under Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+
+## Search saved music
+
+Filter the main playlist list by name. Inside a playlist, filter already added songs by title, including tracks inside provider playlists. Matching ignores case and surrounding spaces. Clearing the field restores the complete list; filtering leaves saved order and playback unchanged.
