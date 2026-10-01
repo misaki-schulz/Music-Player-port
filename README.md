@@ -25,6 +25,8 @@ YouTube is registered before generic HTTP at startup, so saved video links are n
 longer probed as audio files after restarting or switching Minecraft versions.
 Existing playlist files remain compatible. Previous port.7 release JARs are archived separately.
 
+The exact audio dependencies whose upstream Maven URLs stopped responding are preserved in [vendor/](vendor/README.md), so fresh builds use the same binaries as this release.
+
 ## Original 26.2 baseline
 
 Unofficial Fabric port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.1.351 for Minecraft 26.2.

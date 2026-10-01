@@ -1,0 +1,85 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "dev.arbjerg",
+    "module": "native-loader",
+    "version": "0.0.1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "com.google.code.findbugs",
+          "module": "jsr305",
+          "version": {
+            "requires": "3.0.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "native-loader-0.0.1.jar",
+          "url": "native-loader-0.0.1.jar",
+          "size": 298121,
+          "sha512": "e63a109fabe5ceb992e66371a6a1612351f210841ee18bba5014b443302c2959c89ecc3c6b625dd7ad270cf8110b1b914a53b9ed91a3e6bcd61ae532163378af",
+          "sha256": "49eae711313be29a16213c1a082948194cb0ed03c0e085aafec23edd82ff6de5",
+          "sha1": "ce66a5413c17dd8623f05859c62f9274b3998640",
+          "md5": "ff955cf5f8fb214e98d6498ddf076b77"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "1.7.36"
+          }
+        },
+        {
+          "group": "com.google.code.findbugs",
+          "module": "jsr305",
+          "version": {
+            "requires": "3.0.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "native-loader-0.0.1.jar",
+          "url": "native-loader-0.0.1.jar",
+          "size": 298121,
+          "sha512": "e63a109fabe5ceb992e66371a6a1612351f210841ee18bba5014b443302c2959c89ecc3c6b625dd7ad270cf8110b1b914a53b9ed91a3e6bcd61ae532163378af",
+          "sha256": "49eae711313be29a16213c1a082948194cb0ed03c0e085aafec23edd82ff6de5",
+          "sha1": "ce66a5413c17dd8623f05859c62f9274b3998640",
+          "md5": "ff955cf5f8fb214e98d6498ddf076b77"
+        }
+      ]
+    }
+  ]
+}

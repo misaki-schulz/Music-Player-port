@@ -11,6 +11,8 @@
 - Added labels for all nine languages and offline regressions for sorting, saved reloads, playback and callback ordering.
 - Preserved the port.8 YouTube routing fix. Minecraft runtime and screen appearance need manual testing.
 
+- Build repair: preserved the exact lavadsp and native-loader release artifacts locally after upstream Maven started returning 404; audio code and versions are unchanged.
+
 ## port.8 — all Minecraft targets 1.21.2 through 26.3
 
 - Fixed saved YouTube URLs failing with `Unknown file format.` after restarting or changing Minecraft versions: register YouTube before generic HTTP at startup.

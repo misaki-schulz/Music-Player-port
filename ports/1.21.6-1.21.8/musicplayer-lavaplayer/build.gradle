@@ -61,6 +61,13 @@ tasks.named("assemble").configure {
 
 repositories {
 	maven {
+		url = rootProject.file("../../vendor/maven")
+		content {
+			includeModule("dev.arbjerg", "lavadsp")
+			includeModule("dev.arbjerg", "native-loader")
+		}
+	}
+	maven {
 		url = "https://repo.u-team.info"
 	}
 	maven {

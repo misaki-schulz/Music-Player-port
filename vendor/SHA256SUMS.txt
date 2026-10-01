@@ -1,0 +1,8 @@
+e3fda0662f8e97ef8ba7c415d62dbc0ee5b37378bea81cfa2333e1b82cd84660  licenses/lavadsp-LICENSE.txt
+c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4  licenses/native-loader-LICENSE.txt
+79fa4e11010f58bdc5db28187e259c412067d4381df1a4e7f887b5ec3a5b1436  maven/dev/arbjerg/lavadsp/0.7.8/lavadsp-0.7.8.jar
+e9c06149cf5741ce3c09b9a6caaa736c102157dac0cd9a3e980738f7d9de6dc5  maven/dev/arbjerg/lavadsp/0.7.8/lavadsp-0.7.8.module
+8a9c4ee0a30838146e9fdd459b054fe65822c09c61369d7398b51fc4ac4bb0dd  maven/dev/arbjerg/lavadsp/0.7.8/lavadsp-0.7.8.pom
+49eae711313be29a16213c1a082948194cb0ed03c0e085aafec23edd82ff6de5  maven/dev/arbjerg/native-loader/0.0.1/native-loader-0.0.1.jar
+13a8cfe1a2b421606ef452e8679d95e8ab9b8d5103465673af6862c9f5fef6b9  maven/dev/arbjerg/native-loader/0.0.1/native-loader-0.0.1.module
+c3379c856b055635099746e7f147caf923d689807d873f5bb2f61c1a04f70883  maven/dev/arbjerg/native-loader/0.0.1/native-loader-0.0.1.pom

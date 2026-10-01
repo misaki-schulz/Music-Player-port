@@ -1,0 +1,96 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "dev.arbjerg",
+    "module": "lavadsp",
+    "version": "0.7.8",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "lavadsp-0.7.8.jar",
+          "url": "lavadsp-0.7.8.jar",
+          "size": 1556854,
+          "sha512": "1e0c304c1be19208f50b83c9db8d5f2494c90b9522e96f1e85beb9382bec51e2088ce22d1a104d5d3ff803d08d02c1ba5641cb12d80969898b0c0265a52f054d",
+          "sha256": "79fa4e11010f58bdc5db28187e259c412067d4381df1a4e7f887b5ec3a5b1436",
+          "sha1": "c4452bfec57e059b059d9e61f59b4d7d6be16fc9",
+          "md5": "c32efae4c3312ee75157f1e44d86535f"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "1.7.30"
+          }
+        },
+        {
+          "group": "dev.arbjerg",
+          "module": "native-loader",
+          "version": {
+            "requires": "0.0.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "lavadsp-0.7.8.jar",
+          "url": "lavadsp-0.7.8.jar",
+          "size": 1556854,
+          "sha512": "1e0c304c1be19208f50b83c9db8d5f2494c90b9522e96f1e85beb9382bec51e2088ce22d1a104d5d3ff803d08d02c1ba5641cb12d80969898b0c0265a52f054d",
+          "sha256": "79fa4e11010f58bdc5db28187e259c412067d4381df1a4e7f887b5ec3a5b1436",
+          "sha1": "c4452bfec57e059b059d9e61f59b4d7d6be16fc9",
+          "md5": "c32efae4c3312ee75157f1e44d86535f"
+        }
+      ]
+    },
+    {
+      "name": "shadowRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "shadowed",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "lavadsp-0.7.8-withDependencies.jar",
+          "url": "lavadsp-0.7.8-withDependencies.jar",
+          "size": 1913098,
+          "sha512": "d83db87e2d387e15e04847280417b24e477d28c017e70bc067866da3f44f5402ceebc5305b36f6df0bfa7338bcc68d9de85f78e012f1218540c80c49cc6da016",
+          "sha256": "81b7dd49897ce988e3f08e5e27846105e5b8fc6e99b896a9d0dd81ba872e13dd",
+          "sha1": "01de4775dad89c4d8ddd6483e4d5ff00537493a3",
+          "md5": "fc125fd0f46bc4c9408bb3a7ec159575"
+        }
+      ]
+    }
+  ]
+}
