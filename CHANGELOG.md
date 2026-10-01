@@ -1,5 +1,16 @@
 # Changelog
 
+## port.9 — playlist sorting for all Minecraft targets 1.21.2 through 26.3
+
+- Added a playlist sorting screen with title, artist, and file name / URI in both directions.
+- Used stable, case-insensitive natural ordering so Track 2 precedes Track 10.
+- Saved the sorted URI order without changing the playlist file format or interrupting the current track.
+- Kept duplicate and unavailable entries; nested provider playlists remain grouped.
+- Sorted folder imports by file name and preserved that order across asynchronous metadata callbacks.
+- Disabled Add all until loading completes and ignored results from replaced searches or closed screens.
+- Added labels for all nine languages and offline regressions for sorting, saved reloads, playback and callback ordering.
+- Preserved the port.8 YouTube routing fix. Minecraft runtime and screen appearance need manual testing.
+
 ## port.8 — all Minecraft targets 1.21.2 through 26.3
 
 - Fixed saved YouTube URLs failing with `Unknown file format.` after restarting or changing Minecraft versions: register YouTube before generic HTTP at startup.

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +24,9 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import info.u_team.music_player.gui.BetterScreen;
+import info.u_team.music_player.util.NaturalOrder;
+import info.u_team.music_player.util.OrderedTrackLoader;
+import info.u_team.music_player.lavaplayer.api.search.ISearchResult;
 import info.u_team.music_player.gui.playlist.GuiMusicPlaylist;
 import info.u_team.music_player.init.MusicPlayerResources;
 import info.u_team.music_player.lavaplayer.api.audio.IAudioTrack;
@@ -32,6 +36,7 @@ import info.u_team.music_player.musicplayer.playlist.Playlist;
 import info.u_team.music_player.gui.widget.ImageButton;
 import info.u_team.music_player.gui.widget.UButton;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
@@ -46,6 +51,8 @@ public class GuiMusicSearch extends BetterScreen {
 	private EditBox searchField;
 	
 	private final GuiMusicSearchList searchList;
+	private final OrderedTrackLoader trackLoader;
+	private UButton addAllButton;
 	
 	private SearchProvider searchProvider;
 	
@@ -57,6 +64,7 @@ public class GuiMusicSearch extends BetterScreen {
 		super(Component.literal("musicsearch"));
 		this.playlist = playlist;
 		searchList = new GuiMusicSearchList();
+		trackLoader = new OrderedTrackLoader(MusicPlayerManager.getPlayer().getTrackSearch(), task -> Minecraft.getInstance().execute(task));
 		searchProvider = SearchProvider.YOUTUBE;
 	}
 	
@@ -82,7 +90,7 @@ public class GuiMusicSearch extends BetterScreen {
 		openFileButton.setPressable(() -> {
 			final String response = TinyFileDialogs.tinyfd_openFileDialog(getSearchLoadFileTitle(lang), null, null, getSearchLoadFiles(lang), false);
 			if (response != null) {
-				searchList.clear();
+				clearSearch();
 				addTrack(response);
 			}
 		});
@@ -91,9 +99,12 @@ public class GuiMusicSearch extends BetterScreen {
 		openFolderButton.setPressable(() -> {
 			final String response = TinyFileDialogs.tinyfd_selectFolderDialog(getSearchLoadFolderTitle(lang), System.getProperty("user.home"));
 			if (response != null) {
-				searchList.clear();
+				clearSearch();
 				try (Stream<Path> stream = Files.list(Paths.get(response))) {
-					stream.filter(path -> !Files.isDirectory(path)).forEach(path -> addTrack(path.toString()));
+					final List<String> files = stream.filter(Files::isRegularFile)
+							.sorted(Comparator.<Path, String>comparing(path -> path.getFileName().toString(), NaturalOrder::compare).thenComparing(Path::toString))
+							.map(Path::toString).collect(Collectors.toList());
+					loadTracks(files);
 				} catch (final IOException ex) {
 					setInformation(ChatFormatting.RED + ex.getMessage(), 150);
 				}
@@ -119,7 +130,8 @@ public class GuiMusicSearch extends BetterScreen {
 		setFocused(searchField);
 		addWidget(searchField);
 		
-		final UButton addAllButton = addRenderableWidget(new UButton(width - 110, 105, 100, 20, Component.nullToEmpty(getTranslation(GUI_SEARCH_ADD_ALL))));
+		addAllButton = addRenderableWidget(new UButton(width - 110, 105, 100, 20, Component.nullToEmpty(getTranslation(GUI_SEARCH_ADD_ALL))));
+		addAllButton.active = !trackLoader.isLoading();
 		addAllButton.setPressable(() -> {
 			final List<GuiMusicSearchListEntryPlaylist> list = searchList.children().stream().filter(entry -> entry instanceof GuiMusicSearchListEntryPlaylist).map(entry -> (GuiMusicSearchListEntryPlaylist) entry).collect(Collectors.toList());
 			if (list.size() > 0) {
@@ -214,31 +226,52 @@ public class GuiMusicSearch extends BetterScreen {
 	
 	private void keyFromTextField(EditBox field, String text, int key) {
 		if (field.isVisible() && field.isFocused() && (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER)) {
-			searchList.clear();
+			clearSearch();
 			addTrack(text);
 			field.setValue("");
 		}
 	}
 	
+	private void clearSearch() {
+		trackLoader.cancel();
+		searchList.clear();
+		information = null;
+		if (addAllButton != null) addAllButton.active = true;
+	}
+
 	private void addTrack(String uri) {
-		MusicPlayerManager.getPlayer().getTrackSearch().getTracks(uri, result -> {
-			minecraft.execute(() -> {
-				if (result.hasError()) {
-					setInformation(ChatFormatting.RED + result.getErrorMessage(), 150);
-				} else if (result.isList()) {
-					final IAudioTrackList list = result.getTrackList();
-					if (!list.isSearch()) {
-						searchList.add(new GuiMusicSearchListEntryPlaylist(this, playlist, list));
-					}
-					list.getTracks().forEach(track -> searchList.add(new GuiMusicSearchListEntryMusicTrack(this, playlist, track, !list.isSearch())));
-				} else {
-					final IAudioTrack track = result.getTrack();
-					searchList.add(new GuiMusicSearchListEntryMusicTrack(this, playlist, track, false));
-				}
-			});
+		loadTracks(List.of(uri));
+	}
+
+	private void loadTracks(List<String> uris) {
+		addAllButton.active = false;
+		setInformation(getTranslation("gui.search.loading_files", uris.size()), Integer.MAX_VALUE);
+		trackLoader.load(uris, this::addResult, () -> {
+			addAllButton.active = true;
+			if (information != null && !information.startsWith(ChatFormatting.RED.toString())) information = null;
 		});
 	}
-	
+
+	private void addResult(ISearchResult result) {
+		if (result.hasError()) {
+			setInformation(ChatFormatting.RED + result.getErrorMessage(), 150);
+		} else if (result.isList()) {
+			final IAudioTrackList list = result.getTrackList();
+			if (!list.isSearch()) {
+				searchList.add(new GuiMusicSearchListEntryPlaylist(this, playlist, list));
+			}
+			list.getTracks().forEach(track -> searchList.add(new GuiMusicSearchListEntryMusicTrack(this, playlist, track, !list.isSearch())));
+		} else {
+			searchList.add(new GuiMusicSearchListEntryMusicTrack(this, playlist, result.getTrack(), false));
+		}
+	}
+
+	@Override
+	public void removed() {
+		trackLoader.cancel();
+		super.removed();
+	}
+
 	/**
 	 * This method exists instead of a normal translation due to a vulnerability in the TinyFileDialogs library allowing for
 	 * command injection.

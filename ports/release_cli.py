@@ -1,4 +1,4 @@
-"""Cross-platform interactive builder and repository-local cleanup for port.8."""
+"""Cross-platform interactive builder and repository-local cleanup for port.9."""
 from __future__ import annotations
 
 import argparse
@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 
+sys.dont_write_bytecode = True
 from package_ports import BINARY_GROUPS
 
 if os.name == 'nt':
@@ -23,6 +24,7 @@ PORTS = ROOT / 'ports'
 TARGETS = json.loads((PORTS / 'targets.json').read_text(encoding='utf-8-sig'))
 VERSIONS = [target['minecraft'] for target in TARGETS]
 TARGET_BY_VERSION = {target['minecraft']: target for target in TARGETS}
+GROUP_BY_NAME = dict(BINARY_GROUPS)
 GENERATED_DIR_NAMES = {
     '.gradle', '.cache', '.pytest_cache', '__pycache__',
     'build', 'run', 'runs', 'logs', 'crash-reports',
@@ -93,15 +95,15 @@ def build(versions: list[str], group: str | None) -> None:
         print('\n=== Проверка и упаковка JAR ===', flush=True)
         subprocess.run(command, cwd=ROOT, check=True)
         if group is not None:
-            print(f'Готово: {ROOT / "dist" / "port.8" / f"music_player-fabric-{group}-2.7.1.351.port.8.jar"}')
+            print(f'Готово: {ROOT / "dist" / "port.9" / f"music_player-fabric-{group}-2.7.1.351.port.9.jar"}')
         else:
-            print(f'Готово: восемь JAR в {ROOT / "dist" / "port.8"}')
+            print(f'Готово: восемь JAR в {ROOT / "dist" / "port.9"}')
 
 
 def generated_paths() -> list[Path]:
     """List only known generated files inside this checkout."""
     found: list[Path] = []
-    release_dir = ROOT / 'dist' / 'port.8'
+    release_dir = ROOT / 'dist' / 'port.9'
     if release_dir.exists() and not release_dir.is_symlink():
         found.append(release_dir)
     for current, directories, files in os.walk(ROOT, topdown=True, followlinks=False):
@@ -143,54 +145,50 @@ def clean(dry_run: bool) -> None:
         print('Общий кеш ~/.gradle не затронут: он находится вне проекта и используется другими сборками.')
 
 
-def list_versions() -> None:
-    print('Версии Minecraft и общий JAR, который получится после выбора:')
-    for index, version in enumerate(VERSIONS, 1):
-        group, versions = group_for_version(version)
-        print(f'{index:2}. {version:8} -> {group} ({", ".join(versions)})')
+def list_groups() -> None:
+    print('Один пункт — один итоговый JAR:')
+    for index, (group, versions) in enumerate(BINARY_GROUPS, 1):
+        print(f'{index}. Minecraft {group} ({", ".join(versions)})')
 
 
 def interactive() -> None:
     while True:
-        print('\nMusic Player port.8')
-        print('1 — собрать JAR для выбранной версии Minecraft')
-        print('2 — собрать все 15 версий и создать 8 JAR')
-        print('3 — очистить созданные сборки и локальный кеш проекта')
+        print('\nMusic Player port.9')
+        list_groups()
+        all_choice = str(len(BINARY_GROUPS) + 1)
+        print(f'{all_choice} — собрать все восемь JAR')
+        print('C — очистить созданные сборки и локальный кеш проекта')
         print('0 — выход')
-        choice = input('Выбор: ').strip()
+        choice = input('Выбор: ').strip().upper()
         if choice == '0':
             return
-        if choice == '1':
-            list_versions()
-            answer = input('Номер или версия Minecraft: ').strip()
-            version = VERSIONS[int(answer) - 1] if answer.isdigit() and 1 <= int(answer) <= len(VERSIONS) else answer
-            if version not in TARGET_BY_VERSION:
-                print('Неизвестная версия.')
-                continue
-            group, versions = group_for_version(version)
-            print(f'Для одного общего JAR будут собраны: {", ".join(versions)}')
+        if choice.isdigit() and 1 <= int(choice) <= len(BINARY_GROUPS):
+            group, versions = BINARY_GROUPS[int(choice) - 1]
             build(versions, group)
-        elif choice == '2':
+        elif choice == all_choice:
             build(VERSIONS, None)
-        elif choice == '3':
+        elif choice in {'C', 'С'}:
             clean(False)
         else:
-            print('Выберите 0, 1, 2 или 3.')
+            print(f'Выберите номер от 0 до {all_choice} или C.')
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Меню сборки Music Player port.8')
+    parser = argparse.ArgumentParser(description='Меню сборки Music Player port.9')
     actions = parser.add_mutually_exclusive_group()
-    actions.add_argument('--version', choices=VERSIONS, help='собрать JAR для версии Minecraft')
+    actions.add_argument('--group', choices=list(GROUP_BY_NAME), help='собрать один общий JAR для диапазона Minecraft')
+    actions.add_argument('--version', choices=VERSIONS, help=argparse.SUPPRESS)
     actions.add_argument('--all', action='store_true', help='собрать все восемь JAR')
     actions.add_argument('--clean', action='store_true', help='очистить локальные сборки и кеш')
-    actions.add_argument('--list', action='store_true', help='показать версии и группы')
+    actions.add_argument('--list', action='store_true', help='показать восемь совместимых диапазонов')
     parser.add_argument('--dry-run', action='store_true', help='показать пути очистки без удаления; только с --clean')
     args = parser.parse_args()
     if args.dry_run and not args.clean:
         parser.error('--dry-run работает только с --clean')
     if args.list:
-        list_versions()
+        list_groups()
+    elif args.group:
+        build(GROUP_BY_NAME[args.group], args.group)
     elif args.version:
         group, versions = group_for_version(args.version)
         build(versions, group)
@@ -207,6 +205,6 @@ def main() -> None:
 if __name__ == '__main__':
     try:
         main()
-    except (RuntimeError, subprocess.CalledProcessError, KeyboardInterrupt) as error:
+    except (RuntimeError, OSError, subprocess.CalledProcessError, KeyboardInterrupt) as error:
         print(f'Ошибка: {error}', file=sys.stderr)
         sys.exit(1)

@@ -36,5 +36,14 @@
 	"key.musicplayer.open": "開啟音樂播放器",
 	"key.musicplayer.pause": "暫停音樂播放",
 	"key.musicplayer.skip.back": "跳轉到下一首",
-	"key.musicplayer.skip.forward": "跳轉到上一首"
+	"key.musicplayer.skip.forward": "跳轉到上一首",
+  "gui.playlist.sort": "排序",
+  "gui.playlist.sort.hint": "儲存順序；巢狀播放清單保持群組",
+  "gui.playlist.sort.title_ascending": "標題：升冪",
+  "gui.playlist.sort.title_descending": "標題：降冪",
+  "gui.playlist.sort.author_ascending": "藝人：升冪",
+  "gui.playlist.sort.author_descending": "藝人：降冪",
+  "gui.playlist.sort.file_ascending": "檔案 / URI：升冪",
+  "gui.playlist.sort.file_descending": "檔案 / URI：降冪",
+  "gui.search.loading_files": "正在載入 %s 個檔案..."
 }

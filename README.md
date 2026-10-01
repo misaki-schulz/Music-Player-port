@@ -1,24 +1,26 @@
-# Music Player — port.8 for Minecraft 1.21.2–26.3
+# Music Player — port.9 for Minecraft 1.21.2–26.3
 
-The multi-version port.8 sources and build matrix are in [ports/](ports/README.md).
+The multi-version port.9 sources and build matrix are in [ports/](ports/README.md).
 There are 15 exact-version build targets, including Minecraft 26.1.1 and 26.1.2,
 packaged into eight multi-version release JARs.
 Use `ports/Build-All.ps1` to build the matrix and `python ports/package_ports.py`
-to validate and collect the release JARs under `dist/port.8/`.
-The 15 exact-version builds are written to `dist/port.8/exact/` when built.
-The user provided a successful startup log on Minecraft 26.2 with port.8.
-Gameplay, audio, and startup on the other versions still require manual testing.
+to validate and collect the release JARs under `dist/port.9/`.
+The 15 exact-version builds are written to `dist/port.9/exact/` when built.
+The previous port.8 had a user-provided successful startup log on Minecraft 26.2.
+The new port.9 sorting screens and Minecraft runtime behavior require manual testing.
 
 On Windows, run `build-menu.bat`; on Linux/macOS, run `sh build-menu.sh`.
-The menu can build one selected Minecraft version's shared JAR, build all eight JARs,
-or clean generated project files. For example, choosing 1.21.7 builds 1.21.6,
-1.21.7, and 1.21.8 because they share one release JAR. The clean option removes
-`dist/port.8`, project-local Gradle caches, build folders, and generated logs.
+The menu lists eight compatible Minecraft ranges, one entry per release JAR.
+Choose a range, build all eight JARs, or clean generated project files.
+For example, the single 1.21.6–1.21.8 entry builds its three versions and produces
+one shared JAR. Use `--group 1.21.6-1.21.8` to select that range from the command line.
+The clean option removes
+`dist/port.9`, project-local Gradle caches, build folders, and generated logs.
 It preserves the original source and does not touch the shared `~/.gradle` cache.
 The old port.7 binaries are not included in this source tree: they cannot be
-reproduced exactly from the current port.8 sources and must be archived separately.
+reproduced exactly from the current port.9 sources and must be archived separately.
 
-The root source tree targets Minecraft 26.2 and includes the port.8 source-order fix.
+The root source tree targets Minecraft 26.2 and preserves the port.8 source-order fix.
 YouTube is registered before generic HTTP at startup, so saved video links are no
 longer probed as audio files after restarting or switching Minecraft versions.
 Existing playlist files remain compatible. Previous port.7 release JARs are archived separately.
@@ -35,6 +37,21 @@ This port is maintained by [misaki-schulz](https://github.com/misaki-schulz). It
 - Fabric Loader 0.19.3 or newer
 - Fabric API 0.156.0+26.2 or newer
 - Java 25
+
+## Playlist sorting and folder import
+
+Open a playlist and click **Sort playlist** below the playback controls. Choose title,
+artist, or file name / URI, in ascending or descending order. Sorting ignores case
+and compares numbers naturally (`Track 2` comes before `Track 10`). Equal keys
+keep their existing relative order. The new order is saved immediately and the
+currently playing track keeps playing; subsequent tracks follow the new order.
+Nested online playlists move as a group and keep their provider's internal order.
+Unavailable files stay in the playlist, using their file name / URI as a title fallback.
+
+**Load folder** reads regular files in natural file-name order. Results retain that
+order even when audio metadata loads asynchronously. **Add all** becomes available
+when the batch finishes. Starting another search or leaving the search screen
+ignores late results from the previous request. Existing playlist files remain compatible.
 
 ## YouTube sign-in
 

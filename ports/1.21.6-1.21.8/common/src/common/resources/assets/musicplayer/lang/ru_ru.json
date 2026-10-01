@@ -43,5 +43,14 @@
 	"key.musicplayer.open": "Открыть плеер",
 	"key.musicplayer.pause": "Поставить паузу",
 	"key.musicplayer.skip.back": "Промотать назад",
-	"key.musicplayer.skip.forward": "Промотать вперёд"
+	"key.musicplayer.skip.forward": "Промотать вперёд",
+  "gui.playlist.sort": "Сортировка",
+  "gui.playlist.sort.hint": "Сохраняется; вложенные списки целиком",
+  "gui.playlist.sort.title_ascending": "Название: А → Я",
+  "gui.playlist.sort.title_descending": "Название: Я → А",
+  "gui.playlist.sort.author_ascending": "Исполнитель: А → Я",
+  "gui.playlist.sort.author_descending": "Исполнитель: Я → А",
+  "gui.playlist.sort.file_ascending": "Файл / URI: А → Я",
+  "gui.playlist.sort.file_descending": "Файл / URI: Я → А",
+  "gui.search.loading_files": "Загрузка файлов: %s..."
 }

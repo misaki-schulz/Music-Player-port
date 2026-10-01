@@ -1,4 +1,4 @@
-# Music Player — port.8 / Minecraft 1.21.4
+# Music Player — port.9 / Minecraft 1.21.4
 
 Unofficial Fabric port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.1.351 for Minecraft 1.21.4.
 
@@ -10,6 +10,21 @@ This port is maintained by [misaki-schulz](https://github.com/misaki-schulz). It
 - Fabric Loader 0.19.5 or newer
 - Fabric API: use the exact target entry in [../targets.json](../targets.json)
 - Java 21
+
+## Playlist sorting and folder import
+
+Open a playlist and click **Sort playlist** below the playback controls. Choose title,
+artist, or file name / URI, in ascending or descending order. Sorting ignores case
+and compares numbers naturally (`Track 2` comes before `Track 10`). Equal keys
+keep their existing relative order. The new order is saved immediately and the
+currently playing track keeps playing; subsequent tracks follow the new order.
+Nested online playlists move as a group and keep their provider's internal order.
+Unavailable files stay in the playlist, using their file name / URI as a title fallback.
+
+**Load folder** reads regular files in natural file-name order. Results retain that
+order even when audio metadata loads asynchronously. **Add all** becomes available
+when the batch finishes. Starting another search or leaving the search screen
+ignores late results from the previous request. Existing playlist files remain compatible.
 
 ## YouTube sign-in
 
@@ -33,7 +48,7 @@ The language button cycles through every bundled translation: English, German, J
 ./gradlew build
 ```
 
-This profile produces an exact-version JAR under `build/<Minecraft version>/libs/`. Run `python ports/package_ports.py` from the repository root to validate all versions and create the grouped release JARs in `dist/port.8/`. Do not distribute `-thin.jar`; it lacks the bundled audio dependencies.
+This profile produces an exact-version JAR under `build/<Minecraft version>/libs/`. Run `python ports/package_ports.py` from the repository root to validate all versions and create the grouped release JARs in `dist/port.9/`. Do not distribute `-thin.jar`; it lacks the bundled audio dependencies.
 
 ## Credits
 
@@ -47,6 +62,6 @@ Port-specific bugs belong in this repository's [issue tracker](https://github.co
 
 Licensed under Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
-## port.8 source-order fix
+## port.9 source-order fix
 
 Saved YouTube URLs are routed before generic HTTP after restarting. Existing playlists remain compatible. See [the shared matrix and verification instructions](../README.md).

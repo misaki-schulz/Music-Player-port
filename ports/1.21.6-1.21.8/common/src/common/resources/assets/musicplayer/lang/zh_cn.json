@@ -36,5 +36,14 @@
 	"key.musicplayer.open": "打开音乐播放器",
 	"key.musicplayer.pause": "暂停音乐播放器",
 	"key.musicplayer.skip.back": "上一首",
-	"key.musicplayer.skip.forward": "下一首"
+	"key.musicplayer.skip.forward": "下一首",
+  "gui.playlist.sort": "排序",
+  "gui.playlist.sort.hint": "保存顺序；嵌套播放列表保持分组",
+  "gui.playlist.sort.title_ascending": "标题：升序",
+  "gui.playlist.sort.title_descending": "标题：降序",
+  "gui.playlist.sort.author_ascending": "艺术家：升序",
+  "gui.playlist.sort.author_descending": "艺术家：降序",
+  "gui.playlist.sort.file_ascending": "文件 / URI：升序",
+  "gui.playlist.sort.file_descending": "文件 / URI：降序",
+  "gui.search.loading_files": "正在加载 %s 个文件..."
 }

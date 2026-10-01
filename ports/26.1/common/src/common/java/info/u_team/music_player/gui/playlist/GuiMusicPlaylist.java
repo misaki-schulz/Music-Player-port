@@ -8,6 +8,8 @@ import info.u_team.music_player.gui.playlist.search.GuiMusicSearch;
 import info.u_team.music_player.init.MusicPlayerResources;
 import info.u_team.music_player.musicplayer.playlist.Playlist;
 import info.u_team.music_player.gui.widget.ImageButton;
+import info.u_team.music_player.gui.widget.UButton;
+import static info.u_team.music_player.init.MusicPlayerLocalization.getTranslation;
 import info.u_team.music_player.gui.widget.ScrollingText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -20,6 +22,7 @@ public class GuiMusicPlaylist extends BetterScreen {
 	private final GuiMusicPlaylistList trackList;
 	
 	private ImageButton addTracksButton;
+	private UButton sortButton;
 	
 	private GuiControls controls;
 	
@@ -50,14 +53,18 @@ public class GuiMusicPlaylist extends BetterScreen {
 		final ImageButton backButton = addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK));
 		backButton.setPressable(() -> minecraft.setScreen(new GuiMusicPlayer()));
 		
-		addTracksButton = addRenderableWidget(new ImageButton(width - 35, 20, 22, 22, MusicPlayerResources.TEXTURE_ADD));
+		addTracksButton = addRenderableWidget(new ImageButton(width - 35, 50, 22, 22, MusicPlayerResources.TEXTURE_ADD));
 		addTracksButton.setPressable(() -> minecraft.setScreen(new GuiMusicSearch(playlist)));
 		
+		sortButton = addRenderableWidget(new UButton(12, 50, 100, 22, Component.literal(getTranslation("gui.playlist.sort"))));
+		sortButton.setPressable(() -> minecraft.setScreen(new GuiMusicPlaylistSort(this, playlist)));
+		sortButton.active = playlist.isLoaded();
+
 		if (!playlist.isLoaded()) {
 			addTracksButton.active = false;
 		}
 		
-		trackList.updateSettings(12, 50, width - 24, height - 60);
+		trackList.updateSettings(12, 80, width - 24, height - 90);
 		trackList.addAllEntries();
 		addWidget(trackList);
 		
@@ -76,6 +83,8 @@ public class GuiMusicPlaylist extends BetterScreen {
 				}
 			}));
 		}
+		sortButton.active = playlist.isLoaded();
+		addTracksButton.active = playlist.isLoaded();
 		controls.tick();
 		trackList.tick();
 	}

@@ -11,7 +11,7 @@ if (!(targetVersion in ["1.21.2", "1.21.3"])) {
 	throw new GradleException("Unsupported Minecraft version for this source group: ${targetVersion}")
 }
 def targetApiVersion = targetVersion == "1.21.2" ? "0.106.1+1.21.2" : "0.114.1+1.21.3"
-version = "2.7.1.351+mc${targetVersion}.port.8"
+version = "2.7.1.351+mc${targetVersion}.port.9"
 
 base {
 	archivesName = "music_player-fabric-${targetVersion}"

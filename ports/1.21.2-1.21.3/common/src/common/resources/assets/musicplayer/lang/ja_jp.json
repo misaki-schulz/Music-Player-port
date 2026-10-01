@@ -36,5 +36,14 @@
   "key.musicplayer.open": "ミュージックプレイヤーを開く",
   "key.musicplayer.pause": "ミュージックプレイヤーを止める",
   "key.musicplayer.skip.back": "前の曲へ",
-  "key.musicplayer.skip.forward": "次の曲へ"
+  "key.musicplayer.skip.forward": "次の曲へ",
+  "gui.playlist.sort": "並べ替え",
+  "gui.playlist.sort.hint": "順序を保存・入れ子のリストはまとめて移動",
+  "gui.playlist.sort.title_ascending": "タイトル: 昇順",
+  "gui.playlist.sort.title_descending": "タイトル: 降順",
+  "gui.playlist.sort.author_ascending": "アーティスト: 昇順",
+  "gui.playlist.sort.author_descending": "アーティスト: 降順",
+  "gui.playlist.sort.file_ascending": "ファイル / URI: 昇順",
+  "gui.playlist.sort.file_descending": "ファイル / URI: 降順",
+  "gui.search.loading_files": "%s 件のファイルを読み込み中..."
 }

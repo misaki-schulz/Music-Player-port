@@ -8,7 +8,7 @@ plugins {
 group = project.maven_group
 def targetVersion = providers.gradleProperty("targetVersion").orElse(project.minecraft_version).get()
 def targetApiVersion = project.fabric_api_version
-version = "2.7.1.351+mc${targetVersion}.port.8"
+version = "2.7.1.351+mc${targetVersion}.port.9"
 
 base {
 	archivesName = "music_player-fabric-${targetVersion}"

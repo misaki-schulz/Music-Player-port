@@ -38,5 +38,14 @@
 	"key.musicplayer.open": "Müzik Çaları Aç",
 	"key.musicplayer.pause": "Müzik Çaları Duraklat",
 	"key.musicplayer.skip.back": "Geri Atla",
-	"key.musicplayer.skip.forward": "İleri Atla"
+	"key.musicplayer.skip.forward": "İleri Atla",
+  "gui.playlist.sort": "Sırala",
+  "gui.playlist.sort.hint": "Sıra kaydedilir; alt listeler birlikte kalır",
+  "gui.playlist.sort.title_ascending": "Başlık: A → Z",
+  "gui.playlist.sort.title_descending": "Başlık: Z → A",
+  "gui.playlist.sort.author_ascending": "Sanatçı: A → Z",
+  "gui.playlist.sort.author_descending": "Sanatçı: Z → A",
+  "gui.playlist.sort.file_ascending": "Dosya / URI: A → Z",
+  "gui.playlist.sort.file_descending": "Dosya / URI: Z → A",
+  "gui.search.loading_files": "%s dosya yükleniyor..."
 }

@@ -36,5 +36,14 @@
 	"key.musicplayer.open": "jogador aberto",
 	"key.musicplayer.pause": "Pausa",
 	"key.musicplayer.skip.back": "Retroceder",
-	"key.musicplayer.skip.forward": "Passe à frente"
+	"key.musicplayer.skip.forward": "Passe à frente",
+  "gui.playlist.sort": "Ordenar",
+  "gui.playlist.sort.hint": "Ordem salva; listas internas ficam agrupadas",
+  "gui.playlist.sort.title_ascending": "Título: A a Z",
+  "gui.playlist.sort.title_descending": "Título: Z a A",
+  "gui.playlist.sort.author_ascending": "Artista: A a Z",
+  "gui.playlist.sort.author_descending": "Artista: Z a A",
+  "gui.playlist.sort.file_ascending": "Arquivo / URI: A a Z",
+  "gui.playlist.sort.file_descending": "Arquivo / URI: Z a A",
+  "gui.search.loading_files": "Carregando %s arquivos..."
 }

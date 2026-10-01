@@ -43,5 +43,14 @@
 	"key.musicplayer.open": "Open Music Player",
 	"key.musicplayer.pause": "Pause Music Player",
 	"key.musicplayer.skip.back": "Skip Back",
-	"key.musicplayer.skip.forward": "Skip Forward"
+	"key.musicplayer.skip.forward": "Skip Forward",
+  "gui.playlist.sort": "Sort playlist",
+  "gui.playlist.sort.hint": "Saves order; keeps playlists grouped",
+  "gui.playlist.sort.title_ascending": "Title: A to Z",
+  "gui.playlist.sort.title_descending": "Title: Z to A",
+  "gui.playlist.sort.author_ascending": "Artist: A to Z",
+  "gui.playlist.sort.author_descending": "Artist: Z to A",
+  "gui.playlist.sort.file_ascending": "File / URI: A to Z",
+  "gui.playlist.sort.file_descending": "File / URI: Z to A",
+  "gui.search.loading_files": "Loading %s files..."
 }

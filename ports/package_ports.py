@@ -12,7 +12,7 @@ import zipfile
 
 PORTS = Path(__file__).resolve().parent
 ROOT = PORTS.parent
-DESTINATION = ROOT / 'dist' / 'port.8'
+DESTINATION = ROOT / 'dist' / 'port.9'
 TARGETS = json.loads((PORTS / 'targets.json').read_text(encoding='utf-8-sig'))
 EXPECTED_VERSIONS = ['1.21.2', '1.21.3', '1.21.4', '1.21.5', '1.21.6', '1.21.7', '1.21.8', '1.21.9', '1.21.10', '1.21.11', '26.1', '26.1.1', '26.1.2', '26.2', '26.3']
 VARIABLE_ENTRIES = {'fabric.mod.json', 'pack.mcmeta', 'META-INF/MANIFEST.MF'}
@@ -47,7 +47,7 @@ def check_classes(archive: zipfile.ZipFile, java: int, label: str) -> int:
 
 def inspect(target: dict) -> tuple[Path, dict]:
     version = target['minecraft']
-    expected_mod_version = f'2.7.1.351+mc{version}.port.8'
+    expected_mod_version = f'2.7.1.351+mc{version}.port.9'
     candidates = []
     output = PORTS / target['group'] / 'build' / version / 'libs'
     for path in output.glob('*.jar'):
@@ -77,6 +77,9 @@ def inspect(target: dict) -> tuple[Path, dict]:
             raise ValueError(f'{version}: wrong Fabric API requirement')
         names = archive.namelist()
         required = ['LICENSE_Music-Player', 'NOTICE', 'pack.mcmeta', 'info/u_team/music_player/MusicPlayerMod.class', 'info/u_team/music_player/lavaplayer/api/IMusicPlayer.class']
+        required += [f'info/u_team/music_player/{name}.class' for name in (
+            'util/NaturalOrder', 'util/OrderedTrackLoader',
+            'musicplayer/playlist/PlaylistSort', 'gui/playlist/GuiMusicPlaylistSort')]
         for name in required:
             if name not in names:
                 raise ValueError(f'{version}: missing {name}')
@@ -109,7 +112,7 @@ def inspect(target: dict) -> tuple[Path, dict]:
                     compiled = PORTS / target['group'] / 'musicplayer-lavaplayer/build/classes/java/main' / auth_class
                     auth_bytes = nested.read(auth_class)
                     if auth_bytes != compiled.read_bytes() or b'createSource' not in auth_bytes:
-                        raise ValueError(f'{version}: packed YouTube source does not contain the current port.8 fix')
+                        raise ValueError(f'{version}: packed YouTube source does not preserve the port.8 routing fix')
                     youtube_auth_sha256 = hashlib.sha256(auth_bytes).hexdigest()
         if version.startswith('1.'):
             entrypoint = archive.read('info/u_team/music_player/MusicPlayerMod.class')
@@ -142,7 +145,7 @@ def build_group(group: str, members: list[tuple[Path, dict]]) -> dict:
                 if archive.read(name) != archives[0].read(name):
                     raise ValueError(f'{group}: executable or asset differs: {name}')
         metadata = json.loads(archives[0].read('fabric.mod.json'))
-        metadata['version'] = f'2.7.1.351+mc{group}.port.8'
+        metadata['version'] = f'2.7.1.351+mc{group}.port.9'
         metadata['depends']['minecraft'] = versions if len(versions) > 1 else versions[0]
         # Fabric API releases for 1.21.x select their own Minecraft versions.
         # The 26.1.x client entrypoint checks its per-patch minimum explicitly.
@@ -162,7 +165,7 @@ def build_group(group: str, members: list[tuple[Path, dict]]) -> dict:
                 pack['pack']['min_format'] = min((item['min_format'] for item in pack_formats))
                 pack['pack']['max_format'] = max((item['max_format'] for item in pack_formats))
                 pack['pack'].pop('supported_formats', None)
-        name = f'music_player-fabric-{group}-2.7.1.351.port.8.jar'
+        name = f'music_player-fabric-{group}-2.7.1.351.port.9.jar'
         output = DESTINATION / name
         with zipfile.ZipFile(output, 'w') as combined:
             for info in archives[0].infolist():
@@ -219,7 +222,7 @@ def write_manifest(directory: Path, records: list[dict]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Verify and package port.8 release JARs')
+    parser = argparse.ArgumentParser(description='Verify and package port.9 release JARs')
     parser.add_argument('--group', choices=[group for group, _ in BINARY_GROUPS],
                         help='Package one binary group after compiling all its Minecraft versions')
     args = parser.parse_args()
@@ -252,7 +255,7 @@ def main() -> None:
     grouped_names = {record['file'] for record in grouped}
     previous_exact_names = {record['file'] for _, record in checked}
     if args.group is None:
-        for obsolete in DESTINATION.glob('music_player-fabric-*-2.7.1.351.port.8.jar'):
+        for obsolete in DESTINATION.glob('music_player-fabric-*-2.7.1.351.port.9.jar'):
             if obsolete.name not in grouped_names:
                 obsolete.unlink()
     for name in previous_exact_names - grouped_names:
@@ -265,7 +268,7 @@ def main() -> None:
                                 [group for group, _ in BINARY_GROUPS])
     write_manifest(exact_destination, records)
     write_manifest(DESTINATION, grouped)
-    print(f'Collected {len(grouped)} grouped port.8 JARs for {len(records)} Minecraft releases into {DESTINATION}')
+    print(f'Collected {len(grouped)} grouped port.9 JARs for {len(records)} Minecraft releases into {DESTINATION}')
 
 
 if __name__ == '__main__':

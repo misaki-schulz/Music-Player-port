@@ -251,6 +251,18 @@ public class Playlist implements ITrackQueue {
 		}
 	}
 	
+	/** Sort entries and their saved URIs together, preserving playback objects and nested playlists. */
+	public synchronized boolean sort(PlaylistSort order) {
+		if (!loaded || loading) {
+			return false;
+		}
+		loadedTracks.sort(order.getComparator());
+		uris.clear();
+		loadedTracks.forEach(entry -> uris.add(entry.getUri()));
+		save();
+		return true;
+	}
+
 	/**
 	 * Sets the name of this playlist
 	 *

@@ -36,5 +36,14 @@
 	"key.musicplayer.open": "음악 플레이어 열기",
 	"key.musicplayer.pause": "음악 플레이어 일시 중지",
 	"key.musicplayer.skip.back": "뒤로 건너뛰기",
-	"key.musicplayer.skip.forward": "앞으로 건너뛰기"
+	"key.musicplayer.skip.forward": "앞으로 건너뛰기",
+  "gui.playlist.sort": "정렬",
+  "gui.playlist.sort.hint": "순서 저장; 하위 재생목록은 함께 이동",
+  "gui.playlist.sort.title_ascending": "제목: 오름차순",
+  "gui.playlist.sort.title_descending": "제목: 내림차순",
+  "gui.playlist.sort.author_ascending": "아티스트: 오름차순",
+  "gui.playlist.sort.author_descending": "아티스트: 내림차순",
+  "gui.playlist.sort.file_ascending": "파일 / URI: 오름차순",
+  "gui.playlist.sort.file_descending": "파일 / URI: 내림차순",
+  "gui.search.loading_files": "파일 %s개 불러오는 중..."
 }

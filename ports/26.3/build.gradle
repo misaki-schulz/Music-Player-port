@@ -8,7 +8,7 @@ plugins {
 def mcVersion = (findProperty("targetVersion") ?: minecraft_version).toString()
 if (mcVersion != "26.3") throw new GradleException("Unsupported 26.3 group target: ${mcVersion}")
 group = project.maven_group
-version = "2.7.1.351+mc${mcVersion}.port.8"
+version = "2.7.1.351+mc${mcVersion}.port.9"
 layout.buildDirectory = layout.projectDirectory.dir("build/${mcVersion}")
 
 base {

@@ -10,7 +10,7 @@ def fabricApis = ["26.1": "0.145.1+26.1", "26.1.1": "0.145.4+26.1.1", "26.1.2": 
 if (!fabricApis.containsKey(mcVersion)) throw new GradleException("Unsupported 26.1 group target: ${mcVersion}")
 def apiVersion = fabricApis[mcVersion]
 group = project.maven_group
-version = "2.7.1.351+mc${mcVersion}.port.8"
+version = "2.7.1.351+mc${mcVersion}.port.9"
 layout.buildDirectory = layout.projectDirectory.dir("build/${mcVersion}")
 
 base {
