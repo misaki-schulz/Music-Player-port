@@ -8,4 +8,4 @@ foreach ($target in $targets) {
     if ($Versions.Count -gt 0 -and $target.minecraft -notin $Versions) { continue }
     & (Join-Path $PSScriptRoot 'Build-Target.ps1') -Group $target.group -Version $target.minecraft -Tasks assemble
 }
-Write-Host 'Compilation complete. Minecraft was not launched. Run python ports/package_ports.py to validate and collect 9 grouped release JARs (16 exact builds remain available).'
+Write-Host 'Compilation complete. Minecraft was not launched. Run python ports/package_ports.py to validate and collect 10 Fabric release JARs (17 exact builds remain available). See loader_cli.py for Forge/NeoForge.'

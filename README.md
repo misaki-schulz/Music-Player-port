@@ -1,17 +1,18 @@
 # Music Player — port.10 for Minecraft 1.20.1–26.3
 
 The multi-version port.10 sources and build matrix are in [ports/](ports/README.md).
-There are 16 exact-version build targets, including Minecraft 26.1.1 and 26.1.2,
-packaged into nine multi-version release JARs.
+Fabric supports 17 exact Minecraft versions, packaged into ten release JARs.
+Forge adds three exact builds (1.20.1, 1.21.1, 1.21.3); NeoForge adds all 17 versions.
+See [native loader support](ports/LOADERS.md) for requirements and build commands.
 Use `ports/Build-All.ps1` to build the matrix and `python ports/package_ports.py`
 to validate and collect the release JARs under `dist/port.10/`.
-The 16 exact-version builds are written to `dist/port.10/exact/` when built.
+The 17 exact-version Fabric builds are written to `dist/port.10/exact/` when built.
 The previous port.8 had a user-provided successful startup log on Minecraft 26.2.
 The new port.10 search and sorting screens and Minecraft runtime behavior require manual testing.
 
 On Windows, run `build-menu.bat`; on Linux/macOS, run `sh build-menu.sh`.
-The menu lists nine compatible Minecraft ranges, one entry per release JAR.
-Choose a range, build all nine JARs, or clean generated project files.
+The menu lists ten compatible Minecraft ranges, one entry per release JAR.
+Choose a range, build all ten Fabric JARs, use N for Forge/NeoForge, or clean generated project files.
 For example, the single 1.21.6–1.21.8 entry builds its three versions and produces
 one shared JAR. Use `--group 1.21.6-1.21.8` to select that range from the command line.
 The clean option removes

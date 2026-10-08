@@ -157,6 +157,7 @@ def interactive() -> None:
         list_groups()
         all_choice = str(len(BINARY_GROUPS) + 1)
         print(f'{all_choice} — собрать все {len(BINARY_GROUPS)} JAR')
+        print('N — сборки Forge / NeoForge')
         print('C — очистить созданные сборки и локальный кеш проекта')
         print('0 — выход')
         choice = input('Выбор: ').strip().upper()
@@ -167,6 +168,8 @@ def interactive() -> None:
             build(versions, group)
         elif choice == all_choice:
             build(VERSIONS, None)
+        elif choice == 'N':
+            subprocess.run([sys.executable, str(PORTS / 'loader_cli.py')], check=True)
         elif choice in {'C', 'С'}:
             clean(False)
         else:

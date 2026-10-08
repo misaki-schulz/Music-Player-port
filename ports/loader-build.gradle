@@ -1,0 +1,174 @@
+// Shared native-loader build; Minecraft-dependent sources come from the matching Fabric port.
+group = 'info.u-team'
+def targetVersion = providers.gradleProperty('targetVersion').orElse(project.minecraft_version).get()
+def targets = new groovy.json.JsonSlurper().parse(file('../loader-targets.json'))
+def target = targets.find { it.group == projectDir.name && it.minecraft == targetVersion }
+if (target == null) throw new GradleException("Unsupported native target: ${projectDir.name}/${targetVersion}")
+def legacy = target.loader == 'forge' || targetVersion == '1.20.1'
+def legacyModDev = targetVersion == '1.20.1'
+def sourcePort = file("../${target.source_group}")
+def audioProject = project(':musicplayer-lavaplayer')
+version = "2.7.1.351+mc${targetVersion}.port.10"
+base.archivesName = "music_player-${target.loader}-${targetVersion}"
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(target.java)
+    withSourcesJar()
+}
+
+repositories {
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven { url = 'https://repo.u-team.info' }
+    mavenCentral()
+}
+configurations {
+    shade
+    implementation.extendsFrom(shade)
+}
+dependencies {
+    compileOnly project(':musicplayer-lavaplayer-api')
+    runtimeOnly project(':musicplayer-lavaplayer-api')
+    shade('net.harawata:appdirs:1.4.0') { transitive = false }
+}
+if (legacyModDev) {
+    legacyForge {
+        enable {
+            if (target.loader == 'forge') forgeVersion = target.loader_version
+            else neoForgeVersion = target.loader_version
+            disableRecompilation = true
+        }
+    }
+} else if (legacy) {
+    minecraft { mappings channel: 'official', version: targetVersion }
+    def coordinate = target.loader == 'forge' ? 'net.minecraftforge' : 'net.neoforged'
+    dependencies { minecraft "${coordinate}:forge:${target.loader_version}" }
+} else {
+    neoForge {
+        enable {
+            version = target.loader_version
+            disableRecompilation = true
+        }
+        runs {
+            client {
+                client()
+                def audioBuild = audioProject.layout.buildDirectory.get().asFile
+                systemProperty 'musicplayer.dev', [new File(audioBuild, 'libs'), new File(audioBuild, 'dependencies')].join(File.pathSeparator)
+            }
+        }
+        mods { musicplayer { sourceSet(sourceSets.main) } }
+    }
+}
+def prepareSources = tasks.register('preparePortedSources', Sync) {
+    from(new File(sourcePort, 'common/src/common/java')) {
+        exclude 'info/u_team/music_player/dependency/DependencyManager.java'
+    }
+    into layout.buildDirectory.dir('ported-common')
+}
+sourceSets.main {
+    java.srcDirs = [layout.buildDirectory.dir('ported-common'), 'loader/src/main/java', '../loader-common/src/main/java']
+    resources.srcDirs = [new File(sourcePort, 'common/src/common/resources'), new File(sourcePort, 'common/src/common_generated/resources')]
+    resources.exclude 'pack.mcmeta'
+}
+tasks.named('compileJava') { dependsOn prepareSources }
+tasks.named('sourcesJar') { dependsOn prepareSources }
+tasks.withType(JavaCompile).configureEach {
+    options.release = target.java
+    options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xmaxerrs', '500'])
+}
+subprojects {
+    afterEvaluate {
+        java.toolchain.languageVersion = JavaLanguageVersion.of(target.java)
+    }
+}
+def metadata = tasks.register('generateLoaderMetadata') {
+    def output = layout.buildDirectory.dir("${targetVersion}/loader-resources")
+    outputs.dir(output)
+    inputs.property('target', target.toString())
+    inputs.property('modVersion', project.version.toString())
+    inputs.file(file('../loader-pack-formats.json'))
+    doLast {
+        def dir = output.get().asFile
+        def meta = new File(dir, "META-INF/${legacy ? 'mods.toml' : 'neoforge.mods.toml'}")
+        meta.parentFile.mkdirs()
+        def loaderMajor = legacy ? target.loader_version.split('-').last().tokenize('.')[0] : '4'
+        def loaderId = legacy ? 'forge' : 'neoforge'
+        def requirement = legacy ? 'mandatory=true' : 'type="required"'
+        def loaderRange = legacy ? "[${loaderMajor},)" : '[4,)'
+        def depVersion = legacy ? target.loader_version.split('-').last() : target.loader_version
+        meta.text = """modLoader="javafml"
+loaderVersion="${loaderRange}"
+license="Apache-2.0"
+issueTrackerURL="https://github.com/misaki-schulz/Music-Player-port/issues"
+[[mods]]
+modId="musicplayer"
+version="${project.version}"
+displayName="Music Player"
+authors="U-Team, misaki-schulz"
+description="Client music player with playlists, audio effects and YouTube login."
+displayTest="IGNORE_SERVER_VERSION"
+[[dependencies.musicplayer]]
+modId="${loaderId}"
+${requirement}
+versionRange="[${depVersion},)"
+ordering="NONE"
+side="CLIENT"
+[[dependencies.musicplayer]]
+modId="minecraft"
+${requirement}
+versionRange="[${targetVersion}]"
+ordering="NONE"
+side="CLIENT"
+"""
+        def packInfo = new groovy.json.JsonSlurper().parse(file('../loader-pack-formats.json'))[targetVersion]
+        def pack = [description: 'Music Player', pack_format: packInfo[0]]
+        if (packInfo[0] >= 65) {
+            pack.min_format = packInfo
+            pack.max_format = packInfo
+        }
+        new File(dir, 'pack.mcmeta').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson([pack: pack])) + '\n'
+    }
+}
+sourceSets.main.resources.srcDir(metadata)
+tasks.named('processResources') {
+    from(metadata) { include 'pack.mcmeta' }
+}
+def legal = { task ->
+    task.from(new File(sourcePort, 'LICENSE')) { rename { 'LICENSE_Music-Player' } }
+    task.from(new File(sourcePort, 'NOTICE'))
+    task.from(new File(sourcePort, 'THIRD_PARTY_LICENSES')) { into 'THIRD_PARTY_LICENSES' }
+}
+tasks.named('shadowJar') {
+    dependsOn project(':musicplayer-lavaplayer-api').tasks.named('classes')
+    dependsOn project(':musicplayer-lavaplayer').tasks.named('assemble')
+    archiveClassifier = ''
+    configurations = [project.configurations.shade]
+    from project(':musicplayer-lavaplayer-api').sourceSets.main.output
+    from project(':musicplayer-lavaplayer').file('src/main/resources/LICENSE-DEPENDENCIES')
+    into('dependencies') {
+        def playerBuild = project(':musicplayer-lavaplayer').layout.buildDirectory
+        from playerBuild.dir('libs').map { it.file('musicplayer-lavaplayer.jar.packed') }
+        from playerBuild.dir('dependencies')
+    }
+    relocate 'net.harawata.appdirs', 'info.u_team.music_player.shade.net.harawata.appdirs'
+    exclude 'META-INF/maven/**'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    legal(delegate)
+}
+tasks.named('jar') { archiveClassifier = 'thin'; legal(delegate) }
+tasks.named('sourcesJar') { legal(delegate) }
+tasks.withType(AbstractArchiveTask).configureEach {
+    destinationDirectory = layout.buildDirectory.dir("${targetVersion}/libs")
+}
+if (legacyModDev) {
+    obfuscation { reobfuscate(tasks.named('shadowJar'), sourceSets.main) }
+    tasks.named('jar') { destinationDirectory = layout.buildDirectory.dir("${targetVersion}/devlibs") }
+    tasks.named('shadowJar') { destinationDirectory = layout.buildDirectory.dir("${targetVersion}/devlibs") }
+    tasks.named('reobfJar') { destinationDirectory = layout.buildDirectory.dir("${targetVersion}/libs") }
+    tasks.named('reobfShadowJar') { destinationDirectory = layout.buildDirectory.dir("${targetVersion}/libs") }
+    tasks.named('assemble') { dependsOn 'reobfShadowJar' }
+} else if (legacy) {
+    reobf { shadowJar {} }
+    tasks.named('assemble') { dependsOn 'reobfShadowJar' }
+} else {
+    tasks.named('assemble') { dependsOn 'shadowJar' }
+}

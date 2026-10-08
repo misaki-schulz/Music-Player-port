@@ -1,0 +1,18 @@
+Music Player — unofficial Minecraft 26.2 port
+
+Original project:
+  Music Player by HyCraftHD / U-Team and contributors
+  https://github.com/MC-U-Team/Music-Player
+
+Port maintainer:
+  misaki-schulz
+  https://github.com/misaki-schulz/Music-Player-port
+
+This distribution modifies Music Player 2.7.1.351 for Minecraft 26.2.
+Selected GUI widget and RGBA utility classes were derived from U Team Core
+5.6.2.384 and adapted for this port:
+  https://github.com/MC-U-Team/U-Team-Core
+
+The port is unofficial and is not affiliated with or endorsed by U-Team.
+All code remains licensed under the Apache License, Version 2.0, except where
+an included third-party notice states otherwise.

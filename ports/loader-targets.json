@@ -1,0 +1,162 @@
+[
+  {
+    "loader": "forge",
+    "minecraft": "1.20.1",
+    "group": "forge-1.20.1",
+    "source_group": "1.20.1",
+    "java": 17,
+    "loader_version": "1.20.1-47.4.26"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.1",
+    "group": "forge-1.21.1",
+    "source_group": "1.21.1",
+    "java": 21,
+    "loader_version": "1.21.1-52.1.16"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.3",
+    "group": "forge-1.21.2-1.21.3",
+    "source_group": "1.21.2-1.21.3",
+    "java": 21,
+    "loader_version": "1.21.3-53.1.12"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.20.1",
+    "group": "neoforge-1.20.1",
+    "source_group": "1.20.1",
+    "java": 17,
+    "loader_version": "1.20.1-47.1.106"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.1",
+    "group": "neoforge-1.21.1",
+    "source_group": "1.21.1",
+    "java": 21,
+    "loader_version": "21.1.256"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.2",
+    "group": "neoforge-1.21.2-1.21.3",
+    "source_group": "1.21.2-1.21.3",
+    "java": 21,
+    "loader_version": "21.2.1-beta"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.3",
+    "group": "neoforge-1.21.2-1.21.3",
+    "source_group": "1.21.2-1.21.3",
+    "java": 21,
+    "loader_version": "21.3.97"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.4",
+    "group": "neoforge-1.21.4",
+    "source_group": "1.21.4",
+    "java": 21,
+    "loader_version": "21.4.158"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.5",
+    "group": "neoforge-1.21.5",
+    "source_group": "1.21.5",
+    "java": 21,
+    "loader_version": "21.5.98"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.6",
+    "group": "neoforge-1.21.6-1.21.8",
+    "source_group": "1.21.6-1.21.8",
+    "java": 21,
+    "loader_version": "21.6.20-beta"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.7",
+    "group": "neoforge-1.21.6-1.21.8",
+    "source_group": "1.21.6-1.21.8",
+    "java": 21,
+    "loader_version": "21.7.25-beta"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.8",
+    "group": "neoforge-1.21.6-1.21.8",
+    "source_group": "1.21.6-1.21.8",
+    "java": 21,
+    "loader_version": "21.8.54"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.9",
+    "group": "neoforge-1.21.9-1.21.10",
+    "source_group": "1.21.9-1.21.10",
+    "java": 21,
+    "loader_version": "21.9.16-beta"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.10",
+    "group": "neoforge-1.21.9-1.21.10",
+    "source_group": "1.21.9-1.21.10",
+    "java": 21,
+    "loader_version": "21.10.64"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "1.21.11",
+    "group": "neoforge-1.21.11",
+    "source_group": "1.21.11",
+    "java": 21,
+    "loader_version": "21.11.45"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "26.1",
+    "group": "neoforge-26.1",
+    "source_group": "26.1",
+    "java": 25,
+    "loader_version": "26.1.0.19-beta"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "26.1.1",
+    "group": "neoforge-26.1",
+    "source_group": "26.1",
+    "java": 25,
+    "loader_version": "26.1.1.15-beta"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "26.1.2",
+    "group": "neoforge-26.1",
+    "source_group": "26.1",
+    "java": 25,
+    "loader_version": "26.1.2.114"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "26.2",
+    "group": "neoforge-26.2",
+    "source_group": "26.2",
+    "java": 25,
+    "loader_version": "26.2.0.88"
+  },
+  {
+    "loader": "neoforge",
+    "minecraft": "26.3",
+    "group": "neoforge-26.3",
+    "source_group": "26.3",
+    "java": 25,
+    "loader_version": "26.3.0.57-beta"
+  }
+]

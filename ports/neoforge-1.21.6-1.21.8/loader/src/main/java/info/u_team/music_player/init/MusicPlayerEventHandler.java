@@ -1,0 +1,210 @@
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+package info.u_team.music_player.init;
+
+import java.util.List;
+
+import com.mojang.blaze3d.platform.Window;
+import org.joml.Matrix3x2fStack;
+
+import info.u_team.music_player.gui.GuiMusicPlayer;
+import info.u_team.music_player.gui.controls.GuiControls;
+import info.u_team.music_player.lavaplayer.api.queue.ITrackManager;
+import info.u_team.music_player.musicplayer.MusicPlayerManager;
+import info.u_team.music_player.musicplayer.MusicPlayerUtils;
+import info.u_team.music_player.musicplayer.SettingsManager;
+import info.u_team.music_player.musicplayer.YoutubeLoginCoordinator;
+import info.u_team.music_player.musicplayer.settings.IngameOverlayPosition;
+import info.u_team.music_player.render.RenderOverlayMusicDisplay;
+import info.u_team.music_player.gui.widget.ScrollingText;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.resources.ResourceLocation;
+
+public class MusicPlayerEventHandler {
+	
+	private static final SettingsManager settingsManager = MusicPlayerManager.getSettingsManager();
+	
+	// Used to listen to keyboard events
+	
+	public static void onKeyInput() {
+		handleKeyboard(false, 0, 0, 0);
+	}
+	
+	public static boolean onKeyboardPressed(Screen screen, int key, int scancode, int modifiers) {
+		if (screen.getFocused() instanceof EditBox editBox && editBox.isFocused()) {
+			return false;
+		}
+		// The player menu must always remain reachable, including from the title,
+		// pause and mod menus. The GUI hotkey setting only controls playback keys.
+		if (isKeyDown(MusicPlayerKeys.OPEN, true, key, scancode)) {
+			openMusicPlayer();
+			return true;
+		}
+		if (settingsManager.getSettings().isKeyWorkInGui()) {
+			return handlePlaybackKeyboard(true, key, scancode, modifiers);
+		}
+		return false;
+	}
+	
+	private static boolean handleKeyboard(boolean gui, int key, int scancode, int modifiers) {
+		if (isKeyDown(MusicPlayerKeys.OPEN, gui, key, scancode)) {
+			openMusicPlayer();
+			return true;
+		}
+		return handlePlaybackKeyboard(gui, key, scancode, modifiers);
+	}
+
+	private static boolean handlePlaybackKeyboard(boolean gui, int key, int scancode, int modifiers) {
+		final ITrackManager manager = MusicPlayerManager.getPlayer().getTrackManager();
+		if (isKeyDown(MusicPlayerKeys.PAUSE, gui, key, scancode)) {
+			if (manager.getCurrentTrack() != null) {
+				manager.setPaused(!manager.isPaused());
+			}
+			return true;
+		} else if (isKeyDown(MusicPlayerKeys.SKIP_FORWARD, gui, key, scancode)) {
+			if (manager.getCurrentTrack() != null) {
+				MusicPlayerUtils.skipForward();
+			}
+			return true;
+		} else if (isKeyDown(MusicPlayerKeys.SKIP_BACK, gui, key, scancode)) {
+			if (manager.getCurrentTrack() != null) {
+				MusicPlayerUtils.skipBack();
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private static void openMusicPlayer() {
+		final Minecraft mc = Minecraft.getInstance();
+		if (!(mc.screen instanceof GuiMusicPlayer)) {
+			mc.setScreen(new GuiMusicPlayer());
+		}
+	}
+
+	private static boolean isKeyDown(KeyMapping binding, boolean gui, int key, int scancode) {
+		return gui ? binding.matches(key, scancode) : binding.consumeClick();
+	}
+
+	private static RenderOverlayMusicDisplay overlayRender;
+	
+	// Render overlay
+	
+	public static void onRenderGameOverlay(GuiGraphics guiGraphics, DeltaTracker partialTick) {
+		final Minecraft mc = Minecraft.getInstance();
+		if (mc.screen == null) {
+			if (settingsManager.getSettings().isShowIngameOverlay()) {
+				final IngameOverlayPosition position = settingsManager.getSettings().getIngameOverlayPosition();
+				
+				if (overlayRender == null) {
+					overlayRender = new RenderOverlayMusicDisplay();
+				}
+				
+				final Window window = mc.getWindow();
+				final int screenWidth = window.getGuiScaledWidth();
+				final int screenHeight = window.getGuiScaledHeight();
+				
+				final int baseHeight = overlayRender.getHeight();
+				final int baseWidth = overlayRender.getWidth();
+				final float requestedScale = settingsManager.getSettings().getOverlayScale();
+				final float fitScale = Math.min((screenWidth - 6F) / baseWidth, (screenHeight - 6F) / baseHeight);
+				final float scale = Math.max(0.1F, Math.min(requestedScale, fitScale));
+				final int height = Math.round(baseHeight * scale);
+				final int width = Math.round(baseWidth * scale);
+				
+				final int x;
+				if (position.isLeft()) {
+					x = 3;
+				} else {
+					x = screenWidth - 3 - width;
+				}
+				
+				final int y;
+				if (position.isUp()) {
+					y = 3;
+				} else {
+					y = screenHeight - 3 - height;
+				}
+				
+				final Matrix3x2fStack poseStack = guiGraphics.pose();
+				
+				poseStack.pushMatrix();
+				poseStack.translate(x, y);
+				poseStack.scale(scale, scale);
+				overlayRender.render(guiGraphics, 0, 0, partialTick.getGameTimeDeltaPartialTick(false));
+				poseStack.popMatrix();
+			}
+		}
+	}
+	
+	// Used to add buttons and gui controls to main ingame gui
+	
+	private static ScrollingText titleRender, authorRender;
+	
+	public static void onPreInitScreen(Minecraft client, Screen screen, int scaledWidth, int scaledHeight) {
+		if (screen instanceof PauseScreen) {
+			if (settingsManager.getSettings().isShowIngameMenueOverlay()) {
+				screen.children().stream() //
+						.filter(element -> element instanceof GuiControls) //
+						.map(element -> ((GuiControls) element)).findAny() //
+						.ifPresent(controls -> {
+							titleRender = controls.getTitleRender();
+							authorRender = controls.getAuthorRender();
+						});
+			}
+		}
+	}
+	
+	public static void onPostInitScreen(Minecraft client, Screen screen, int scaledWidth, int scaledHeight) {
+		if (screen instanceof PauseScreen) {
+			if (settingsManager.getSettings().isShowIngameMenueOverlay()) {
+				final GuiControls controls = new GuiControls(screen, 3, screen.width);
+				if (titleRender != null) {
+					controls.copyTitleRendererState(titleRender);
+					titleRender = null;
+				}
+				if (authorRender != null) {
+					controls.copyAuthorRendererState(authorRender);
+					authorRender = null;
+				}
+				@SuppressWarnings("unchecked")
+				final List<GuiEventListener> list = (List<GuiEventListener>) screen.children();
+				list.add(controls);
+			}
+		}
+	}
+	
+	public static void onDrawScreenPost(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		if (settingsManager.getSettings().isShowIngameMenueOverlay()) {
+			screen.children().stream() //
+					.filter(element -> element instanceof GuiControls) //
+					.map(element -> ((GuiControls) element)).findAny() //
+					.ifPresent(controls -> controls.render(guiGraphics, mouseX, mouseY, partialTick));
+		}
+	}
+	
+	public static void onMouseReleasePre(Screen screen, double mouseX, double mouseY, int button) {
+		if (settingsManager.getSettings().isShowIngameMenueOverlay()) {
+			screen.children().stream() //
+					.filter(element -> element instanceof GuiControls) //
+					.map(element -> ((GuiControls) element)).findAny() //
+					.ifPresent(controls -> controls.mouseReleased(mouseX, mouseY, button));
+		}
+	}
+	
+	public static void onClientTick(Screen screen) {
+		if (settingsManager.getSettings().isShowIngameMenueOverlay()) {
+			screen.children().stream() //
+					.filter(element -> element instanceof GuiControls) //
+					.map(element -> ((GuiControls) element)).findAny() //
+					.ifPresent(GuiControls::tick);
+		}
+	}
+	
+}
