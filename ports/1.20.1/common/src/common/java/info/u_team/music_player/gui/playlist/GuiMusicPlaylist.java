@@ -1,0 +1,139 @@
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+package info.u_team.music_player.gui.playlist;
+
+import info.u_team.music_player.gui.BetterScreen;
+import info.u_team.music_player.gui.GuiMusicPlayer;
+import info.u_team.music_player.gui.controls.GuiControls;
+import info.u_team.music_player.gui.playlist.search.GuiMusicSearch;
+import info.u_team.music_player.init.MusicPlayerResources;
+import info.u_team.music_player.musicplayer.playlist.Playlist;
+import info.u_team.music_player.gui.widget.ImageButton;
+import info.u_team.music_player.gui.widget.UButton;
+import static info.u_team.music_player.init.MusicPlayerLocalization.getTranslation;
+import info.u_team.music_player.gui.widget.ScrollingText;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
+
+public class GuiMusicPlaylist extends BetterScreen {
+	
+	private final Playlist playlist;
+	
+	private final GuiMusicPlaylistList trackList;
+	
+	private ImageButton addTracksButton;
+	private UButton sortButton;
+	
+	private EditBox trackFilterField;
+	private String filterText = "";
+
+	private GuiControls controls;
+	
+	public GuiMusicPlaylist(Playlist playlist) {
+		super(Component.literal("musicplaylist"));
+		this.playlist = playlist;
+		
+		trackList = new GuiMusicPlaylistList(playlist);
+		
+		if (!playlist.isLoaded() || playlist.needsReloadForYoutube()) {
+			playlist.load(() -> {
+				if (Minecraft.getInstance().screen == this) { // Check if gui is still open
+					Minecraft.getInstance().execute(() -> {
+						if (Minecraft.getInstance().screen == this) { // Recheck gui because this is async on the main thread.
+							trackList.addAllEntries();
+							if (addTracksButton != null) {
+								addTracksButton.active = true;
+							}
+						}
+					});
+				}
+			});
+		}
+	}
+	
+	@Override
+	protected void init() {
+		final ImageButton backButton = addRenderableWidget(new ImageButton(1, 1, 15, 15, MusicPlayerResources.TEXTURE_BACK));
+		backButton.setPressable(() -> minecraft.setScreen(new GuiMusicPlayer()));
+		
+		addTracksButton = addRenderableWidget(new ImageButton(width - 35, 50, 22, 22, MusicPlayerResources.TEXTURE_ADD));
+		addTracksButton.setPressable(() -> minecraft.setScreen(new GuiMusicSearch(playlist)));
+		
+		sortButton = addRenderableWidget(new UButton(12, 50, 100, 22, Component.literal(getTranslation("gui.playlist.sort"))));
+		sortButton.setPressable(() -> minecraft.setScreen(new GuiMusicPlaylistSort(this, playlist)));
+		sortButton.active = playlist.isLoaded();
+
+		if (!playlist.isLoaded()) {
+			addTracksButton.active = false;
+		}
+		
+		trackList.updateSettings(12, 80, width - 24, height - 90);
+		trackList.addAllEntries();
+		addWidget(trackList);
+		
+		final boolean filterFocused = trackFilterField != null && trackFilterField.isFocused();
+		trackFilterField = new EditBox(font, 118, 51, Math.max(20, width - 160), 20, Component.literal(getTranslation("gui.playlist.filter")));
+		trackFilterField.setMaxLength(500);
+		trackFilterField.setHint(Component.literal(getTranslation("gui.playlist.filter")));
+		trackFilterField.setValue(filterText);
+		trackList.setFilter(filterText);
+		trackFilterField.setResponder(query -> {
+			filterText = query;
+			trackList.setFilter(query);
+		});
+		addRenderableWidget(trackFilterField);
+		if (filterFocused) {
+			setFocused(trackFilterField);
+		}
+
+		controls = new GuiControls(this, 5, width);
+		addWidget(controls);
+	}
+	
+	@Override
+	public void tick() {
+		if (playlist.needsReloadForYoutube()) {
+			trackList.removeAllEntries();
+			playlist.load(() -> Minecraft.getInstance().execute(() -> {
+				if (Minecraft.getInstance().screen == this) {
+					trackList.addAllEntries();
+					addTracksButton.active = true;
+				}
+			}));
+		}
+		sortButton.active = playlist.isLoaded();
+		addTracksButton.active = playlist.isLoaded();
+		controls.tick();
+		trackList.tick();
+	}
+	
+	@Override
+	public void resize(Minecraft minecraft, int width, int height) {
+		final ScrollingText titleRender = controls.getTitleRender();
+		final ScrollingText authorRender = controls.getAuthorRender();
+		this.init(minecraft, width, height);
+		controls.copyTitleRendererState(titleRender);
+		controls.copyAuthorRendererState(authorRender);
+	}
+	
+	@Override
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		trackList.render(guiGraphics, mouseX, mouseY, partialTicks);
+		if (trackList.hasNoMatches()) {
+			guiGraphics.drawCenteredString(font, getTranslation("gui.playlist.filter.no_matches"), width / 2, 96, 0xFFAAAAAA);
+		}
+		controls.render(guiGraphics, mouseX, mouseY, partialTicks);
+	}
+	
+	@Override
+	public void renderBackground(GuiGraphics guiGraphics) {
+		super.renderBackground(guiGraphics);
+	}
+	
+	public GuiMusicPlaylistList getTrackList() {
+		return trackList;
+	}
+	
+}

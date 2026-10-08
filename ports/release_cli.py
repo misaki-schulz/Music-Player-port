@@ -97,7 +97,7 @@ def build(versions: list[str], group: str | None) -> None:
         if group is not None:
             print(f'Готово: {ROOT / "dist" / "port.10" / f"music_player-fabric-{group}-2.7.1.351.port.10.jar"}')
         else:
-            print(f'Готово: восемь JAR в {ROOT / "dist" / "port.10"}')
+            print(f'Готово: {len(BINARY_GROUPS)} JAR в {ROOT / "dist" / "port.10"}')
 
 
 def generated_paths() -> list[Path]:
@@ -156,7 +156,7 @@ def interactive() -> None:
         print('\nMusic Player port.10')
         list_groups()
         all_choice = str(len(BINARY_GROUPS) + 1)
-        print(f'{all_choice} — собрать все восемь JAR')
+        print(f'{all_choice} — собрать все {len(BINARY_GROUPS)} JAR')
         print('C — очистить созданные сборки и локальный кеш проекта')
         print('0 — выход')
         choice = input('Выбор: ').strip().upper()
@@ -178,9 +178,9 @@ def main() -> None:
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--group', choices=list(GROUP_BY_NAME), help='собрать один общий JAR для диапазона Minecraft')
     actions.add_argument('--version', choices=VERSIONS, help=argparse.SUPPRESS)
-    actions.add_argument('--all', action='store_true', help='собрать все восемь JAR')
+    actions.add_argument('--all', action='store_true', help=f'собрать все {len(BINARY_GROUPS)} JAR')
     actions.add_argument('--clean', action='store_true', help='очистить локальные сборки и кеш')
-    actions.add_argument('--list', action='store_true', help='показать восемь совместимых диапазонов')
+    actions.add_argument('--list', action='store_true', help='показать совместимые версии и диапазоны')
     parser.add_argument('--dry-run', action='store_true', help='показать пути очистки без удаления; только с --clean')
     args = parser.parse_args()
     if args.dry_run and not args.clean:

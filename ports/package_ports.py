@@ -14,9 +14,10 @@ PORTS = Path(__file__).resolve().parent
 ROOT = PORTS.parent
 DESTINATION = ROOT / 'dist' / 'port.10'
 TARGETS = json.loads((PORTS / 'targets.json').read_text(encoding='utf-8-sig'))
-EXPECTED_VERSIONS = ['1.21.2', '1.21.3', '1.21.4', '1.21.5', '1.21.6', '1.21.7', '1.21.8', '1.21.9', '1.21.10', '1.21.11', '26.1', '26.1.1', '26.1.2', '26.2', '26.3']
+EXPECTED_VERSIONS = ['1.20.1', '1.21.2', '1.21.3', '1.21.4', '1.21.5', '1.21.6', '1.21.7', '1.21.8', '1.21.9', '1.21.10', '1.21.11', '26.1', '26.1.1', '26.1.2', '26.2', '26.3']
 VARIABLE_ENTRIES = {'fabric.mod.json', 'pack.mcmeta', 'META-INF/MANIFEST.MF'}
 BINARY_GROUPS = [
+    ('1.20.1', ['1.20.1']),
     ('1.21.2-1.21.3', ['1.21.2', '1.21.3']),
     ('1.21.4-1.21.5', ['1.21.4', '1.21.5']),
     ('1.21.6-1.21.8', ['1.21.6', '1.21.7', '1.21.8']),
@@ -232,9 +233,9 @@ def main() -> None:
                         help='Package one binary group after compiling all its Minecraft versions')
     args = parser.parse_args()
     if [target['minecraft'] for target in TARGETS] != EXPECTED_VERSIONS:
-        raise ValueError('Target matrix must contain all 15 releases, in order, without extras or omissions')
+        raise ValueError('Target matrix must contain all 16 releases, in order, without extras or omissions')
     if [version for _, versions in BINARY_GROUPS for version in versions] != EXPECTED_VERSIONS:
-        raise ValueError('Binary groups must cover all 15 releases in order')
+        raise ValueError('Binary groups must cover all 16 releases in order')
     groups_to_package = [(group, versions) for group, versions in BINARY_GROUPS
                          if args.group is None or group == args.group]
     selected_versions = {version for _, versions in groups_to_package for version in versions}

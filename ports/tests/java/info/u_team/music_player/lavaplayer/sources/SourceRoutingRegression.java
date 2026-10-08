@@ -35,7 +35,7 @@ public final class SourceRoutingRegression {
 			manager.registerSourceManager(new FakeHttp(youtube));
 			manager.registerSourceManager(youtube);
 			youtube.useOauth2("test-token", true);
-			ISearchResult result = load(manager, SAVED_URLS.getFirst());
+			ISearchResult result = load(manager, SAVED_URLS.get(0));
 			check(result.hasError() && "Unknown file format.".equals(result.getErrorMessage()),
 					"Old source order must reproduce Unknown file format");
 		} finally {
@@ -50,9 +50,9 @@ public final class SourceRoutingRegression {
 				YoutubeAuth auth = new YoutubeAuth(manager, youtube);
 				FakeHttp http = new FakeHttp(youtube);
 				manager.registerSourceManager(http);
-				check(manager.getSourceManagers().getFirst() == youtube, "YouTube must precede HTTP");
+				check(manager.getSourceManagers().get(0) == youtube, "YouTube must precede HTTP");
 				check(!auth.isEnabled(), "Registration must not pretend OAuth succeeded");
-				ISearchResult pending = load(manager, SAVED_URLS.getFirst());
+				ISearchResult pending = load(manager, SAVED_URLS.get(0));
 				check(pending.hasError() && pending.getErrorMessage().equals("YouTube sign-in required"),
 						"YouTube failures during restore must not fall through to HTTP");
 				youtube.acceptToken = false;

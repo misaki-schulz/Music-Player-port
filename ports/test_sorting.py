@@ -35,7 +35,7 @@ jdk = Path(os.environ['JAVA_HOME']) / 'bin' if os.environ.get('JAVA_HOME') else 
 def executable(name):
     suffix = '.exe' if os.name == 'nt' else ''
     return str(jdk / (name + suffix)) if jdk else shutil.which(name)
-subprocess.run([executable('javac'), '--release', '21', '-encoding', 'UTF-8', '-cp', cp,
+subprocess.run([executable('javac'), '--release', '17' if group == '1.20.1' else '21', '-encoding', 'UTF-8', '-cp', cp,
                 '-d', str(output), *map(str, sources)], check=True)
 subprocess.run([executable('java'), '-cp', str(output) + os.pathsep + cp,
                 'info.u_team.music_player.SortingRegression'], check=True)

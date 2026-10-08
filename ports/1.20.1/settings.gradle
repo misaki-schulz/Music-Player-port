@@ -1,0 +1,15 @@
+// Modified for Minecraft 26.2 by misaki-schulz; see NOTICE.
+pluginManagement {
+	repositories {
+		maven {
+			name = "Fabric"
+			url = "https://maven.fabricmc.net/"
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+rootProject.name = "Music-Player-port"
+
+include("musicplayer-lavaplayer-api", "musicplayer-lavaplayer")
