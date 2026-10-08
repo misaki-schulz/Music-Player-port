@@ -1,0 +1,72 @@
+{
+  "7d2684362dda476280f9a2961ec010129d797615281c0d7fe015fcf9e3c8a482": {
+    "source_sha256": {
+      "GuiScenario.java": "8cd8ed059a19eb1625cc2669e14e809009b51f477def877702a0bfc9004630c9",
+      "PickerFixture.java": "cb0202b431eb2f8a3495812e44b231b1aefd84e735101512fec32b60e87f33ce"
+    },
+    "compatible_passed_keys": [
+      "forge-1.21.3",
+      "forge-1.20.1",
+      "forge-1.21.1",
+      "neoforge-1.20.1",
+      "neoforge-1.21.1",
+      "neoforge-1.21.2",
+      "neoforge-1.21.3",
+      "neoforge-1.21.4",
+      "neoforge-1.21.5",
+      "neoforge-1.21.6",
+      "neoforge-1.21.7",
+      "neoforge-1.21.8",
+      "neoforge-1.21.9",
+      "neoforge-1.21.10",
+      "neoforge-1.21.11",
+      "neoforge-26.1",
+      "neoforge-26.1.1",
+      "neoforge-26.1.2"
+    ],
+    "reason": "26.2+ API fallback added for overlay, screen opening and render target; existing legacy calls and GUI assertions are unchanged."
+  },
+  "d47b2cde2b67cb5de9485f4879d97bc9fb96d2da95969e43c526b64a9aaa412e": {
+    "source_sha256": {
+      "GuiScenario.java": "78af2081bcb1ac94c26c3bce15c440d5379db1ec4d05759d1bebdbbc192581b9",
+      "PickerFixture.java": "cb0202b431eb2f8a3495812e44b231b1aefd84e735101512fec32b60e87f33ce"
+    },
+    "compatible_passed_keys": [
+      "neoforge-26.2"
+    ],
+    "reason": "26.3 SDL button and key codes added; previous GLFW input and GUI assertions are unchanged."
+  },
+  "e02d3cba5e86ad4de61f6d54f4a7fe603f540dfbb99cbeee92a1cd4e324a5292": {
+    "source_sha256": {
+      "GuiScenario.java": "e99b514c7ff7d75b336e951cc26e3d77f29602961f79f1f923ca9f3dabd85afe",
+      "PickerFixture.java": "cb0202b431eb2f8a3495812e44b231b1aefd84e735101512fec32b60e87f33ce"
+    },
+    "compatible_passed_keys": [],
+    "reason": "SDL chooser test bridge uses the system classloader explicitly for Fabric 26.3. TinyFileDialogs, GLFW input and GUI assertions are unchanged. Both 26.3 loaders are retested."
+  },
+  "66b9ba16ceeef8d646626e6760abb3b0dcdc03a8b55f6f0b89340bea0089374f": {
+    "source_sha256": {
+      "GuiScenario.java": "e99b514c7ff7d75b336e951cc26e3d77f29602961f79f1f923ca9f3dabd85afe",
+      "PickerFixture.java": "cb0202b431eb2f8a3495812e44b231b1aefd84e735101512fec32b60e87f33ce"
+    },
+    "compatible_passed_keys": [
+      "fabric-1.20.1",
+      "fabric-1.21.1",
+      "fabric-1.21.2",
+      "fabric-1.21.3",
+      "fabric-1.21.4",
+      "fabric-1.21.5",
+      "fabric-1.21.6",
+      "fabric-1.21.7",
+      "fabric-1.21.8",
+      "fabric-1.21.9",
+      "fabric-1.21.10",
+      "fabric-1.21.11",
+      "fabric-26.1",
+      "fabric-26.1.1",
+      "fabric-26.1.2",
+      "fabric-26.2"
+    ],
+    "reason": "SDL chooser test bridge uses the system classloader explicitly for Fabric 26.3. TinyFileDialogs, GLFW input and GUI assertions are unchanged. Both 26.3 loaders are retested."
+  }
+}

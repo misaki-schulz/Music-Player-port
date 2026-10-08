@@ -1,0 +1,84 @@
+gradle.beforeProject { p ->
+    if (p != p.rootProject) return
+    p.plugins.withId('net.neoforged.moddev.legacyforge') {
+        p.legacyForge.runs.create('guiTest') { client() }
+        p.legacyForge.mods.create('musicplayer') { sourceSet(p.sourceSets.main) }
+    }
+    p.plugins.withId('net.minecraftforge.gradle') {
+        p.minecraft.runs.create('client') { taskName('runGuiTest'); client(true) }
+    }
+}
+gradle.projectsEvaluated {
+    def p = gradle.rootProject
+    def testRoot = new File(p.findProperty('clientTestRoot').toString())
+    def agent = new File(testRoot.parentFile, 'client-probe-v2.jar')
+    def neo = p.extensions.findByName('neoForge')
+    def legacy = p.extensions.findByName('legacyForge')
+    def loom = p.extensions.findByName('loom')
+    def configureRun = { run ->
+        run.client()
+        run.gameDirectory.set(testRoot)
+        run.jvmArgument('-Xmx1800m')
+        run.jvmArgument('-javaagent:' + agent.absolutePath + '=' + testRoot.absolutePath)
+        run.systemProperty('musicplayer.test.pickers', 'true')
+    }
+    if (loom != null) {
+        agent = new File(testRoot.parentFile, 'client-probe-fabric.jar')
+        loom.runs.named('client') { runDir(testRoot.absolutePath) }
+        p.tasks.named('runClient') {
+            def mc = p.findProperty('targetVersion').toString()
+            javaLauncher = p.javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(mc == '1.20.1' ? 17 : mc.startsWith('1.') ? 21 : 25) }
+            jvmArgs('-Xmx1800m', '-Dmusicplayer.test.pickers=true', '-javaagent:' + agent.absolutePath + '=' + testRoot.absolutePath)
+        }
+    } else if (legacy != null) {
+        legacy.mods.named('musicplayer') {
+                sourceSet(p.project(':musicplayer-lavaplayer-api').sourceSets.main)
+        }
+        legacy.runs.named('guiTest') {
+            configureRun(delegate)
+            def audio = p.project(':musicplayer-lavaplayer').layout.buildDirectory.get().asFile
+            systemProperty('musicplayer.dev', [new File(audio,'libs'),new File(audio,'dependencies')].join(File.pathSeparator))
+        }
+        p.dependencies.add('additionalRuntimeClasspath', 'net.harawata:appdirs:1.4.0')
+    } else if (neo == null) {
+        p.dependencies.add('runtimeOnly', 'net.minecraftforge:bootstrap-dev:2.1.8')
+        def moduleRoot = new File(testRoot, 'module-metadata')
+        def moduleManifest = new File(moduleRoot, 'META-INF/MANIFEST.MF')
+        moduleManifest.parentFile.mkdirs()
+        moduleManifest.text = 'Manifest-Version: 1.0\nAutomatic-Module-Name: musicplayer\n\n'
+        p.tasks.withType(JavaExec).configureEach { if (name == 'runGuiTest') doFirst { classpath += p.files(moduleRoot) } }
+
+        p.minecraft.runs.named('client') {
+            client(true)
+            workingDirectory(testRoot)
+            def apiProject = p.project(':musicplayer-lavaplayer-api')
+            def roots = [moduleRoot] + p.sourceSets.main.output.files + apiProject.sourceSets.main.output.files + [apiProject.tasks.named('jar').get().archiveFile.get().asFile]
+            environment('MOD_CLASSES', roots.findAll { it.exists() }.collect { 'musicplayer%%' + it.absolutePath }.join(File.pathSeparator))
+            jvmArgs('-Xmx1800m','-javaagent:' + agent.absolutePath + '=' + testRoot.absolutePath)
+            property('bsl.dev.auto', 'false')
+            property('musicplayer.test.pickers', 'true')
+            def audio = p.project(':musicplayer-lavaplayer').layout.buildDirectory.get().asFile
+            property('musicplayer.dev', [new File(audio,'libs'),new File(audio,'dependencies')].join(File.pathSeparator))
+            mods {
+                musicplayer {
+                    source(p.sourceSets.main)
+                    source(p.project(':musicplayer-lavaplayer-api').sourceSets.main)
+                }
+            }
+        }
+    } else neo.runs.named('client') {
+        gameDirectory.set(testRoot)
+        jvmArgument('-Xmx1800m')
+        jvmArgument('-javaagent:' + agent.absolutePath + '=' + testRoot.absolutePath)
+        systemProperty('musicplayer.test.pickers', 'true')
+        if (p.findProperty('clientTestProduction') == 'true') {
+            loadedMods.set([])
+            systemProperties.set(systemProperties.get().findAll { key, value -> key != 'musicplayer.dev' })
+            systemProperty('musicplayer.test.requireJar', 'true')
+        }
+    }
+    if (neo != null && p.findProperty('clientTestProduction') != 'true') {
+        p.dependencies.add('additionalRuntimeClasspath', p.files(p.project(':musicplayer-lavaplayer-api').sourceSets.main.output))
+        p.dependencies.add('additionalRuntimeClasspath', 'net.harawata:appdirs:1.4.0')
+    }
+}

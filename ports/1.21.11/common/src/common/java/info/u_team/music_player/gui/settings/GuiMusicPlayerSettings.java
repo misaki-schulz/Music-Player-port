@@ -53,7 +53,7 @@ public class GuiMusicPlayerSettings extends BetterScreen {
 		final Settings settings = MusicPlayerManager.getSettingsManager().getSettings();
 		final IMusicPlayer player = MusicPlayerManager.getPlayer();
 		if (!player.getYoutubeAuth().isEnabled()) {
-			addRenderableWidget(new UButton(width / 2 - 75, 27, 150, 20,
+			addRenderableWidget(new UButton(width / 2 - 75, 43, 150, 14,
 					Component.literal("Sign in to YouTube"), button -> YoutubeLoginCoordinator.showLogin(minecraft)));
 		}
 		
