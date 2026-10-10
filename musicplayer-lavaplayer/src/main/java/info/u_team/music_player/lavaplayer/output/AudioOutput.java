@@ -49,6 +49,7 @@ public class AudioOutput extends Thread {
 	private volatile Mixer mixer;
 	private final AtomicBoolean lineResetRequested = new AtomicBoolean(true);
 	private SourceDataLine sourceLine;
+	private volatile boolean shutdownRequested;
 	
 	public AudioOutput(MusicPlayer musicPlayer) {
 		super("Audio Player");
@@ -60,6 +61,7 @@ public class AudioOutput extends Thread {
 	}
 
 	public void shutdown() {
+		shutdownRequested = true;
 		interrupt();
 	}
 	
@@ -72,7 +74,7 @@ public class AudioOutput extends Thread {
 		final long frameDuration = dataformat.frameDuration();
 
 		try {
-			while (!isInterrupted()) {
+			while (!shutdownRequested && !isInterrupted()) {
 				try {
 					if (lineResetRequested.getAndSet(false)) {
 						closeLine();
@@ -101,6 +103,8 @@ public class AudioOutput extends Thread {
 				} catch (final InterruptedException ex) {
 					throw ex;
 				} catch (final Exception ex) {
+					// Lavaplayer can clear the interrupt flag before wrapping shutdown in an IOException.
+					if (shutdownRequested) break;
 					LOGGER.warn("Audio output failed; reopening the selected device", ex);
 					closeLine();
 					sleep(500);

@@ -5,7 +5,7 @@ gradle.beforeProject { p ->
         p.legacyForge.mods.create('musicplayer') { sourceSet(p.sourceSets.main) }
     }
     p.plugins.withId('net.minecraftforge.gradle') {
-        p.minecraft.runs.create('client') { taskName('runGuiTest'); client(true) }
+        if (p.findProperty('forgegradle7') != 'true') p.minecraft.runs.create('client') { taskName('runGuiTest'); client(true) }
     }
 }
 gradle.projectsEvaluated {
@@ -40,6 +40,23 @@ gradle.projectsEvaluated {
             systemProperty('musicplayer.dev', [new File(audio,'libs'),new File(audio,'dependencies')].join(File.pathSeparator))
         }
         p.dependencies.add('additionalRuntimeClasspath', 'net.harawata:appdirs:1.4.0')
+    } else if (p.findProperty('forgegradle7') == 'true') {
+        p.minecraft.runs.named('client') {
+            workingDir = p.layout.projectDirectory.dir(testRoot.absolutePath)
+            jvmArgs('-Xmx1800m', '-Dmusicplayer.test.timeoutSeconds=840', '-javaagent:' + agent.absolutePath + '=' + testRoot.absolutePath)
+            systemProperty('musicplayer.test.pickers', 'true')
+            if (p.findProperty('clientTestProduction') == 'true') systemProperty('musicplayer.test.requireJar', 'true')
+        }
+        p.dependencies.add('runtimeOnly', 'net.harawata:appdirs:1.4.0')
+        if (p.findProperty('clientTestProduction') == 'true') p.tasks.named('runClient') {
+            def api = p.project(':musicplayer-lavaplayer-api')
+            def developmentRoots = (p.sourceSets.main.output.files + api.sourceSets.main.output.files +
+                [api.tasks.named('jar').get().archiveFile.get().asFile,
+                 p.layout.buildDirectory.dir('forge-dev-module').get().asFile]) as Set
+            def previousRuntime = runtimeClasspath.from.toList()
+            runtimeClasspath.setFrom(p.files(previousRuntime).filter { !developmentRoots.contains(it) })
+            classpath = classpath.filter { !developmentRoots.contains(it) }
+        }
     } else if (neo == null) {
         p.dependencies.add('runtimeOnly', 'net.minecraftforge:bootstrap-dev:2.1.8')
         def moduleRoot = new File(testRoot, 'module-metadata')

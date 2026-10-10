@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "info.u_team.music_player.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "GuiHudMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

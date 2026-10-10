@@ -14,7 +14,6 @@ import com.sedmelluq.discord.lavaplayer.source.getyarn.GetyarnAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.nico.NicoAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.yamusic.YandexMusicAudioSourceManager;
@@ -24,7 +23,7 @@ public class AudioSources {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AudioSources.class);
 	
 	public static void registerSources(AudioPlayerManager audioPlayerManager) {
-		registerManager(audioPlayerManager, SoundCloudAudioSourceManager::createDefault);
+		registerManager(audioPlayerManager, MusicPlayerSoundCloudSource::new);
 		registerManager(audioPlayerManager, () -> {
 			final String clientId = System.getProperty("musicplayer.lavaplayer.spotify.clientId");
 			final String clientSecret = System.getProperty("musicplayer.lavaplayer.spotify.clientSecret");

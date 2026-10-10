@@ -1,5 +1,5 @@
 // Read the target game's own version.json; hotfixes can change the resource format.
-def packTarget = project.version.toString().replaceFirst(/^.*\+mc/, '').replaceFirst(/\.port\.\d+$/, '')
+def packTarget = providers.gradleProperty('targetVersion').orElse(project.minecraft_version).get()
 def packClientJar = new File(gradle.gradleUserHomeDir, "caches/fabric-loom/${packTarget}/minecraft-client.jar")
 def packNumbers = null
 

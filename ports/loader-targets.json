@@ -24,6 +24,125 @@
     "loader_version": "1.21.3-53.1.12"
   },
   {
+    "loader": "forge",
+    "minecraft": "1.21.4",
+    "group": "forge-1.21.4",
+    "source_group": "1.21.4",
+    "java": 21,
+    "loader_version": "1.21.4-54.1.18",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.5",
+    "group": "forge-1.21.5",
+    "source_group": "1.21.5",
+    "java": 21,
+    "loader_version": "1.21.5-55.1.14",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.6",
+    "group": "forge-1.21.6",
+    "source_group": "1.21.6-1.21.8",
+    "java": 21,
+    "loader_version": "1.21.6-56.0.0",
+    "build_system": "forgegradle7",
+    "hud_mixin": true
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.7",
+    "group": "forge-1.21.7",
+    "source_group": "1.21.6-1.21.8",
+    "java": 21,
+    "loader_version": "1.21.7-57.0.0",
+    "build_system": "forgegradle7",
+    "hud_mixin": true
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.8",
+    "group": "forge-1.21.8",
+    "source_group": "1.21.6-1.21.8",
+    "java": 21,
+    "loader_version": "1.21.8-58.1.22",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.9",
+    "group": "forge-1.21.9",
+    "source_group": "1.21.9-1.21.10",
+    "java": 21,
+    "loader_version": "1.21.9-59.0.5",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.10",
+    "group": "forge-1.21.10",
+    "source_group": "1.21.9-1.21.10",
+    "java": 21,
+    "loader_version": "1.21.10-60.1.15",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "1.21.11",
+    "group": "forge-1.21.11",
+    "source_group": "1.21.11",
+    "java": 21,
+    "loader_version": "1.21.11-61.2.1",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "26.1",
+    "group": "forge-26.1",
+    "source_group": "26.1",
+    "java": 25,
+    "loader_version": "26.1-62.0.9",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "26.1.1",
+    "group": "forge-26.1.1",
+    "source_group": "26.1",
+    "java": 25,
+    "loader_version": "26.1.1-63.0.2",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "26.1.2",
+    "group": "forge-26.1.2",
+    "source_group": "26.1",
+    "java": 25,
+    "loader_version": "26.1.2-64.1.3",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "26.2",
+    "group": "forge-26.2",
+    "source_group": "26.2",
+    "java": 25,
+    "loader_version": "26.2-65.1.3",
+    "build_system": "forgegradle7"
+  },
+  {
+    "loader": "forge",
+    "minecraft": "26.3",
+    "group": "forge-26.3",
+    "source_group": "26.3",
+    "java": 25,
+    "loader_version": "26.3-66.0.10",
+    "build_system": "forgegradle7"
+  },
+  {
     "loader": "neoforge",
     "minecraft": "1.20.1",
     "group": "neoforge-1.20.1",

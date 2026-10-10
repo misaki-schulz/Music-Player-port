@@ -5,6 +5,7 @@
 **/__pycache__/
 *.pyc
 dist/
+.forge-reference/
 
 # Minecraft development runs
 run/

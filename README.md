@@ -1,14 +1,20 @@
-# Music Player — port.10 for Minecraft 1.20.1–26.3
+# Music Player — port.10.2 for Minecraft 1.20.1–26.3
 
-The multi-version port.10 sources and build matrix are in [ports/](ports/README.md).
+The multi-version port.10.2 sources and build matrix are in [ports/](ports/README.md).
 Fabric supports 17 exact Minecraft versions, packaged into ten release JARs.
-Forge adds three exact builds (1.20.1, 1.21.1, 1.21.3); NeoForge adds all 17 versions.
+Forge supports 16 exact versions from 1.20.1 to 26.3; NeoForge supports all 17.
+Minecraft 1.21.2 has no official Forge release.
 See [native loader support](ports/LOADERS.md) for requirements and build commands.
-Use `ports/Build-All.ps1` to build the matrix and `python ports/package_ports.py`
-to validate and collect the release JARs under `dist/port.10/`.
-The 17 exact-version Fabric builds are written to `dist/port.10/exact/` when built.
-The previous port.8 had a user-provided successful startup log on Minecraft 26.2.
-The new port.10 search and sorting screens and Minecraft runtime behavior require manual testing.
+Use `python ports/verify_release.py` to build all 50 loader/version targets,
+run offline regressions, and validate/collect release JARs under `dist/port.10.2/`.
+`--resume` continues a verification run after a failed target is fixed.
+The 17 exact-version Fabric builds are written to `dist/port.10.2/exact/` when built.
+The [client GUI scenario](ports/client-gui/README.md) launches real Minecraft clients
+and exercises screens, playlists, WAV imports, playback controls, sorting and settings.
+The [port.10.2 verification report](ports/verification/README.md) records all 50 builds,
+33 offline regression suites and the completed GUI runs for all 16 Forge versions.
+Further client runs were stopped at the maintainer's request. Account authorization, audio quality, game-world behavior
+and the native Windows file chooser are outside that scenario's coverage.
 
 On Windows, run `build-menu.bat`; on Linux/macOS, run `sh build-menu.sh`.
 The menu lists ten compatible Minecraft ranges, one entry per release JAR.
@@ -16,15 +22,32 @@ Choose a range, build all ten Fabric JARs, use N for Forge/NeoForge, or clean ge
 For example, the single 1.21.6–1.21.8 entry builds its three versions and produces
 one shared JAR. Use `--group 1.21.6-1.21.8` to select that range from the command line.
 The clean option removes
-`dist/port.10`, project-local Gradle caches, build folders, and generated logs.
+`dist/port.10.2`, project-local Gradle caches, build folders, and generated logs.
 It preserves the original source and does not touch the shared `~/.gradle` cache.
 The old port.7 binaries are not included in this source tree: they cannot be
-reproduced exactly from the current port.10 sources and must be archived separately.
+reproduced exactly from the current port.10.2 sources and must be archived separately.
 
 The root source tree targets Minecraft 26.2 and preserves the port.8 source-order fix.
 YouTube is registered before generic HTTP at startup, so saved video links are no
 longer probed as audio files after restarting or switching Minecraft versions.
 Existing playlist files remain compatible. Previous port.7 release JARs are archived separately.
+
+## SoundCloud playback in port.10.2
+
+All loader variants preserve `track_authorization` in SoundCloud transcoding requests
+and refresh track metadata when playback starts, including restored playlists.
+If a public format returns 401, 403 or 404, the player tries the next supported format.
+Rate limits and unavailable tracks remain errors; retries are bounded.
+The SoundCloud source name and playlist serialization remain compatible.
+Supported MIME types with parameters, such as `audio/ogg; codecs="opus"`, are
+recognized without selecting incompatible Ogg codecs.
+YouTube source code is unchanged in this release.
+
+`python ports/test_soundcloud.py <source-profile>` exercises the compiled implementation
+against a local HTTP fixture: the original missing-token 404, renewed authorization,
+format fallback, MIME parameters, cloned/restored tracks and unavailable/rate-limited responses.
+The supplied original-mod log contained YouTube errors and did not establish the cause
+of the users' SoundCloud failures; this fix addresses defects identified in the audio library.
 
 Pinned audio dependencies are preserved in [vendor/](vendor/README.md) so fresh builds resolve the same release binaries even when the original Maven artifacts are unavailable.
 

@@ -1,0 +1,308 @@
+{
+  "release": "port.10.2",
+  "scope": "Completed Forge GUI runs only; further client checks stopped at user request.",
+  "completed": 16,
+  "results": [
+    {
+      "key": "forge-1.21.4",
+      "loader": "forge",
+      "minecraft": "1.21.4",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 98.0,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "4b9b1958b729c6951d99c137c47b14c812cf403505243b39e2a86b13249d0e9a",
+      "jar_sha256": "afa59dc59288a4317e4e0826c488677d899d40304baf831321895313f2866905",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.5",
+      "loader": "forge",
+      "minecraft": "1.21.5",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 93.9,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "8a824d269fc20e189f97a66054ba91477e69863e8e42fb161996a01313b30c9d",
+      "jar_sha256": "ea9e6b98dd47184e352abbd094a9d93f9a66b0e4e94709a9fbd0127e31a075c2",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.6",
+      "loader": "forge",
+      "minecraft": "1.21.6",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 94.8,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "6ad47f2c34c4f95d15b920d5b2d777003153875c6a5fc1b8bf8bd4088c6606da",
+      "jar_sha256": "edd121f19b3257f6bc5623a631d53f3fb259251352668af1038ebe8861dada9d",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.7",
+      "loader": "forge",
+      "minecraft": "1.21.7",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 90.3,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "2d79b3386781f40a9a9d2c3eb2eaa85e2052dbe5afd3fc3b8324adde8b357cbe",
+      "jar_sha256": "199341bba999ba6b9ae234d4d20c559a54290f6613ae8460cdcf4c64826daa68",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.8",
+      "loader": "forge",
+      "minecraft": "1.21.8",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 94.5,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "8eff0aec8270c44b16c4b4246027f06b4de91b7d0e7223908b008691419f444a",
+      "jar_sha256": "3519a19d35ff6ebc110596735cc0b4b0edcb9785617f95e5db74354ccdc2e6d9",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.9",
+      "loader": "forge",
+      "minecraft": "1.21.9",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 102.2,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "93b69eff7d10416060b8eb82c3021014cd977dab9bd2f00c3e12beebc6f88cd7",
+      "jar_sha256": "f5403472710e6f8f55a6ec1714dbd92b1b4a04486cfe0ff1aab31353bd1c07e8",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.10",
+      "loader": "forge",
+      "minecraft": "1.21.10",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 98.9,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "a862dfa1b99e74e73f6e5a60ed3ef0ea66ab715805f10e0e58999b1fc954bce1",
+      "jar_sha256": "bf015c917da290624deceac7c2e05330f5efa601483ccf6f6c6a58bccbdcbb93",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.11",
+      "loader": "forge",
+      "minecraft": "1.21.11",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 103.5,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "1da9b67fcc7bc24da56ad38e36b62c6bb8b6fe0a824dba0ba1a9e51314cd2782",
+      "jar_sha256": "e4ab7c19b82db1616ad818087fe74f7dde92d250775151c56e04188ed1dfa4c4",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-26.1",
+      "loader": "forge",
+      "minecraft": "26.1",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 111.5,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "fd45d52deedb543cdaecd449d407e97a8423d1f3a69b3535eb1e3c49d677f551",
+      "jar_sha256": "e8b60d71f429d7a6c8e17365128d30ce6ed0177cef2a5ae8b4c0b20f8ddcd133",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-26.1.1",
+      "loader": "forge",
+      "minecraft": "26.1.1",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 95.5,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "4198a3fd6aaca8d3ad8e88e3f016b42c2a4db9f78c477c54d92331d30ee4edc8",
+      "jar_sha256": "d762c0b88a710fb4043724bcb6e207b9d8c25f533effb17b6852764e58c18d73",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-26.1.2",
+      "loader": "forge",
+      "minecraft": "26.1.2",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 97.5,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "54a30fbf0ce70b8398e8aed91630cf1bdedcdde15f3574a2dbbaab6a04ee89d0",
+      "jar_sha256": "480d7bdf9914fccb9b1d72f2e32818a94d5f56921b5a71119bb30663e2dabf64",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-26.2",
+      "loader": "forge",
+      "minecraft": "26.2",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 113.0,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "d8dd7cf8c3130b258a3f9804aab6a1c9caf2c7a674b90ca254fb4a4566763f5c",
+      "jar_sha256": "79ee9ac2b61eae10e567323e06a1c2e4c22fff0b7b66ff1c900853c8cb7294e5",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-26.3",
+      "loader": "forge",
+      "minecraft": "26.3",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "release-jar-in-development-client",
+      "seconds": 120.6,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "a35bf97fa3c9284c02efdf20aa59d160763218aa0c94e0aa76054c30363181b0",
+      "jar_sha256": "e82972b3a32af477b0856eb36653946047dbaa4a14cde5e07a4bfdfde099e511",
+      "check_count": 70,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.20.1",
+      "loader": "forge",
+      "minecraft": "1.20.1",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "development-client",
+      "seconds": 103.9,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "c56850f7b55d99338485d678a79aab293d9e72c7c511873c42c0dbe4400b300b",
+      "check_count": 69,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.1",
+      "loader": "forge",
+      "minecraft": "1.21.1",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "development-client",
+      "seconds": 111.6,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "7df12628e7a161545fcab5a114f7916414ac83375ed98528c33f418414c973f2",
+      "check_count": 69,
+      "screenshot_count": 13
+    },
+    {
+      "key": "forge-1.21.3",
+      "loader": "forge",
+      "minecraft": "1.21.3",
+      "status": "passed",
+      "client_exit": 0,
+      "release": "port.10.2",
+      "mode": "development-client",
+      "seconds": 114.6,
+      "limits": [
+        "OS chooser UI not tested; file/folder GUI callbacks use fixture chooser replies",
+        "Authenticated network providers not tested"
+      ],
+      "agent_sha256": "35718862a43f3811db4cbfce557b339dde3b7962b1dbff3448dd1786d7943f76",
+      "input_sha256": "f103326fffd8e3b8699059de6602d7f96ecb681502e998a2753083d70232c46d",
+      "check_count": 69,
+      "screenshot_count": 13
+    }
+  ]
+}

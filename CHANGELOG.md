@@ -1,5 +1,15 @@
 # Changelog
 
+## port.10.2 — 2026-10-10 — Forge matrix and SoundCloud playback
+
+- Added native Forge ports for all 16 supported Minecraft versions with official Forge releases. Forge never released 1.21.2; Fabric and NeoForge retain that target.
+- Preserve SoundCloud track authorization when resolving audio formats. Refresh saved/queued tracks before playback and fall back when a public transcoding returns 401/403/404.
+- Recognize supported SoundCloud MIME types with parameters while rejecting incompatible Ogg codecs.
+- Keep existing SoundCloud playlist encoding, cloning and access restrictions. YouTube source code is unchanged.
+- Stop the audio thread cleanly on client shutdown even when Lavaplayer wraps and clears an interrupt.
+- All loaders share the same SoundCloud implementation; release metadata is port.10.2 throughout the 50-target matrix.
+- Added an offline HTTP regression that reproduces the missing-token 404 and exercises refresh, fallback, saved tracks and bounded error handling. Validation results are recorded separately after execution.
+
 ## port.10 — 2026-10-01 — search saved songs and playlists
 
 Supports Minecraft 1.21.2 through 26.3: 15 exact build targets, packaged into eight release JARs.

@@ -8,14 +8,14 @@ from pathlib import Path
 import shutil
 import tomllib
 import zipfile
-from package_ports import check_classes, ROOT, PORTS, DESTINATION
+from package_ports import check_classes, check_soundcloud, ROOT, PORTS, DESTINATION
 
 TARGETS = json.loads((PORTS / 'loader-targets.json').read_text(encoding='utf-8'))
 FORMATS = json.loads((PORTS / 'loader-pack-formats.json').read_text(encoding='utf-8'))
 
 def inspect(target: dict) -> tuple[Path, dict]:
     mc, loader = target['minecraft'], target['loader']
-    version = f'2.7.1.351+mc{mc}.port.10'
+    version = f'2.7.1.351+mc{mc}.port.10.2'
     path = PORTS / target['group'] / 'build' / mc / 'libs' / f'music_player-{loader}-{mc}-{version}.jar'
     legacy = loader == 'forge' or mc == '1.20.1'
     meta_path = 'META-INF/mods.toml' if legacy else 'META-INF/neoforge.mods.toml'
@@ -54,8 +54,12 @@ def inspect(target: dict) -> tuple[Path, dict]:
             raise ValueError(f'{path}: expected 37 audio dependencies, got {len(packed)}')
         classes = check_classes(z, target['java'], path.name)
         for name in names:
-            if name.endswith('.class') and b'net/fabricmc/' in z.read(name):
-                raise ValueError(f'{path}: Fabric reference in {name}')
+            if name.endswith('.class'):
+                data = z.read(name)
+                if b'net/fabricmc/' in data:
+                    raise ValueError(f'{path}: Fabric reference in {name}')
+                if loader == 'forge' and b'net/neoforged/' in data:
+                    raise ValueError(f'{path}: NeoForge reference in Forge class {name}')
         for module, release in [('lavadsp','0.7.8'), ('native-loader','0.0.1')]:
             jar = f'{module}-{release}.jar'
             pinned = ROOT / 'vendor/maven/dev/arbjerg' / module / release / jar
@@ -68,6 +72,7 @@ def inspect(target: dict) -> tuple[Path, dict]:
                     raise ValueError(f'{path}: corrupt dependency {name}')
                 classes += check_classes(nested, target['java'], name)
                 if name.endswith('/musicplayer-lavaplayer.jar.packed'):
+                    check_soundcloud(nested, target['source_group'])
                     auth = 'info/u_team/music_player/lavaplayer/sources/YoutubeAuth.class'
                     compiled = PORTS / target['source_group'] / 'musicplayer-lavaplayer/build/classes/java/main' / auth
                     data = nested.read(auth)
@@ -75,8 +80,14 @@ def inspect(target: dict) -> tuple[Path, dict]:
                         raise ValueError(f'{path}: audio routing regression')
                     auth_sha = hashlib.sha256(data).hexdigest()
         handler = z.read('info/u_team/music_player/init/MusicPlayerEventHandler.class')
-        if legacy and not any(marker in handler for marker in [b'm_', b'f_']):
+        if legacy and target.get('build_system') != 'forgegradle7' and not any(marker in handler for marker in [b'm_', b'f_']):
             raise ValueError(f'{path}: Forge SRG remapping missing')
+        if target.get('hud_mixin'):
+            config = json.loads(z.read('musicplayer-forge.mixins.json'))
+            if not config.get('required') or 'GuiHudMixin' not in config.get('client', []):
+                raise ValueError(f'{path}: HUD mixin missing')
+            if b'MixinConfigs: musicplayer-forge.mixins.json' not in z.read('META-INF/MANIFEST.MF'):
+                raise ValueError(f'{path}: HUD mixin not registered')
     return path, {**target, 'minecraft': [mc], 'mod_version': version, 'file': path.name,
                   'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                   'checked_classes': classes, 'packed_dependencies': len(packed),
@@ -96,7 +107,7 @@ def main():
     records = json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else []
     for target in selected:
         path, record = inspect(target)
-        name = f'music_player-{target["loader"]}-{target["minecraft"]}-2.7.1.351.port.10.jar'
+        name = f'music_player-{target["loader"]}-{target["minecraft"]}-2.7.1.351.port.10.2.jar'
         shutil.copyfile(path, DESTINATION / name)
         record['file'] = name
         records = [r for r in records if not (r['loader']==target['loader'] and r['minecraft']==record['minecraft'])]

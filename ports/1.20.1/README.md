@@ -1,4 +1,4 @@
-# Music Player — port.10 / Minecraft 1.20.1
+# Music Player — port.10.2 / Minecraft 1.20.1
 
 Unofficial Fabric port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.1.351 for Minecraft 1.20.1.
 
@@ -56,7 +56,7 @@ python ports/release_cli.py --group 1.20.1
 ./gradlew build
 ```
 
-This profile produces an exact-version JAR under `build/<Minecraft version>/libs/`. Run `python ports/package_ports.py --group 1.20.1` from the repository root to validate and collect this release JAR in `dist/port.10/`. Do not distribute `-thin.jar`; it lacks the bundled audio dependencies.
+This profile produces an exact-version JAR under `build/<Minecraft version>/libs/`. Run `python ports/package_ports.py --group 1.20.1` from the repository root to validate and collect this release JAR in `dist/port.10.2/`. Do not distribute `-thin.jar`; it lacks the bundled audio dependencies.
 
 ## Credits
 
@@ -70,7 +70,7 @@ Port-specific bugs belong in this repository's [issue tracker](https://github.co
 
 Licensed under Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
-## port.10 source-order fix
+## port.10.2 source-order fix
 
 Saved YouTube URLs are routed before generic HTTP after restarting. Existing playlists remain compatible. See [the shared matrix and verification instructions](../README.md).
 

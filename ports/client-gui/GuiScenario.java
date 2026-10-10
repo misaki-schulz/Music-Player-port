@@ -21,7 +21,8 @@ public class GuiScenario {
         if(Boolean.getBoolean("musicplayer.test.pickers"))inst.addTransformer(new PickerFixture(inst,root.getParent().resolve("fixture.wav").toString(),root.getParent().resolve("fixture-folder").toString()));
         Thread t=new Thread(()->{
             try {
-                while(!finished && attempts++<600){
+                int maxAttempts=Math.max(1,Integer.getInteger("musicplayer.test.timeoutSeconds",300))*2;
+                while(!finished && attempts++<maxAttempts){
                     Thread.sleep(500);
                     if(mcClass==null)for(Class<?> c:inst.getAllLoadedClasses())if(c.getName().equals("net.minecraft.client.Minecraft")){mcClass=c;loader=c.getClassLoader();break;}
                     if(mcClass==null)continue;
@@ -60,7 +61,14 @@ public class GuiScenario {
                 settings=call(manager("getSettingsManager"),"getSettings");
                 String origin=type("info.u_team.music_player.gui.GuiMusicPlayer").getProtectionDomain().getCodeSource().getLocation().toString();
                 log("MOD ORIGIN "+origin);
-                if(Boolean.getBoolean("musicplayer.test.requireJar"))require(origin.contains("music_player-")&&origin.contains(".jar"),"GUI was not loaded from release JAR: "+origin);
+                if(Boolean.getBoolean("musicplayer.test.requireJar")){
+                    require(origin.contains("music_player-")&&origin.contains(".jar"),"GUI was not loaded from release JAR: "+origin);
+                    require(System.getProperty("musicplayer.dev")==null,"Release JAR test still has the development audio path enabled");
+                    String audioOrigin=manager("getPlayer").getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+                    require(audioOrigin.contains("musicplayer-lavaplayer.jar.packed"),"Audio player was not loaded from the packed dependency: "+audioOrigin);
+                    log("AUDIO ORIGIN "+audioOrigin);
+                    pass("Release JAR and packed audio libraries loaded");
+                }
                 setScreen(mc,type("info.u_team.music_player.gui.GuiMusicPlayer").getConstructor().newInstance());
                 pass("Main GUI opens");phase++;return;
             }
