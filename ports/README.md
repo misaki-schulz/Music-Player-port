@@ -1,49 +1,36 @@
-# Music Player — матрица port.11
+# Сборки Music Player port.11
 
-В репозитории оставлены только Minecraft 1.20.1, 1.21.1, 1.21.11 и все версии 26.x.
-Fabric, Forge и NeoForge используют точные профили из соответствующих матриц.
-После сборки JAR размещаются в `dist/port.11/`, а точные Fabric-сборки — в
-`dist/port.11/exact/`.
+Выберите JAR для своей версии Minecraft и загрузчика. На одной установке достаточно одного JAR Music Player. Для Forge и NeoForge см. [версии загрузчиков](LOADERS.md).
 
 ## Fabric
 
-| Основной JAR | Поддерживаемые версии |
+Для сборок из этой таблицы нужен Fabric Loader 0.19.5 или новее. Установите Fabric API для своей версии игры.
+
+| Minecraft | Java | Fabric API для профиля | Группа JAR |
+|---|---|---|---|
+| 1.20.1 | 17 | `0.92.12+1.20.1` | `1.20.1` |
+| 1.21.1 | 21 | `0.116.17+1.21.1` | `1.21.1` |
+| 1.21.11 | 21 | `0.141.6+1.21.11` | `1.21.11` |
+| 26.1 | 25 | `0.145.1+26.1` | `26.1-26.1.2` |
+| 26.1.1 | 25 | `0.145.4+26.1.1` | `26.1-26.1.2` |
+| 26.1.2 | 25 | `0.155.3+26.1.2` | `26.1-26.1.2` |
+| 26.2 | 25 | `0.156.0+26.2` | `26.2` |
+| 26.3 | 25 | `0.161.0+26.3` | `26.3` |
+
+Список профилей для скриптов хранится в [targets.json](targets.json).
+
+## Сборка из корня репозитория
+
+Откройте меню через `build-menu.bat` в Windows или `sh build-menu.sh` в Linux и macOS.
+
+| Команда | Результат |
 |---|---|
-| `music_player-fabric-1.20.1-2.7.1.351.port.11.jar` | 1.20.1 |
-| `music_player-fabric-1.21.1-2.7.1.351.port.11.jar` | 1.21.1 |
-| `music_player-fabric-1.21.11-2.7.1.351.port.11.jar` | 1.21.11 |
-| `music_player-fabric-26.1-26.1.2-2.7.1.351.port.11.jar` | 26.1, 26.1.1, 26.1.2 |
-| `music_player-fabric-26.2-2.7.1.351.port.11.jar` | 26.2 |
-| `music_player-fabric-26.3-2.7.1.351.port.11.jar` | 26.3 |
+| `python ports/release_cli.py --list` | Показать группы Fabric |
+| `python ports/release_cli.py --group 1.21.11` | Собрать один JAR Fabric для 1.21.11 |
+| `python ports/release_cli.py --all` | Собрать все группы Fabric |
+| `python ports/loader_cli.py --all` | Собрать Forge и NeoForge |
+| `python ports/release_cli.py --everything` | Собрать все три загрузчика |
 
-Матрица точных версий и Fabric API находится в [`targets.json`](targets.json).
+Готовые архивы имеют имена вида `music_player-fabric-1.21.11-2.7.4.384.port.11.jar` и лежат в `dist/port.11/`. В `dist/port.11/exact/` лежат Fabric JAR для отдельных версий Minecraft. Для 26.1, 26.1.1 и 26.1.2 также собирается один общий Fabric JAR.
 
-## Сборка
-
-Из корня проекта используйте `build-menu.bat` в Windows или `sh build-menu.sh` в Linux/macOS.
-Для командной строки доступны следующие варианты:
-
-```bash
-python ports/release_cli.py --list
-python ports/release_cli.py --all
-python ports/release_cli.py --everything
-python ports/release_cli.py --group 1.21.11
-python ports/loader_cli.py --list
-python ports/loader_cli.py --all
-```
-
-Для отдельного профиля Fabric можно запустить `./gradlew build` внутри каталога профиля.
-Для Forge и NeoForge используются `Build-Target.ps1` и `loader_cli.py`.
-Сборки идут последовательно, Minecraft не запускается.
-
-## Проверки
-
-```bash
-python ports/verify_release.py
-python ports/test_sorting.py 1.20.1
-python ports/test_audio_routing.py 1.21.1
-python ports/test_soundcloud.py 26.2
-```
-
-Скрипты упаковки проверяют точную зависимость от Minecraft, метаданные загрузчика,
-ресурсы, лицензии, байткод и вложенные аудиобиблиотеки.
+Команды для проверки сборок и запуска тестов описаны в [verification/README.md](verification/README.md).

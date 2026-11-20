@@ -1,17 +1,8 @@
-# Pinned audio dependency mirror
+# Local Maven mirror
 
-This directory preserves the exact `dev.arbjerg:lavadsp:0.7.8` and
-`dev.arbjerg:native-loader:0.0.1` JARs, POMs, and Gradle module metadata used
-by port.9. The upstream Maven URLs currently return HTTP 404 for these
-versions. The JARs match their published module hashes and the dependencies
-already packed in the port.9 release; no audio implementation or version changes.
+This directory contains the JARs, POMs and Gradle module metadata for `dev.arbjerg:lavadsp:0.7.8` and `dev.arbjerg:native-loader:0.0.1`. The upstream Maven URLs returned HTTP 404 for these versions. The mirrored JARs match the published hashes and the copies bundled in port.9.
 
-Every source profile uses this local Maven mirror only for these two modules.
-All other dependencies continue to resolve from their existing repositories.
-`SHA256SUMS.txt` covers the preserved artifacts and licenses.
+Keep `vendor/` at the repository root when building a profile under `ports/`. Artifact and license hashes are listed in [SHA256SUMS.txt](SHA256SUMS.txt).
 
-Upstream sources and licenses:
-- https://github.com/lavalink-devs/lavadsp
-- https://github.com/lavalink-devs/native-loader
-
-Keep `vendor/` at the repository root when building a profile under `ports/`.
+- [lavadsp source](https://github.com/lavalink-devs/lavadsp)
+- [native-loader source](https://github.com/lavalink-devs/native-loader)

@@ -1,40 +1,27 @@
 # Music Player — port.11
 
-An unofficial port of [Music Player](https://github.com/MC-U-Team/Music-Player) 2.7.4.384 for selected Minecraft versions. The repository contains Fabric, Forge, and NeoForge profiles. See the [build matrix](ports/README.md) for the supported versions.
+Music Player is a client mod for playing local files, HTTP audio links, YouTube and SoundCloud in Minecraft. This unofficial port is based on Music Player 2.7.4.384. [Upstream project](https://github.com/MC-U-Team/Music-Player) · [Maintainer](https://github.com/misaki-schulz)
 
-The current matrix covers Minecraft 1.20.1, 1.21.1, 1.21.11, and the 26.x releases that have a profile. Forge and NeoForge requirements are listed in [ports/LOADERS.md](ports/LOADERS.md).
+## Install
+
+Fabric, Forge and NeoForge builds target Minecraft **1.20.1, 1.21.1, 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 and 26.3**. Put one Music Player JAR for your game version and loader in the `mods` folder. With Fabric, also install the matching Fabric API.
+
+See [Fabric requirements and build commands](ports/README.md) or [Forge and NeoForge requirements](ports/LOADERS.md).
+
+## Use the player
+
+- Search for playlists by name or for tracks you’ve already added. Sort a playlist by title, artist, file name or URL. Imports from a folder keep files in natural order, so `Track 2` comes before `Track 10`.
+- Sign in to YouTube from the player settings. Sign-in opens in your browser, and the mod saves its sign-in token in the Minecraft configuration folder.
+- Use the equalizer and bass boost from the player settings. You can also select one of the nine bundled languages.
 
 ## Build
 
-From the repository root, run `build-menu.bat` on Windows or `sh build-menu.sh` on Linux and macOS.
+Run `build-menu.bat` on Windows or `sh build-menu.sh` on Linux or macOS. The build scripts put release JARs in `dist/port.11/` and exact Fabric builds in `dist/port.11/exact/`. JARs ending in `-thin` omit the bundled audio libraries.
 
-```bash
-python ports/release_cli.py --list
-python ports/release_cli.py --all
-python ports/loader_cli.py --all
-python ports/verify_release.py
-```
+The Gradle project at the repository root targets Minecraft 26.2 with Java 25, Fabric Loader 0.19.3 or newer, and Fabric API 0.156.0+26.2 or newer. The release scripts use the profiles under `ports/`.
 
-Builds run one profile at a time. Verified JARs are written to `dist/port.11/`, with exact Fabric builds under `dist/port.11/exact/`. To build one profile, run `./gradlew build` in its directory. JARs ending in `-thin` do not include the bundled audio libraries.
+See the [changelog](CHANGELOG.md) for release notes.
 
-## Playback
+## License
 
-The player supports local files, HTTP, YouTube, and SoundCloud. YouTube sign-in opens the system browser and stores the refresh token in the configuration directory. An external signature service can be selected with `musicplayer.youtube.cipher.url` and `musicplayer.youtube.cipher.password`.
-
-SoundCloud requests retain `track_authorization`, and saved tracks refresh before playback. When a format returns 401, 403, or 404, the player tries the next supported format. Run `python ports/test_soundcloud.py <source-profile>` for the local HTTP regression.
-
-## Playlists and search
-
-Playlists can be sorted by title, artist, or file name or URI. Folder imports keep the natural file-name order. Search filters playlists and saved tracks without changing their order or the playback queue.
-
-## Settings
-
-The equalizer has ten bands from 32 Hz to 16 kHz and a separate bass boost. Settings persist between launches. The language button cycles through all nine bundled translations.
-
-## Upstream and license
-
-The port is maintained by [misaki-schulz](https://github.com/misaki-schulz) and is not an official U-Team release.
-
-The root profile targets Minecraft 26.2 with Fabric Loader 0.19.3 or newer, Fabric API 0.156.0+26.2 or newer, and Java 25. Other profiles list their own requirements.
-
-The project is licensed under Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+[Apache-2.0](LICENSE). See [NOTICE](NOTICE) and [third-party licenses](THIRD_PARTY_LICENSES).

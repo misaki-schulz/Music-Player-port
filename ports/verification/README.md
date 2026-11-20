@@ -1,5 +1,15 @@
 # Проверка port.11
 
-Проверочная матрица включает Minecraft 1.20.1, 1.21.1, 1.21.11 и версии 26.x. Точные цели Fabric перечислены в `ports/targets.json`, Forge и NeoForge — в `ports/loader-targets.json`.
+Из корня репозитория запустите `python ports/verify_release.py`. Скрипт собирает профили из [матрицы Fabric](../targets.json) и [матрицы Forge и NeoForge](../loader-targets.json), запускает тесты без Minecraft и проверяет упаковку JAR.
 
-После запуска проверки результаты сборок и автономных регрессий сохраняются в `build-results.json`. Исторические прогоны GUI находятся в `forge-gui-results.json`.
+Логи и `results.json` появляются в `.cache/port.11-upstream-2.7.4.384-verification/`. Чтобы продолжить прерванную проверку с сохранённых результатов, добавьте `--resume`.
+
+Отдельные тесты можно запустить после сборки указанного профиля.
+
+```bash
+python ports/test_sorting.py 1.20.1
+python ports/test_audio_routing.py 1.21.1
+python ports/test_soundcloud.py 26.2
+```
+
+Для проверки в запущенной игре используйте [сценарий для клиента Minecraft](../client-gui/README.md).

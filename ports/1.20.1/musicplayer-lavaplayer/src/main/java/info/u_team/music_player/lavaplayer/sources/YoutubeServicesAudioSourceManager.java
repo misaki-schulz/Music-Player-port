@@ -22,8 +22,8 @@ import net.hycrafthd.youtube_source_services.LocalService;
 import net.hycrafthd.youtube_source_services.YoutubeSourceServices;
 
 /**
- * Youtube source that runs the cipher and poToken services locally. The first YouTube request installs and starts the services. After {@link #IDLE_TIMEOUT_MS} without youtube requests and without a playing track they
- * are stopped again.
+ * Starts the local cipher and poToken services on the first YouTube request.
+ * Stops them after five minutes without requests or active playback.
  */
 public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager {
 
@@ -37,10 +37,10 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 	private int pendingRequests;
 	private boolean closed;
 
-	/** When youtube was last used, 0 while the services are not in use. Guarded by this. */
+	/** Last use in nanoseconds, or zero before startup or after an idle stop. Guarded by this instance. */
 	private long lastUsed;
 
-	/** Use a configured external cipher when provided, otherwise use the upstream local services. */
+	/** Uses an external cipher if configured. Otherwise uses the local services. */
 	public static YoutubeAudioSourceManager create(BooleanSupplier playing, Client... clients) {
 		final String cipherUrl = System.getProperty("musicplayer.youtube.cipher.url");
 		final String cipherPassword = System.getProperty("musicplayer.youtube.cipher.password");
@@ -87,7 +87,7 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 				.setRemotePoToken(poToken.getUrl(), poToken.getToken());
 	}
 
-	/** Wait on an audio worker, with a bound for a stalled download or startup. */
+	/** Waits up to two minutes for service startup, including any downloads. */
 	private void use() {
 		final CompletableFuture<Void> start;
 		synchronized (this) {
@@ -135,10 +135,7 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 		}
 	}
 
-	/**
-	 * Decides whether youtube handles an identifier, before any request to youtube. Searches and loads of youtube urls
-	 * wait for the services here.
-	 */
+	/** Starts the services only for identifiers handled by YouTube. */
 	@Override
 	protected Router getRouter(HttpInterface httpInterface, String identifier) {
 		final Router router = super.getRouter(httpInterface, identifier);
@@ -148,9 +145,7 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 		return router;
 	}
 
-	/**
-	 * Used when a youtube track starts playing, which needs the cipher service.
-	 */
+	/** Starts the services before opening a YouTube playback connection. */
 	@Override
 	public HttpInterface getInterface() {
 		use();

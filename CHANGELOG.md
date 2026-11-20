@@ -2,16 +2,17 @@
 
 ## port.11 — 2026-11-19
 
-- Bumped the release version from `port.10.2` to `port.11` in Gradle and the packaging scripts.
-- Build output now goes to `dist/port.11/`.
+- Kept Fabric, Forge and NeoForge profiles for Minecraft 1.20.1, 1.21.1, 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 and 26.3.
+- YouTube requests start the local signature and poToken services when needed. An external signature service can be configured with the JVM properties `musicplayer.youtube.cipher.url` and `musicplayer.youtube.cipher.password`.
+- Updated Lavaplayer and LavaSrc for SoundCloud AAC playback.
+- Packaged builds go to `dist/port.11/`.
 
 ## port.10.2 — 2026-10-10
 
-- Added Forge profiles for the selected Minecraft versions.
-- Updated the bundled YouTube cipher and poToken services, including the Windows and IPv6 fixes.
-- Updated Lavaplayer and LavaSrc for SoundCloud AAC playback. SoundCloud authorization, saved-track refresh, and format fallback remain in place.
-- Stopped the audio thread cleanly when the client closes.
-- Added an offline SoundCloud regression using a local HTTP fixture.
+- Added Forge builds for 16 Minecraft versions with official Forge releases. The 1.21.2 build was available for Fabric and NeoForge.
+- SoundCloud now passes track authorization, refreshes tracks before playback and tries another format after an HTTP 401, 403 or 404. It accepts MIME parameters and skips unsupported Ogg codecs.
+- Fixed audio thread shutdown when Minecraft closes.
+- Added a SoundCloud test that uses a local HTTP server to check authorization, refresh and format fallback.
 
 ## port.10 — 2026-10-01
 
@@ -22,7 +23,7 @@
 - Text fields no longer trigger music hotkeys while typing.
 - Added search labels and empty-result messages in all nine bundled languages.
 
-Build, packaging, and offline regression checks passed. Minecraft runtime behavior and screen appearance were not tested manually.
+See the [saved client test report](ports/client-gui/last-results.md) for the profiles tested in Minecraft.
 
 Release: [port.10](https://github.com/misaki-schulz/Music-Player-port/releases/tag/port.10)
 
