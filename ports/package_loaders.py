@@ -5,17 +5,23 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
 import shutil
 import tomllib
 import zipfile
-from package_ports import check_classes, check_soundcloud, ROOT, PORTS, DESTINATION
+from package_ports import check_audio_jars, check_classes, check_soundcloud, ROOT, PORTS, DESTINATION
 
 TARGETS = json.loads((PORTS / 'loader-targets.json').read_text(encoding='utf-8'))
 FORMATS = json.loads((PORTS / 'loader-pack-formats.json').read_text(encoding='utf-8'))
+PACKAGE_GROUPS = {}
+for target in TARGETS:
+    package_group = target.get('package_group')
+    if package_group:
+        PACKAGE_GROUPS.setdefault(package_group, []).append(target)
 
 def inspect(target: dict) -> tuple[Path, dict]:
     mc, loader = target['minecraft'], target['loader']
-    version = f'2.7.1.351+mc{mc}.port.10.2'
+    version = f'2.7.4.384+mc{mc}.port.11'
     path = PORTS / target['group'] / 'build' / mc / 'libs' / f'music_player-{loader}-{mc}-{version}.jar'
     legacy = loader == 'forge' or mc == '1.20.1'
     meta_path = 'META-INF/mods.toml' if legacy else 'META-INF/neoforge.mods.toml'
@@ -50,8 +56,7 @@ def inspect(target: dict) -> tuple[Path, dict]:
         if FORMATS[mc][0] >= 65 and (pack.get('min_format') != FORMATS[mc] or pack.get('max_format') != FORMATS[mc]):
             raise ValueError(f'{path}: incorrect pack format range')
         packed = [n for n in names if n.startswith('dependencies/') and n.endswith('.jar.packed')]
-        if len(packed) != 37:
-            raise ValueError(f'{path}: expected 37 audio dependencies, got {len(packed)}')
+        check_audio_jars(packed, str(path))
         classes = check_classes(z, target['java'], path.name)
         for name in names:
             if name.endswith('.class'):
@@ -73,6 +78,7 @@ def inspect(target: dict) -> tuple[Path, dict]:
                 classes += check_classes(nested, target['java'], name)
                 if name.endswith('/musicplayer-lavaplayer.jar.packed'):
                     check_soundcloud(nested, target['source_group'])
+                    nested.getinfo('info/u_team/music_player/lavaplayer/sources/YoutubeServicesAudioSourceManager.class')
                     auth = 'info/u_team/music_player/lavaplayer/sources/YoutubeAuth.class'
                     compiled = PORTS / target['source_group'] / 'musicplayer-lavaplayer/build/classes/java/main' / auth
                     data = nested.read(auth)
@@ -93,21 +99,97 @@ def inspect(target: dict) -> tuple[Path, dict]:
                   'checked_classes': classes, 'packed_dependencies': len(packed),
                   'youtube_auth_class_sha256': auth_sha, 'minecraft_runtime_tested': False}
 
+
+def build_group(package_group: str, targets: list[dict]) -> tuple[Path, dict]:
+    checked = [inspect(target) for target in targets]
+    archives = []
+    for path, _ in checked:
+        archives.append(zipfile.ZipFile(path))
+    try:
+        first = archives[0]
+        metadata_name = 'META-INF/mods.toml' if targets[0]['loader'] == 'forge' else 'META-INF/neoforge.mods.toml'
+        ignored = {metadata_name, 'pack.mcmeta'}
+        first_names = set(first.namelist())
+        for archive, target in zip(archives[1:], targets[1:]):
+            if set(archive.namelist()) != first_names:
+                raise ValueError(f'{package_group}: archive entries differ for Minecraft {target["minecraft"]}')
+            if first.read('pack.mcmeta') != archive.read('pack.mcmeta'):
+                raise ValueError(f'{package_group}: resource-pack metadata differs for Minecraft {target["minecraft"]}')
+            for name in first_names - ignored:
+                if first.read(name) != archive.read(name):
+                    raise ValueError(f'{package_group}: archive content differs for Minecraft {target["minecraft"]} at {name}')
+
+        metadata = first.read(metadata_name).decode('utf-8')
+        group_name = package_group.removeprefix(f'{targets[0]["loader"]}-')
+        group_version = f'2.7.4.384+mc{group_name}.port.11'
+        metadata = re.sub(r'(?m)^version="[^"]+"$', f'version="{group_version}"', metadata, count=1)
+        minecraft_range = f'[{targets[0]["minecraft"]},{targets[-1]["minecraft"][:-1]}3)'
+        metadata = re.sub(
+            r'(?s)(modId="minecraft".*?versionRange=")[^"]+("),?',
+            rf'\g<1>{minecraft_range}\g<2>',
+            metadata,
+            count=1,
+        )
+        if targets[0]['loader'] == 'forge':
+            metadata = re.sub(r'(?s)(modId="forge".*?versionRange=")[^"]+("),?', r'\g<1>[62,)\g<2>', metadata, count=1)
+        else:
+            metadata = re.sub(r'(?s)(modId="neoforge".*?versionRange=")[^"]+("),?', r'\g<1>[4,)\g<2>', metadata, count=1)
+
+        name = f'music_player-{targets[0]["loader"]}-{group_name}-2.7.4.384.port.11.jar'
+        output = DESTINATION / name
+        with zipfile.ZipFile(output, 'w') as combined:
+            for info in first.infolist():
+                data = metadata.encode('utf-8') if info.filename == metadata_name else first.read(info.filename)
+                combined.writestr(info, data)
+        record = {
+            **targets[0],
+            'minecraft': [target['minecraft'] for target in targets],
+            'package_group': package_group,
+            'mod_version': group_version,
+            'file': name,
+            'bytes': output.stat().st_size,
+            'sha256': hashlib.sha256(output.read_bytes()).hexdigest(),
+            'checked_classes': sum(item[1]['checked_classes'] for item in checked),
+            'packed_dependencies': checked[0][1]['packed_dependencies'],
+            'minecraft_runtime_tested': False,
+        }
+        return output, record
+    finally:
+        for archive in archives:
+            archive.close()
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--loader', choices=['forge', 'neoforge'])
     parser.add_argument('--version')
+    parser.add_argument('--group', choices=sorted(PACKAGE_GROUPS))
     args = parser.parse_args()
-    selected = [t for t in TARGETS if (not args.loader or t['loader']==args.loader)
+    if args.group:
+        selected = PACKAGE_GROUPS[args.group]
+        if args.loader and any(t['loader'] != args.loader for t in selected):
+            parser.error('Package group does not match --loader')
+        if args.version:
+            selected = [t for t in selected if t['minecraft'] == args.version]
+    else:
+        selected = [t for t in TARGETS if (not args.loader or t['loader']==args.loader)
                 and (not args.version or t['minecraft']==args.version)]
     if not selected:
         parser.error('Unsupported loader/Minecraft combination')
     DESTINATION.mkdir(parents=True, exist_ok=True)
     manifest = DESTINATION / 'loader-manifest.json'
     records = json.loads(manifest.read_text(encoding='utf-8')) if manifest.exists() else []
+    if args.group:
+        path, record = build_group(args.group, selected)
+        records = [r for r in records if r.get('package_group') != args.group and r.get('file') != record['file']]
+        records.append(record)
+        records.sort(key=lambda r: (r['loader'], r['minecraft'][0]))
+        manifest.write_text(json.dumps(records, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
+        (DESTINATION / 'LOADER-SHA256SUMS').write_text(''.join(f'{r["sha256"]}  {r["file"]}\n' for r in records), encoding='utf-8')
+        print(f'Collected {record["file"]}: {len(selected)} Minecraft versions')
+        return
     for target in selected:
         path, record = inspect(target)
-        name = f'music_player-{target["loader"]}-{target["minecraft"]}-2.7.1.351.port.10.2.jar'
+        name = f'music_player-{target["loader"]}-{target["minecraft"]}-2.7.4.384.port.11.jar'
         shutil.copyfile(path, DESTINATION / name)
         record['file'] = name
         records = [r for r in records if not (r['loader']==target['loader'] and r['minecraft']==record['minecraft'])]

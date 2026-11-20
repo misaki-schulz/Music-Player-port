@@ -67,11 +67,14 @@ public final class SoundCloudRegression {
             var reader = new MusicPlayerSoundCloudSource.AuthorizedDataReader();
             var qualified = JsonBrowser.parse(metadata().replace("\"audio/ogg\"", "\"audio/ogg; codecs=\\\"opus\\\"\""));
             var formats = new DefaultSoundCloudFormatHandler();
-            check(formats.buildFormatIdentifier(formats.chooseBestFormat(new DefaultSoundCloudDataReader().readTrackFormats(qualified))).startsWith("M:"), "baseline must ignore parameterized Opus MIME");
             check(formats.buildFormatIdentifier(formats.chooseBestFormat(reader.readTrackFormats(qualified))).startsWith("O:"), "parameterized Opus MIME was not recognized");
             check(source.loadFromTrackData(qualified).getIdentifier().startsWith("O:"), "Opus format priority changed");
             var vorbis = JsonBrowser.parse(metadata().replace("\"audio/ogg\"", "\"audio/ogg; codecs=\\\"vorbis\\\"\""));
             check(formats.buildFormatIdentifier(formats.chooseBestFormat(reader.readTrackFormats(vorbis))).startsWith("M:"), "unsupported Vorbis selected as Opus");
+            var aac = JsonBrowser.parse(metadata().replace("\"audio/ogg\"", "\"audio/mp4; codecs=\\\"mp4a.40.2\\\"\"")
+                    .replace("progressive", "unsupported"));
+            check(source.loadFromTrackData(aac).getIdentifier().startsWith("A:"),
+                    "updated Lavaplayer did not recognize AAC-only HLS");
             String lookup = reader.readTrackFormats(data).get(1).getLookupUrl();
             check(lookup.contains("existing=keep") && lookup.contains("track_authorization=old-token"), "token/query lost");
             var foreign = JsonBrowser.parse(metadata().replace("https://api-v2.soundcloud.com/live", "https://foreign.example/live"));

@@ -1,10 +1,11 @@
 package info.u_team.music_player.lavaplayer.sources;
 
+import java.util.function.BooleanSupplier;
+
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
 
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.YoutubeSourceOptions;
 import dev.lavalink.youtube.clients.AndroidVr;
 import dev.lavalink.youtube.clients.Music;
 import dev.lavalink.youtube.clients.Tv;
@@ -18,8 +19,8 @@ public final class YoutubeAuth implements IYoutubeAuth {
 	private final YoutubeAudioSourceManager youtube;
 	private volatile boolean enabled;
 
-	public YoutubeAuth(AudioPlayerManager playerManager) {
-		this(playerManager, createSource());
+	public YoutubeAuth(AudioPlayerManager playerManager, BooleanSupplier playing) {
+		this(playerManager, createSource(playing));
 	}
 
 	YoutubeAuth(AudioPlayerManager playerManager, YoutubeAudioSourceManager youtube) {
@@ -30,13 +31,8 @@ public final class YoutubeAuth implements IYoutubeAuth {
 		playerManager.registerSourceManager(youtube);
 	}
 
-	private static YoutubeAudioSourceManager createSource() {
-		// The local signature parser fails on current YouTube player scripts. The
-		// cipher service receives stream URLs and player scripts, never OAuth tokens.
-		final String cipherUrl = System.getProperty("musicplayer.youtube.cipher.url", "https://cipher.kikkia.dev/");
-		final String cipherPassword = System.getProperty("musicplayer.youtube.cipher.password");
-		return new YoutubeAudioSourceManager(
-				new YoutubeSourceOptions().setRemoteCipher(cipherUrl, cipherPassword, "musicplayer-minecraft"),
+	private static YoutubeAudioSourceManager createSource(BooleanSupplier playing) {
+		return YoutubeServicesAudioSourceManager.create(playing,
 				new Music(),
 				new Tv(),
 				new TvHtml5Simply(),

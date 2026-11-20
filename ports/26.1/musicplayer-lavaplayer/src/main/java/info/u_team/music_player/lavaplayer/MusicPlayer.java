@@ -68,7 +68,10 @@ public class MusicPlayer implements IMusicPlayer {
 		
 		trackSearch = new TrackSearch(audioPlayerManager);
 		trackManager = new TrackManager(this, audioPlayer);
-		youtubeAuth = new YoutubeAuth(audioPlayerManager);
+		youtubeAuth = new YoutubeAuth(audioPlayerManager, () -> {
+			final AudioTrack track = audioPlayer.getPlayingTrack();
+			return track != null && "youtube".equals(track.getSourceManager().getSourceName()) && !audioPlayer.isPaused();
+		});
 		
 		speed = new ObservableValue<>(1F);
 		pitch = new ObservableValue<>(1F);

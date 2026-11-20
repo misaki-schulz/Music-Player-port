@@ -10,7 +10,7 @@ ROOT = PORTS.parent
 JAVA = Path('common/src/common/java/info/u_team/music_player')
 group = sys.argv[1] if len(sys.argv) > 1 else 'root'
 profile = ROOT if group == 'root' else PORTS / group
-cache = Path.home() / '.gradle/caches/modules-2/files-2.1'
+cache = Path(os.environ.get('GRADLE_USER_HOME', Path.home() / '.gradle')) / 'caches/modules-2/files-2.1'
 dependencies = []
 for artifact in ('com.google.code.gson/gson', 'org.apache.commons/commons-lang3', 'com.google.guava/guava'):
     jars = sorted((cache / artifact).rglob('*.jar'))

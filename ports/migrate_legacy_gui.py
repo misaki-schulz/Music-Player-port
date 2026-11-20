@@ -7,12 +7,9 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parent
-GROUPS = {
-    '1.21.2-1.21.3', '1.21.4', '1.21.5',
-    '1.21.6-1.21.8', '1.21.9-1.21.10', '1.21.11',
-}
-OLD_KEY_GROUPS = GROUPS - {'1.21.9-1.21.10', '1.21.11'}
-OLD_GUI_GROUPS = GROUPS - {'1.21.11'}
+GROUPS = {'1.21.11'}
+OLD_KEY_GROUPS = set()
+OLD_GUI_GROUPS = set()
 
 
 def migrate(text: str) -> str:

@@ -12,6 +12,31 @@ from release_cli import exclusive_operation
 PORTS = Path(__file__).resolve().parent
 TARGETS = json.loads((PORTS / 'loader-targets.json').read_text(encoding='utf-8'))
 
+
+def java_environment(java_version: int) -> dict[str, str] | None:
+    if os.name == 'nt':
+        return None
+    java_home = Path('/usr/lib/jvm') / f'java-{max(java_version, 21)}-openjdk'
+    if not (java_home / 'bin' / 'java').exists():
+        raise RuntimeError(f'JDK {max(java_version, 21)} not found at {java_home}')
+    environment = os.environ.copy()
+    environment['JAVA_HOME'] = str(java_home)
+    environment['PATH'] = str(java_home / 'bin') + os.pathsep + environment.get('PATH', '')
+    return environment
+
+
+def menu_entries(targets):
+    entries = []
+    grouped = {}
+    for target in targets:
+        key = target.get('package_group') or f'{target["loader"]}/{target["minecraft"]}'
+        if key not in grouped:
+            grouped[key] = []
+            entries.append((key, grouped[key]))
+        grouped[key].append(target)
+    return entries
+
+
 def build(targets):
     with exclusive_operation():
         for t in targets:
@@ -23,9 +48,25 @@ def build(targets):
                 subprocess.run(command, check=True)
             else:
                 subprocess.run(['sh', './gradlew', 'assemble', f'-PtargetVersion={t["minecraft"]}',
-                                '--no-daemon', '--max-workers=1', '--console=plain'], cwd=project, check=True)
-            subprocess.run([sys.executable, str(PORTS/'package_loaders.py'), '--loader', t['loader'],
-                            '--version', t['minecraft']], check=True)
+                                '--no-daemon', '--max-workers=1', '--console=plain'], cwd=project, check=True,
+                                env=java_environment(t['java']))
+        packaged = set()
+        for t in targets:
+            package_group = t.get('package_group')
+            full_group = package_group and {
+                item['minecraft'] for item in targets if item.get('package_group') == package_group
+            } == {
+                item['minecraft'] for item in TARGETS if item.get('package_group') == package_group
+            }
+            if full_group:
+                if package_group in packaged:
+                    continue
+                command = [sys.executable, str(PORTS/'package_loaders.py'), '--group', package_group]
+                packaged.add(package_group)
+            else:
+                command = [sys.executable, str(PORTS/'package_loaders.py'), '--loader', t['loader'],
+                           '--version', t['minecraft']]
+            subprocess.run(command, check=True)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -43,10 +84,16 @@ def main():
     elif args.all or args.version:
         build(targets)
     elif sys.stdin.isatty():
-        for i,t in enumerate(targets,1): print(f'{i}. {t["loader"]} / {t["minecraft"]}')
+        entries = menu_entries(targets)
+        for i, (label, entry_targets) in enumerate(entries, 1):
+            if len(entry_targets) > 1:
+                versions = label.removeprefix(f'{entry_targets[0]["loader"]}-')
+                print(f'{i}. {entry_targets[0]["loader"]} / {versions}')
+            else:
+                print(f'{i}. {entry_targets[0]["loader"]} / {entry_targets[0]["minecraft"]}')
         choice = input('Number, A for all, 0 to exit: ').strip().upper()
         if choice == 'A': build(targets)
-        elif choice.isdigit() and 1 <= int(choice) <= len(targets): build([targets[int(choice)-1]])
+        elif choice.isdigit() and 1 <= int(choice) <= len(entries): build(entries[int(choice)-1][1])
     else:
         parser.print_help()
 

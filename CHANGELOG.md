@@ -1,98 +1,78 @@
 # Changelog
 
-## port.10.2 — 2026-10-10 — Forge matrix and SoundCloud playback
+## port.11 — 2026-11-19
 
-- Added native Forge ports for all 16 supported Minecraft versions with official Forge releases. Forge never released 1.21.2; Fabric and NeoForge retain that target.
-- Preserve SoundCloud track authorization when resolving audio formats. Refresh saved/queued tracks before playback and fall back when a public transcoding returns 401/403/404.
-- Recognize supported SoundCloud MIME types with parameters while rejecting incompatible Ogg codecs.
-- Keep existing SoundCloud playlist encoding, cloning and access restrictions. YouTube source code is unchanged.
-- Stop the audio thread cleanly on client shutdown even when Lavaplayer wraps and clears an interrupt.
-- All loaders share the same SoundCloud implementation; release metadata is port.10.2 throughout the 50-target matrix.
-- Added an offline HTTP regression that reproduces the missing-token 404 and exercises refresh, fallback, saved tracks and bounded error handling. Validation results are recorded separately after execution.
+- Bumped the release version from `port.10.2` to `port.11` in Gradle and the packaging scripts.
+- Build output now goes to `dist/port.11/`.
 
-## port.10 — 2026-10-01 — search saved songs and playlists
+## port.10.2 — 2026-10-10
 
-Supports Minecraft 1.21.2 through 26.3: 15 exact build targets, packaged into eight release JARs.
+- Added Forge profiles for the selected Minecraft versions.
+- Updated the bundled YouTube cipher and poToken services, including the Windows and IPv6 fixes.
+- Updated Lavaplayer and LavaSrc for SoundCloud AAC playback. SoundCloud authorization, saved-track refresh, and format fallback remain in place.
+- Stopped the audio thread cleanly when the client closes.
+- Added an offline SoundCloud regression using a local HTTP fixture.
 
-### Added
+## port.10 — 2026-10-01
 
-- Live search by playlist name on the main player screen.
-- Live search by title for songs already added to a playlist, including individual songs inside provider playlists.
-- Case-insensitive substring matching that ignores surrounding spaces in the query.
-- Search hints and empty-result messages in all nine bundled languages.
+- Added search by playlist name and by title of saved tracks.
+- Search ignores case and surrounding spaces.
+- Clearing a search restores duplicate and unavailable entries.
+- Filtering leaves playlist order, track order, and the playback queue unchanged.
+- Text fields no longer trigger music hotkeys while typing.
+- Added search labels and empty-result messages in all nine bundled languages.
 
-### Behavior and fixes
-
-- Clearing a search restores the complete list, including duplicate and unavailable entries.
-- Filtering leaves saved playlists, track order, and the playback queue unchanged.
-- Search queries remain after resizing the window or returning from the sorting screen.
-- Focused text fields no longer trigger the music menu or playback hotkeys while typing.
-
-### Validation
-
-- All 15 Minecraft targets compiled successfully; the eight grouped JARs passed bytecode, dependency, and SHA-256 checks, with matching code and assets within each shared version group.
-- Offline regressions passed for the production song and playlist lists, nested songs, duplicates, loading, empty results, clearing, serialization, playback, sorting, callback ordering, and YouTube source routing.
-- The GitHub build passed. Minecraft runtime behavior and screen appearance have not been manually tested.
+Build, packaging, and offline regression checks passed. Minecraft runtime behavior and screen appearance were not tested manually.
 
 Release: [port.10](https://github.com/misaki-schulz/Music-Player-port/releases/tag/port.10)
 
-## port.9 — 2026-10-01 — playlist sorting and ordered folder imports
+## port.9 — 2026-10-01
 
-Supports all Minecraft targets from 1.21.2 through 26.3.
-
-- Added six playlist sort options: title, artist, and file name / URI, each ascending or descending.
-- Used stable, case-insensitive natural ordering so Track 2 precedes Track 10.
-- Saved the sorted order without changing the playlist file format or interrupting the current track.
-- Retained duplicate and unavailable entries; nested provider playlists remain grouped.
-- Sorted folder imports by file name and preserved that order across asynchronous metadata callbacks.
-- Disabled Add all until loading completes; ignored results from replaced searches and closed screens.
-- Added sorting labels in all nine languages and offline regressions for saved reloads, playback, sorting, and callback ordering.
-- Included the port.8 fix for saved YouTube links after restarting Minecraft.
-- Fixed clean builds after the upstream Maven server stopped serving lavadsp 0.7.8 and native-loader 0.0.1: preserved the exact release artifacts, metadata, hashes, and licenses in the local vendor repository used by every source profile.
-- Verified the preserved dependency JARs against the published port.9 JARs and tested dependency resolution with an empty Gradle cache. Audio implementation and dependency versions did not change.
+- Added playlist sorting by title, artist, and file name or URI in both directions.
+- Sorting is case-insensitive and compares numbers naturally, so `Track 2` comes before `Track 10`.
+- Saved order, duplicate entries, unavailable entries, and nested online playlists are preserved.
+- Folder imports keep file-name order while metadata loads asynchronously.
+- Fixed saved YouTube links after restarting Minecraft.
+- Added a local mirror for the lavadsp and native-loader versions used by this release.
 
 Release: [port.9](https://github.com/misaki-schulz/Music-Player-port/releases/tag/port.9)
 
-## port.8 — all Minecraft targets 1.21.2 through 26.3
+## port.8
 
-- Fixed saved YouTube URLs failing with `Unknown file format.` after restarting or changing Minecraft versions: register YouTube before generic HTTP at startup.
-- OAuth restoration now updates the existing source instead of appending a late source manager.
-- Preserved playlist and token storage formats; existing playlists do not need to be recreated.
-- Added an offline source-routing regression for restart, OAuth retry, saved links/playlists, search, and HTTP fallback. Minecraft runtime testing is left to the user.
+- Registered YouTube before the generic HTTP source so saved links work after a restart.
+- Reauthorization updates the existing source.
+- Saved playlist and token formats remain compatible.
 
 ## 2.7.1.351+mc26.2.port.1
 
 - Ported the Fabric client to Minecraft 26.2 and Java 25.
-- Updated GUI, rendering, input, audio, localization, and resource APIs.
-- Replaced the external U Team Core runtime dependency with the required adapted classes.
-- Kept Fabric API as a required dependency.
+- Updated the GUI, rendering, input, audio, localization, and resource APIs.
+- Added the required adapted U Team Core classes.
 
 ## 2.7.1.351+mc26.2.port.2
 
-- Added YouTube sign-in through the system browser with a device code shown in Minecraft.
-- Added a startup choice to sign in or skip YouTube for the current session.
-- Saved the YouTube refresh token for reuse after restarting Minecraft.
-- Added a YouTube sign-in control to Music Player settings and localized the new prompts.
+- Added YouTube sign-in through the browser with a one-time code.
+- Saved the refresh token between launches.
+- Added a sign-in button to the settings screen.
 
 ## 2.7.1.351+mc26.2.port.3
 
-- Updated the bundled YouTube source library to a snapshot with the TV OAuth User-Agent fix, addressing stream requests that returned "The page needs to be reloaded".
+- Updated the YouTube library with the TV OAuth User-Agent fix.
 
 ## 2.7.1.351+mc26.2.port.4
 
-- Added a configurable remote cipher fallback for YouTube player signatures when the local parser cannot decode the current player script.
+- Added a configurable external service for YouTube signature decoding.
 
 ## 2.7.1.351+mc26.2.port.5
 
-- Fixed saved YouTube tracks becoming "Unknown file format" after reopening Minecraft.
-- Expanded the volume control from 0–100 to 0–200, with levels above 100 increasing output gain.
+- Fixed saved YouTube tracks after reopening Minecraft.
+- Extended the volume range to 200.
 
 ## 2.7.1.351+mc26.2.port.6
 
-- Added a ten-band equalizer and a separate bass boost switch, with settings preserved between launches.
-- Made every bundled language selectable.
-- Changed the initial Google account sign-in prompt to English.
+- Added a ten-band equalizer and bass boost.
+- Added selection for all bundled languages.
 
 ## 2.7.1.351+mc26.2.port.7
 
-- Fixed Minecraft staying open after its window closed by stopping the mod's audio and playlist workers during client shutdown.
+- Stopped audio and background workers when Minecraft closes.

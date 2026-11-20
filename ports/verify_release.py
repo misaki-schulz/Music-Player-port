@@ -9,26 +9,26 @@ from datetime import datetime, timezone
 
 PORTS = Path(__file__).resolve().parent
 ROOT = PORTS.parent
-CACHE = ROOT / '.cache/port.10.2-verification'
+CACHE = ROOT / '.cache/port.11-upstream-2.7.4.384-verification'
 CACHE.mkdir(parents=True, exist_ok=True)
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--resume', action='store_true', help='Keep successful targets from this verification run')
 args = parser.parse_args()
 native = json.loads((PORTS / 'loader-targets.json').read_text(encoding='utf-8'))
 fabric = [{**t, 'loader': 'fabric'} for t in json.loads((PORTS / 'targets.json').read_text(encoding='utf-8-sig'))]
-targets = sorted(native + fabric, key=lambda t: (t.get('build_system') != 'forgegradle7', t['loader'], [x['minecraft'] for x in fabric].index(t['minecraft'])))
+targets = sorted(native + fabric, key=lambda t: (t['loader'] != 'fabric', t['loader'], [x['minecraft'] for x in fabric].index(t['minecraft'])))
 state_file = CACHE / 'results.json'
-state = json.loads(state_file.read_text(encoding='utf-8')) if args.resume and state_file.exists() else {'release': 'port.10.2', 'builds': {}, 'regressions': {}}
+state = json.loads(state_file.read_text(encoding='utf-8')) if args.resume and state_file.exists() else {'release': 'port.11', 'builds': {}, 'regressions': {}}
 
 def save():
     state['updated_at_utc'] = datetime.now(timezone.utc).isoformat()
     state_file.write_text(json.dumps(state, indent=2) + '\n', encoding='utf-8')
 
-def run(key, command):
+def run(key, command, cwd=ROOT, env=None):
     log = CACHE / (key + '.log')
     print('START', key, flush=True)
     with log.open('w', encoding='utf-8') as output:
-        result = subprocess.run(command, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT)
+        result = subprocess.run(command, cwd=cwd, env=env, stdout=output, stderr=subprocess.STDOUT)
     print('PASS' if result.returncode == 0 else 'FAIL', key, log, flush=True)
     return result.returncode == 0
 
@@ -36,8 +36,22 @@ for t in targets:
     key = t['loader'] + '-' + t['minecraft']
     if state['builds'].get(key) == 'passed':
         continue
-    passed = run(key, ['pwsh', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(PORTS / 'Build-Target.ps1'),
-                       '-Group', t['group'], '-Version', t['minecraft']])
+    if os.name == 'nt':
+        passed = run(key, ['pwsh', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(PORTS / 'Build-Target.ps1'),
+                           '-Group', t['group'], '-Version', t['minecraft'], '-Tasks', 'build'])
+    else:
+        env = os.environ.copy()
+        forge7 = t.get('build_system') == 'forgegradle7'
+        if t['group'] == 'forge-1.21.1' and env.get('MUSICPLAYER_JAVA21_HOME'):
+            env['JAVA_HOME'] = env['MUSICPLAYER_JAVA21_HOME']
+        if forge7:
+            env.setdefault('_JAVA_OPTIONS', '-Xms256m -Xmx3g -XX:ActiveProcessorCount=2 -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20')
+        passed = run(key, ['sh', './gradlew', 'build', f"-PtargetVersion={t['minecraft']}",
+                           '--no-daemon', '--max-workers=1', '--console=plain',
+                           '-Dorg.gradle.jvmargs=-Xmx1200m -Dfile.encoding=UTF-8'],
+                     cwd=PORTS / t['group'], env=env)
+        if passed and forge7:
+            passed = run(key + '-decompiler', [sys.executable, str(PORTS / 'check_forge_decompiler.py'), t['minecraft']])
     state['builds'][key] = 'passed' if passed else 'failed'
     save()
     if not passed:
@@ -59,4 +73,4 @@ for script in ('package_ports.py', 'package_loaders.py'):
         sys.exit(1)
 state['packaging'] = 'passed'
 save()
-print('PASS: 50 exact builds, 33 profile regressions and all release archives', flush=True)
+print(f'PASS: {len(targets)} exact builds, {len(state['regressions'])} profile regressions and all release archives', flush=True)

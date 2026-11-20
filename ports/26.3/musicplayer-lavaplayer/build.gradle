@@ -71,10 +71,7 @@ repositories {
 		url = "https://repo.u-team.info"
 	}
 	maven {
-		url = "https://maven.arbjerg.dev/releases"
-	}
-	maven {
-		url = "https://maven.lavalink.dev/snapshots"
+		url = "https://maven.lavalink.dev/releases"
 	}
 	maven {
 		url = "https://maven.topi.wtf/releases"
@@ -86,12 +83,12 @@ repositories {
 }
 
 dependencies {
-	musicplayer "net.hycrafthd.lavaplayer:lavaplayer:2.2.4-fix-j8"
-	// Contains the upstream TV OAuth User-Agent fix for "The page needs to be reloaded" (#226).
-	musicplayer "dev.lavalink.youtube:v2:b33460b38ad13b5cd07da75e46444397cf0ea2df-SNAPSHOT"
+	musicplayer "net.hycrafthd.lavaplayer:lavaplayer:2.2.7-fix-j8"
+	musicplayer "net.hycrafthd.lavaplayer-extras.youtube-source:v2:1.18.3-experimental"
+	musicplayer "net.hycrafthd.lavaplayer-extras.youtube-source-services:youtube-source-services:1.0.3"
 	musicplayer "dev.arbjerg:lavadsp:0.7.8"
-	musicplayer "com.github.topi314.lavasrc:lavasrc:4.8.1"
-	musicplayer "com.github.topi314.lavasrc:lavasrc-protocol:4.8.1"
+	musicplayer "com.github.topi314.lavasrc:lavasrc:4.8.3"
+	musicplayer "com.github.topi314.lavasrc:lavasrc-protocol:4.8.3"
 	
 	musicplayer "org.slf4j:jcl-over-slf4j:2.0.17"
 	implementation "org.slf4j:slf4j-simple:2.0.17"

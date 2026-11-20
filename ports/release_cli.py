@@ -1,4 +1,4 @@
-"""Cross-platform interactive builder and repository-local cleanup for port.10.2."""
+"""Cross-platform interactive builder and repository-local cleanup for port.11."""
 from __future__ import annotations
 
 import argparse
@@ -81,7 +81,13 @@ def compile_version(version: str) -> None:
         command = ['sh', str(project / 'gradlew'), 'assemble', f'-PtargetVersion={version}',
                    '--no-daemon', '--max-workers=1',
                    '-Dorg.gradle.jvmargs=-Xmx1200m -Dfile.encoding=UTF-8', '--console=plain']
-        subprocess.run(command, cwd=project, check=True)
+        java_home = Path('/usr/lib/jvm') / f'java-{max(target["java"], 21)}-openjdk'
+        if not (java_home / 'bin' / 'java').exists():
+            raise RuntimeError(f'JDK {target["java"]} not found at {java_home}')
+        environment = os.environ.copy()
+        environment['JAVA_HOME'] = str(java_home)
+        environment['PATH'] = str(java_home / 'bin') + os.pathsep + environment.get('PATH', '')
+        subprocess.run(command, cwd=project, check=True, env=environment)
 
 
 def build(versions: list[str], group: str | None) -> None:
@@ -95,15 +101,19 @@ def build(versions: list[str], group: str | None) -> None:
         print('\n=== Проверка и упаковка JAR ===', flush=True)
         subprocess.run(command, cwd=ROOT, check=True)
         if group is not None:
-            print(f'Готово: {ROOT / "dist" / "port.10.2" / f"music_player-fabric-{group}-2.7.1.351.port.10.2.jar"}')
+            print(f'Готово: {ROOT / "dist" / "port.11" / f"music_player-fabric-{group}-2.7.4.384.port.11.jar"}')
         else:
-            print(f'Готово: {len(BINARY_GROUPS)} JAR в {ROOT / "dist" / "port.10.2"}')
+            print(f'Готово: {len(BINARY_GROUPS)} JAR в {ROOT / "dist" / "port.11"}')
+
+
+def build_everything() -> None:
+    subprocess.run([sys.executable, str(PORTS / 'build_all.py')], cwd=ROOT, check=True)
 
 
 def generated_paths() -> list[Path]:
     """List only known generated files inside this checkout."""
     found: list[Path] = []
-    release_dir = ROOT / 'dist' / 'port.10.2'
+    release_dir = ROOT / 'dist' / 'port.11'
     if release_dir.exists() and not release_dir.is_symlink():
         found.append(release_dir)
     for current, directories, files in os.walk(ROOT, topdown=True, followlinks=False):
@@ -153,11 +163,13 @@ def list_groups() -> None:
 
 def interactive() -> None:
     while True:
-        print('\nMusic Player port.10.2')
+        print('\nMusic Player port.11')
         list_groups()
         all_choice = str(len(BINARY_GROUPS) + 1)
         print(f'{all_choice} — собрать все {len(BINARY_GROUPS)} JAR')
+        print('F — собрать весь Forge')
         print('N — сборки Forge / NeoForge')
+        print('A — собрать вообще всё: Fabric, Forge и NeoForge')
         print('C — очистить созданные сборки и локальный кеш проекта')
         print('0 — выход')
         choice = input('Выбор: ').strip().upper()
@@ -168,8 +180,13 @@ def interactive() -> None:
             build(versions, group)
         elif choice == all_choice:
             build(VERSIONS, None)
+        elif choice == 'F':
+            subprocess.run([sys.executable, str(PORTS / 'loader_cli.py'), '--loader', 'forge', '--all'],
+                           cwd=ROOT, check=True)
         elif choice == 'N':
             subprocess.run([sys.executable, str(PORTS / 'loader_cli.py')], check=True)
+        elif choice == 'A':
+            build_everything()
         elif choice in {'C', 'С'}:
             clean(False)
         else:
@@ -177,11 +194,13 @@ def interactive() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Меню сборки Music Player port.10.2')
+    parser = argparse.ArgumentParser(description='Меню сборки Music Player port.11')
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--group', choices=list(GROUP_BY_NAME), help='собрать один общий JAR для диапазона Minecraft')
     actions.add_argument('--version', choices=VERSIONS, help=argparse.SUPPRESS)
     actions.add_argument('--all', action='store_true', help=f'собрать все {len(BINARY_GROUPS)} JAR')
+    actions.add_argument('--everything', action='store_true', help='собрать все Fabric, Forge и NeoForge профили')
+    actions.add_argument('--forge-all', action='store_true', help='собрать все Forge-профили')
     actions.add_argument('--clean', action='store_true', help='очистить локальные сборки и кеш')
     actions.add_argument('--list', action='store_true', help='показать совместимые версии и диапазоны')
     parser.add_argument('--dry-run', action='store_true', help='показать пути очистки без удаления; только с --clean')
@@ -197,6 +216,11 @@ def main() -> None:
         build(versions, group)
     elif args.all:
         build(VERSIONS, None)
+    elif args.everything:
+        build_everything()
+    elif args.forge_all:
+        subprocess.run([sys.executable, str(PORTS / 'loader_cli.py'), '--loader', 'forge', '--all'],
+                       cwd=ROOT, check=True)
     elif args.clean:
         clean(args.dry_run)
     elif sys.stdin.isatty():

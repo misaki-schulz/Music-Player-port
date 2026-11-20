@@ -44,7 +44,7 @@ public class MusicPlayerSoundCloudSource extends SoundCloudAudioSourceManager {
 
     private MusicPlayerSoundCloudSource(AuthorizedDataReader reader, DefaultSoundCloudDataLoader loader,
             DefaultSoundCloudFormatHandler formats) {
-        super(true, reader, loader, formats, new DefaultSoundCloudPlaylistLoader(loader, reader, formats), false);
+        super(true, reader, loader, formats, new DefaultSoundCloudPlaylistLoader(loader, reader, formats), true);
         this.reader = reader;
     }
 
@@ -150,7 +150,10 @@ public class MusicPlayerSoundCloudSource extends SoundCloudAudioSourceManager {
                 final String base = type.getMimeType();
                 final String codec = type.getParameter("codecs");
                 // SoundCloud's Ogg decoder supports Opus; do not relabel other codecs.
-                if ("audio/ogg".equals(base) && (codec == null || "opus".equalsIgnoreCase(codec.trim()))) return base;
+                if ("audio/ogg".equals(base)) {
+                    // Lavaplayer now accepts MIME parameters, so explicitly reject other Ogg codecs.
+                    return codec == null || "opus".equalsIgnoreCase(codec.trim()) ? base : "application/octet-stream";
+                }
                 if ("audio/mpeg".equals(base)) return base;
             } catch (RuntimeException invalidMime) {
                 // Preserve unsupported/malformed formats so the selector skips them.

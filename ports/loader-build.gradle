@@ -9,7 +9,7 @@ def forge7 = target.build_system == 'forgegradle7'
 def legacyModDev = targetVersion == '1.20.1'
 def sourcePort = file("../${target.source_group}")
 def audioProject = project(':musicplayer-lavaplayer')
-version = "2.7.1.351+mc${targetVersion}.port.10.2"
+version = "2.7.4.384+mc${targetVersion}.port.11"
 base.archivesName = "music_player-${target.loader}-${targetVersion}"
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(target.java)
