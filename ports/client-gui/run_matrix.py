@@ -62,13 +62,13 @@ try:
         previous=next((r for r in records if r['key']==key),None)
         forge7=target.get('build_system')=='forgegradle7'
         production=(loader=='neoforge' and mc!='1.20.1') or forge7
-        jar=ROOT/'dist/port.11'/f'music_player-{loader}-{mc}-2.7.4.384.port.11.jar'
+        jar=ROOT/'dist/port.11.1'/f'music_player-{loader}-{mc}-2.7.4.384.port.11.1.jar'
         same_jar=not production or (previous and jar.is_file() and
             previous.get('jar_sha256')==hashlib.sha256(jar.read_bytes()).hexdigest())
         agent_name='client-probe-fabric.jar' if loader=='fabric' else 'client-probe-v2.jar'
         agent_sha=hashlib.sha256((HERE/agent_name).read_bytes()).hexdigest()
         source_sha=input_sha(target)
-        if args.resume and previous and previous.get('release')=='port.11' and previous['status']=='passed' and previous.get('agent_sha256')==agent_sha and previous.get('input_sha256')==source_sha and same_jar:continue
+        if args.resume and previous and previous.get('release')=='port.11.1' and previous['status']=='passed' and previous.get('agent_sha256')==agent_sha and previous.get('input_sha256')==source_sha and same_jar:continue
         game=HERE/key
         game.mkdir(exist_ok=True)
         for file in ['gui-result.txt','gui-error.txt','gui.log']:(game/file).unlink(missing_ok=True)
@@ -118,7 +118,7 @@ try:
         report=game/'gui-result.txt'
         error=game/'gui-error.txt'
         status='passed' if exitcode==0 and report.exists() and report.read_text(encoding='utf-8').startswith('PASS\n') and not error.exists() else 'failed'
-        record={'key':key,'loader':loader,'minecraft':mc,'status':status,'client_exit':exitcode,'release':'port.11',
+        record={'key':key,'loader':loader,'minecraft':mc,'status':status,'client_exit':exitcode,'release':'port.11.1',
             'mode':'release-jar-in-development-client' if production else 'development-client',
             'seconds':round(time.time()-started,1),'log':str(logfile.relative_to(ROOT)),
             'report':str(report.relative_to(ROOT)) if report.exists() else None,

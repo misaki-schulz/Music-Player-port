@@ -1,4 +1,4 @@
-"""Cross-platform interactive builder and repository-local cleanup for port.11."""
+"""Cross-platform interactive builder and repository-local cleanup for port.11.1."""
 from __future__ import annotations
 
 import argparse
@@ -101,9 +101,9 @@ def build(versions: list[str], group: str | None) -> None:
         print('\n=== Проверка и упаковка JAR ===', flush=True)
         subprocess.run(command, cwd=ROOT, check=True)
         if group is not None:
-            print(f'Готово: {ROOT / "dist" / "port.11" / f"music_player-fabric-{group}-2.7.4.384.port.11.jar"}')
+            print(f'Готово: {ROOT / "dist" / "port.11.1" / f"music_player-fabric-{group}-2.7.4.384.port.11.1.jar"}')
         else:
-            print(f'Готово: {len(BINARY_GROUPS)} JAR в {ROOT / "dist" / "port.11"}')
+            print(f'Готово: {len(BINARY_GROUPS)} JAR в {ROOT / "dist" / "port.11.1"}')
 
 
 def build_everything() -> None:
@@ -113,7 +113,7 @@ def build_everything() -> None:
 def generated_paths() -> list[Path]:
     """List only known generated files inside this checkout."""
     found: list[Path] = []
-    release_dir = ROOT / 'dist' / 'port.11'
+    release_dir = ROOT / 'dist' / 'port.11.1'
     if release_dir.exists() and not release_dir.is_symlink():
         found.append(release_dir)
     for current, directories, files in os.walk(ROOT, topdown=True, followlinks=False):
@@ -163,7 +163,7 @@ def list_groups() -> None:
 
 def interactive() -> None:
     while True:
-        print('\nMusic Player port.11')
+        print('\nMusic Player port.11.1')
         list_groups()
         all_choice = str(len(BINARY_GROUPS) + 1)
         print(f'{all_choice} — собрать все {len(BINARY_GROUPS)} JAR')
@@ -194,7 +194,7 @@ def interactive() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Меню сборки Music Player port.11')
+    parser = argparse.ArgumentParser(description='Меню сборки Music Player port.11.1')
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--group', choices=list(GROUP_BY_NAME), help='собрать один общий JAR для диапазона Minecraft')
     actions.add_argument('--version', choices=VERSIONS, help=argparse.SUPPRESS)

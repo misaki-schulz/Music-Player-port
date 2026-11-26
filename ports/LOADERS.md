@@ -1,4 +1,4 @@
-# Forge и NeoForge для Music Player port.11
+# Forge и NeoForge для Music Player port.11.1
 
 Выберите JAR Music Player для указанной версии Minecraft и своего загрузчика. Эти сборки не требуют Fabric API.
 
@@ -24,6 +24,6 @@ python ports/loader_cli.py --loader neoforge --version 26.2
 python ports/loader_cli.py --all
 ```
 
-Скрипт собирает профили по очереди и проверяет JAR перед упаковкой. Архивы, `loader-manifest.json` и контрольные суммы `LOADER-SHA256SUMS` появляются в `dist/port.11/`.
+Скрипт собирает профили по очереди и проверяет JAR перед упаковкой. Архивы, `loader-manifest.json` и контрольные суммы `LOADER-SHA256SUMS` появляются в `dist/port.11.1/`.
 
 Для сборки всей матрицы нужны JDK 17, 21 и 25. В Windows скрипт ищет их в `JAVA_HOME`, `%ProgramFiles%/Java` и `%USERPROFILE%/.jdks`.

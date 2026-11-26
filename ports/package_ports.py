@@ -13,7 +13,7 @@ import zipfile
 
 PORTS = Path(__file__).resolve().parent
 ROOT = PORTS.parent
-DESTINATION = ROOT / 'dist' / 'port.11'
+DESTINATION = ROOT / 'dist' / 'port.11.1'
 TARGETS = json.loads((PORTS / 'targets.json').read_text(encoding='utf-8-sig'))
 EXPECTED_VERSIONS = ['1.20.1', '1.21.1', '1.21.11', '26.1', '26.1.1', '26.1.2', '26.2', '26.3']
 VARIABLE_ENTRIES = {'fabric.mod.json', 'pack.mcmeta', 'META-INF/MANIFEST.MF'}
@@ -24,7 +24,7 @@ REQUIRED_AUDIO_JARS = {
     'lavaplayer-natives-2.2.7-fix-j8.jar',
     'v2-1.18.3-experimental.jar',
     'common-1.18.3-experimental.jar',
-    'youtube-source-services-1.0.3.jar',
+    'youtube-source-services-1.0.4.jar',
     'lavasrc-4.8.3.jar',
 }
 
@@ -32,6 +32,22 @@ def check_audio_jars(packed: list[str], label: str) -> None:
     actual = {Path(name).name.removesuffix('.packed') for name in packed}
     if missing := REQUIRED_AUDIO_JARS - actual:
         raise ValueError(f'{label}: missing audio dependencies: {sorted(missing)}')
+
+def check_youtube_services(nested: zipfile.ZipFile, label: str) -> None:
+    entry = 'net/hycrafthd/youtube_source_services/services.properties'
+    expected = (PORTS / 'youtube-services/services.properties').read_bytes()
+    if nested.read(entry) != expected:
+        raise ValueError(f'{label}: stale YouTube cipher/EJS revisions in dependency JAR')
+
+def check_youtube_source(nested: zipfile.ZipFile, group: str) -> None:
+    base = 'info/u_team/music_player/lavaplayer/sources/'
+    compiled = PORTS / group / 'musicplayer-lavaplayer/build/classes/java/main' / base
+    classes = list(compiled.glob('YoutubeServicesAudioSourceManager*.class'))
+    if not classes:
+        raise ValueError(f'{group}: missing compiled YouTube service manager')
+    for path in classes:
+        if nested.read(base + path.name) != path.read_bytes():
+            raise ValueError(f'{group}: stale YouTube service manager in release JAR')
 
 def check_soundcloud(nested: zipfile.ZipFile, group: str) -> None:
     base = 'info/u_team/music_player/lavaplayer/sources/'
@@ -74,7 +90,7 @@ def check_classes(archive: zipfile.ZipFile, java: int, label: str) -> int:
 
 def inspect(target: dict) -> tuple[Path, dict]:
     version = target['minecraft']
-    expected_mod_version = f'2.7.4.384+mc{version}.port.11'
+    expected_mod_version = f'2.7.4.384+mc{version}.port.11.1'
     candidates = []
     output = PORTS / target['group'] / 'build' / version / 'libs'
     for path in output.glob('*.jar'):
@@ -136,8 +152,11 @@ def inspect(target: dict) -> tuple[Path, dict]:
         for name in packed:
             with zipfile.ZipFile(io.BytesIO(archive.read(name))) as nested:
                 classes += check_classes(nested, target['java'], name)
+                if name.endswith('/youtube-source-services-1.0.4.jar.packed'):
+                    check_youtube_services(nested, version)
                 if name.endswith('/musicplayer-lavaplayer.jar.packed'):
                     check_soundcloud(nested, target['group'])
+                    check_youtube_source(nested, target['group'])
                     nested.getinfo('info/u_team/music_player/lavaplayer/sources/YoutubeServicesAudioSourceManager.class')
                     auth_class = 'info/u_team/music_player/lavaplayer/sources/YoutubeAuth.class'
                     compiled = PORTS / target['group'] / 'musicplayer-lavaplayer/build/classes/java/main' / auth_class
@@ -176,7 +195,7 @@ def build_group(group: str, members: list[tuple[Path, dict]]) -> dict:
                 if archive.read(name) != archives[0].read(name):
                     raise ValueError(f'{group}: executable or asset differs: {name}')
         metadata = json.loads(archives[0].read('fabric.mod.json'))
-        metadata['version'] = f'2.7.4.384+mc{group}.port.11'
+        metadata['version'] = f'2.7.4.384+mc{group}.port.11.1'
         metadata['depends']['minecraft'] = versions if len(versions) > 1 else versions[0]
         # Fabric API releases for 1.21.x select their own Minecraft versions.
         # The 26.1.x client entrypoint checks its per-patch minimum explicitly.
@@ -196,7 +215,7 @@ def build_group(group: str, members: list[tuple[Path, dict]]) -> dict:
                 pack['pack']['min_format'] = min((item['min_format'] for item in pack_formats))
                 pack['pack']['max_format'] = max((item['max_format'] for item in pack_formats))
                 pack['pack'].pop('supported_formats', None)
-        name = f'music_player-fabric-{group}-2.7.4.384.port.11.jar'
+        name = f'music_player-fabric-{group}-2.7.4.384.port.11.1.jar'
         output = DESTINATION / name
         with zipfile.ZipFile(output, 'w') as combined:
             for info in archives[0].infolist():
@@ -253,7 +272,7 @@ def write_manifest(directory: Path, records: list[dict]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Verify and package port.11 release JARs')
+    parser = argparse.ArgumentParser(description='Verify and package port.11.1 release JARs')
     parser.add_argument('--group', choices=[group for group, _ in BINARY_GROUPS],
                         help='Package one binary group after compiling all its Minecraft versions')
     args = parser.parse_args()
@@ -286,7 +305,7 @@ def main() -> None:
     grouped_names = {record['file'] for record in grouped}
     previous_exact_names = {record['file'] for _, record in checked}
     if args.group is None:
-        for obsolete in DESTINATION.glob('music_player-fabric-*-2.7.4.384.port.11.jar'):
+        for obsolete in DESTINATION.glob('music_player-fabric-*-2.7.4.384.port.11.1.jar'):
             if obsolete.name not in grouped_names:
                 obsolete.unlink()
     for name in previous_exact_names - grouped_names:
@@ -299,7 +318,7 @@ def main() -> None:
                                 [group for group, _ in BINARY_GROUPS])
     write_manifest(exact_destination, records)
     write_manifest(DESTINATION, grouped)
-    print(f'Collected {len(grouped)} grouped port.11 JARs for {len(records)} Minecraft releases into {DESTINATION}')
+    print(f'Collected {len(grouped)} grouped port.11.1 JARs for {len(records)} Minecraft releases into {DESTINATION}')
 
 
 if __name__ == '__main__':

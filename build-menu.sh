@@ -5,7 +5,7 @@ if command -v python3 >/dev/null 2>&1 && python3 -c 'import sys' >/dev/null 2>&1
     exec python3 -B "$script_dir/ports/release_cli.py" "$@"
 fi
 if ! command -v python >/dev/null 2>&1; then
-    printf '%s\n' 'Python 3 is required to build Music Player port.11.' >&2
+    printf '%s\n' 'Python 3 is required to build Music Player port.11.1.' >&2
     exit 1
 fi
 exec python -B "$script_dir/ports/release_cli.py" "$@"

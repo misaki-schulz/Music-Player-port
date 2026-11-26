@@ -1,4 +1,4 @@
-# Сборки Music Player port.11
+# Сборки Music Player port.11.1
 
 Выберите JAR для своей версии Minecraft и загрузчика. На одной установке достаточно одного JAR Music Player. Для Forge и NeoForge см. [версии загрузчиков](LOADERS.md).
 
@@ -31,6 +31,6 @@
 | `python ports/loader_cli.py --all` | Собрать Forge и NeoForge |
 | `python ports/release_cli.py --everything` | Собрать все три загрузчика |
 
-Готовые архивы имеют имена вида `music_player-fabric-1.21.11-2.7.4.384.port.11.jar` и лежат в `dist/port.11/`. В `dist/port.11/exact/` лежат Fabric JAR для отдельных версий Minecraft. Для 26.1, 26.1.1 и 26.1.2 также собирается один общий Fabric JAR.
+Готовые архивы имеют имена вида `music_player-fabric-1.21.11-2.7.4.384.port.11.1.jar` и лежат в `dist/port.11.1/`. В `dist/port.11.1/exact/` лежат Fabric JAR для отдельных версий Minecraft. Для 26.1, 26.1.1 и 26.1.2 также собирается один общий Fabric JAR.
 
 Команды для проверки сборок и запуска тестов описаны в [verification/README.md](verification/README.md).

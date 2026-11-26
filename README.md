@@ -1,4 +1,4 @@
-# Music Player — port.11
+# Music Player — port.11.1
 
 Music Player is a client mod for playing local files, HTTP audio links, YouTube and SoundCloud in Minecraft. This unofficial port is based on Music Player 2.7.4.384. [Upstream project](https://github.com/MC-U-Team/Music-Player) · [Maintainer](https://github.com/misaki-schulz)
 
@@ -16,7 +16,7 @@ See [Fabric requirements and build commands](ports/README.md) or [Forge and NeoF
 
 ## Build
 
-Run `build-menu.bat` on Windows or `sh build-menu.sh` on Linux or macOS. The build scripts put release JARs in `dist/port.11/` and exact Fabric builds in `dist/port.11/exact/`. JARs ending in `-thin` omit the bundled audio libraries.
+Run `build-menu.bat` on Windows or `sh build-menu.sh` on Linux or macOS. The build scripts put release JARs in `dist/port.11.1/` and exact Fabric builds in `dist/port.11.1/exact/`. JARs ending in `-thin` omit the bundled audio libraries.
 
 The Gradle project at the repository root targets Minecraft 26.2 with Java 25, Fabric Loader 0.19.3 or newer, and Fabric API 0.156.0+26.2 or newer. The release scripts use the profiles under `ports/`.
 

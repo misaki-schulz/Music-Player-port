@@ -1,5 +1,14 @@
 # Changelog
 
+## port.11.1 — 2026-11-26
+
+- Fixed YouTube tracks failing to start or being skipped with `a.addOnDisposeCallback is not a function` after YouTube player changes.
+- Updated the pinned local yt-cipher and EJS revisions and youtube-source-services to 1.0.4.
+- Start local YouTube services in the background so service installation and startup no longer block track loading.
+- Use the external cipher while the local service starts or after a local cipher I/O error, including HTTP 500, with a 30-second retry delay and a separate HTTP session.
+- Applied the YouTube fix to all Fabric, Forge and NeoForge audio profiles; release packaging checks the bundled service configuration and compiled manager classes.
+- Updated mod versions and JAR names to port.11.1. Packaged builds now go to `dist/port.11.1/`.
+
 ## port.11 — 2026-11-19
 
 - Kept Fabric, Forge and NeoForge profiles for Minecraft 1.20.1, 1.21.1, 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 and 26.3.

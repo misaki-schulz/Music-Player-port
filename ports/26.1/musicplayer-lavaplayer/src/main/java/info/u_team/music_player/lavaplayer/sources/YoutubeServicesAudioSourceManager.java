@@ -1,46 +1,58 @@
 package info.u_team.music_player.lavaplayer.sources;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
 
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
+import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
+import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterfaceManager;
 
+import dev.lavalink.youtube.RemotePoToken;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeSource;
 import dev.lavalink.youtube.YoutubeSourceOptions;
+import dev.lavalink.youtube.cipher.RemoteCipherManager;
 import dev.lavalink.youtube.clients.skeleton.Client;
+import dev.lavalink.youtube.track.format.StreamFormat;
 import net.hycrafthd.youtube_source_services.LocalService;
 import net.hycrafthd.youtube_source_services.YoutubeSourceServices;
 
 /**
- * Starts the local cipher and poToken services on the first YouTube request.
+ * Warms up the local cipher and poToken services in the background.
  * Stops them after five minutes without requests or active playback.
  */
 public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(YoutubeServicesAudioSourceManager.class);
-
-	private static final long IDLE_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(5);
+	private static final String DEFAULT_CIPHER_URL = "https://cipher.kikkia.dev/";
+	private static final String EXTERNAL_CIPHER_USER_AGENT = "musicplayer-minecraft";
+	private static final long IDLE_TIMEOUT_NANOS = TimeUnit.MINUTES.toNanos(5);
+	private static final long START_RETRY_DELAY_NANOS = TimeUnit.SECONDS.toNanos(30);
 
 	private final YoutubeSourceServices services;
 	private final BooleanSupplier playing;
 	private final ScheduledExecutorService scheduler;
-	private int pendingRequests;
+	private final HttpInterfaceManager fallbackHttp;
+
+	// Guarded by this instance.
+	private CompletableFuture<Void> startup;
+	private long lastUsed;
+	private long lastStartFailure;
 	private boolean closed;
 
-	/** Last use in nanoseconds, or zero before startup or after an idle stop. Guarded by this instance. */
-	private long lastUsed;
-
-	/** Uses an external cipher if configured. Otherwise uses the local services. */
+	/** Uses an explicitly configured cipher in place of the local services. */
 	public static YoutubeAudioSourceManager create(BooleanSupplier playing, Client... clients) {
 		final String cipherUrl = System.getProperty("musicplayer.youtube.cipher.url");
 		final String cipherPassword = System.getProperty("musicplayer.youtube.cipher.password");
@@ -52,7 +64,7 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 					System.getProperty("java.io.tmpdir", "/tmp"), "musicplayer-youtube-services"))
 					.log(LOGGER::debug)
 					.build();
-			return new YoutubeServicesAudioSourceManager(services, playing, clients);
+			return new YoutubeServicesAudioSourceManager(services, playing, DEFAULT_CIPHER_URL, clients);
 		} catch (IOException | RuntimeException ex) {
 			LOGGER.warn("Cannot configure the local YouTube services. Using the external cipher", ex);
 			return externalCipher(null, null, clients);
@@ -60,16 +72,22 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 	}
 
 	private static YoutubeAudioSourceManager externalCipher(String url, String password, Client... clients) {
-		final String cipherUrl = url == null || url.isBlank() ? "https://cipher.kikkia.dev/" : url;
+		final String cipherUrl = url == null || url.isBlank() ? DEFAULT_CIPHER_URL : url;
 		return new YoutubeAudioSourceManager(
-				new YoutubeSourceOptions().setRemoteCipher(cipherUrl, password, "musicplayer-minecraft"),
+				new YoutubeSourceOptions().setRemoteCipher(cipherUrl, password, EXTERNAL_CIPHER_USER_AGENT),
 				clients);
 	}
 
-	private YoutubeServicesAudioSourceManager(YoutubeSourceServices services, BooleanSupplier playing, Client... clients) {
+	YoutubeServicesAudioSourceManager(YoutubeSourceServices services, BooleanSupplier playing, String fallbackUrl, Client... clients) {
 		super(createOptions(services), clients);
 		this.services = services;
 		this.playing = playing;
+
+		// Keep the local cipher's Authorization header and the YouTube session out of fallback requests.
+		fallbackHttp = HttpClientTools.createCookielessThreadLocalManager();
+		fallbackHttp.configureBuilder(builder -> builder.setUserAgent(EXTERNAL_CIPHER_USER_AGENT)
+				.setDefaultHeaders(List.of(new BasicHeader("Plugin-Version", YoutubeSource.VERSION))));
+		setCipherManager(new StartupAwareCipher(services.cipher().getUrl(), fallbackUrl));
 
 		scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
 			final Thread thread = new Thread(runnable, "musicplayer-youtube-services-idle");
@@ -87,37 +105,32 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 				.setRemotePoToken(poToken.getUrl(), poToken.getToken());
 	}
 
-	/** Waits up to two minutes for service startup, including any downloads. */
-	private void use() {
-		final CompletableFuture<Void> start;
-		synchronized (this) {
-			if (closed) {
-				return;
-			}
-			start = services.start();
-			pendingRequests++;
+	private synchronized void use() {
+		if (closed) {
+			return;
 		}
-		try {
-			start.get(2, TimeUnit.MINUTES);
-		} catch (InterruptedException ex) {
-			Thread.currentThread().interrupt();
-		} catch (ExecutionException | TimeoutException ex) {
-			LOGGER.warn("Cannot start the local YouTube services. YouTube tracks might not be playable", ex);
-		} finally {
+		lastUsed = System.nanoTime();
+		if (services.isRunning() || (startup != null && !startup.isDone())
+				|| (lastStartFailure != 0 && lastUsed - lastStartFailure < START_RETRY_DELAY_NANOS)) {
+			return;
+		}
+		startup = services.start().whenComplete((ignored, error) -> {
 			synchronized (this) {
-				pendingRequests--;
-				lastUsed = System.nanoTime();
+				if (error != null && !closed && lastUsed != 0) {
+					lastStartFailure = System.nanoTime();
+					LOGGER.warn("Cannot start all local YouTube services. Using the external cipher if needed", error);
+				}
 			}
-		}
+		});
 	}
 
 	private synchronized void stopIfIdle() {
-		if (pendingRequests != 0 || lastUsed == 0) {
+		if (lastUsed == 0) {
 			return;
 		}
 		if (playing.getAsBoolean()) {
 			lastUsed = System.nanoTime();
-		} else if (System.nanoTime() - lastUsed >= TimeUnit.MILLISECONDS.toNanos(IDLE_TIMEOUT_MS)) {
+		} else if (System.nanoTime() - lastUsed >= IDLE_TIMEOUT_NANOS) {
 			lastUsed = 0;
 			services.stop();
 			LOGGER.debug("Stopped the idle YouTube services");
@@ -131,11 +144,14 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 		try {
 			services.stop();
 		} finally {
-			super.shutdown();
+			try {
+				ExceptionTools.closeWithWarnings(fallbackHttp);
+			} finally {
+				super.shutdown();
+			}
 		}
 	}
 
-	/** Starts the services only for identifiers handled by YouTube. */
 	@Override
 	protected Router getRouter(HttpInterface httpInterface, String identifier) {
 		final Router router = super.getRouter(httpInterface, identifier);
@@ -145,10 +161,73 @@ public class YoutubeServicesAudioSourceManager extends YoutubeAudioSourceManager
 		return router;
 	}
 
-	/** Starts the services before opening a YouTube playback connection. */
 	@Override
 	public HttpInterface getInterface() {
 		use();
 		return super.getInterface();
+	}
+
+	@Override
+	public RemotePoToken.Result generatePoToken(HttpInterface httpInterface, String contentBinding) throws IOException {
+		use();
+		return isPoTokenReady() ? super.generatePoToken(httpInterface, contentBinding) : null;
+	}
+
+	private synchronized boolean isPoTokenReady() {
+		// The service marks itself running before its first, throwaway token request finishes.
+		return !closed && startup != null && startup.isDone() && services.poToken().isRunning();
+	}
+
+	private final class StartupAwareCipher extends RemoteCipherManager {
+
+		private final RemoteCipherManager fallback;
+		private volatile long localFailureUntil;
+
+		private StartupAwareCipher(String localUrl, String fallbackUrl) {
+			super(localUrl);
+			fallback = new RemoteCipherManager(fallbackUrl);
+		}
+
+		@Override
+		public String getTimestamp(HttpInterface httpInterface, String sourceUrl) throws IOException {
+			use();
+			if (useLocalCipher()) {
+				try {
+					return super.getTimestamp(httpInterface, sourceUrl);
+				} catch (IOException ex) {
+					localCipherFailed(ex);
+				}
+			}
+			try (final HttpInterface external = fallbackHttp.getInterface()) {
+				return fallback.getTimestamp(external, sourceUrl);
+			}
+		}
+
+		@Override
+		public URI resolveFormatUrl(HttpInterface httpInterface, String playerScript, StreamFormat format) throws IOException {
+			use();
+			if (useLocalCipher()) {
+				try {
+					return super.resolveFormatUrl(httpInterface, playerScript, format);
+				} catch (IOException ex) {
+					localCipherFailed(ex);
+				}
+			}
+			try (final HttpInterface external = fallbackHttp.getInterface()) {
+				return fallback.resolveFormatUrl(external, playerScript, format);
+			}
+		}
+
+		private boolean useLocalCipher() {
+			final long until = localFailureUntil;
+			return services.cipher().isRunning() && (until == 0 || System.nanoTime() - until >= 0);
+		}
+
+		private void localCipherFailed(IOException error) {
+			// A listening process can still fail to solve a new YouTube player script.
+			// Avoid repeating the same failing request for every client and track.
+			localFailureUntil = System.nanoTime() + START_RETRY_DELAY_NANOS;
+			LOGGER.warn("Local YouTube cipher request failed. Using the external cipher for 30 seconds", error);
+		}
 	}
 }

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 PORTS = Path(__file__).resolve().parent
 ROOT = PORTS.parent
-CACHE = ROOT / '.cache/port.11-upstream-2.7.4.384-verification'
+CACHE = ROOT / '.cache/port.11.1-upstream-2.7.4.384-verification'
 CACHE.mkdir(parents=True, exist_ok=True)
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--resume', action='store_true', help='Keep successful targets from this verification run')
@@ -18,7 +18,7 @@ native = json.loads((PORTS / 'loader-targets.json').read_text(encoding='utf-8'))
 fabric = [{**t, 'loader': 'fabric'} for t in json.loads((PORTS / 'targets.json').read_text(encoding='utf-8-sig'))]
 targets = sorted(native + fabric, key=lambda t: (t['loader'] != 'fabric', t['loader'], [x['minecraft'] for x in fabric].index(t['minecraft'])))
 state_file = CACHE / 'results.json'
-state = json.loads(state_file.read_text(encoding='utf-8')) if args.resume and state_file.exists() else {'release': 'port.11', 'builds': {}, 'regressions': {}}
+state = json.loads(state_file.read_text(encoding='utf-8')) if args.resume and state_file.exists() else {'release': 'port.11.1', 'builds': {}, 'regressions': {}}
 
 def save():
     state['updated_at_utc'] = datetime.now(timezone.utc).isoformat()

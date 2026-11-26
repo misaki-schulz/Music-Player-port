@@ -1,0 +1,35 @@
+// youtube-source-services 1.0.4 still pins EJS from before YouTube's prototype
+// helper changes. Replace its configuration in the dependency JAR itself, so
+// resource lookup is independent of the mod's isolated class-loader URL order.
+def sourceRoot = rootProject.file("ports/loader-targets.json").exists()
+        ? rootProject.projectDir : rootProject.file("../..")
+def servicesConfig = new File(sourceRoot, "ports/youtube-services/services.properties")
+def configEntry = "net/hycrafthd/youtube_source_services/services.properties"
+def servicesJar = "youtube-source-services-1.0.4.jar"
+
+tasks.named("copyNewDependencies", Copy).configure {
+    exclude "youtube-source-services-*.jar"
+}
+
+def prepareYoutubeServices = tasks.register("prepareYoutubeServices", Jar) {
+    dependsOn tasks.named("copyNewDependencies")
+    inputs.file(servicesConfig)
+    archiveFileName.set(servicesJar + ".packed")
+    destinationDirectory.set(layout.buildDirectory.dir("dependencies"))
+    from({
+        def candidates = configurations.musicplayer.files.findAll { it.name == servicesJar }
+        if (candidates.size() != 1) {
+            throw new GradleException("Expected exactly one " + servicesJar + ", found " + candidates)
+        }
+        zipTree(candidates.first())
+    }) {
+        exclude "META-INF/MANIFEST.MF", configEntry
+    }
+    from(servicesConfig) {
+        into "net/hycrafthd/youtube_source_services"
+    }
+}
+
+tasks.named("assemble").configure {
+    dependsOn prepareYoutubeServices
+}

@@ -9,7 +9,7 @@ import re
 import shutil
 import tomllib
 import zipfile
-from package_ports import check_audio_jars, check_classes, check_soundcloud, ROOT, PORTS, DESTINATION
+from package_ports import check_audio_jars, check_classes, check_soundcloud, check_youtube_services, check_youtube_source, ROOT, PORTS, DESTINATION
 
 TARGETS = json.loads((PORTS / 'loader-targets.json').read_text(encoding='utf-8'))
 FORMATS = json.loads((PORTS / 'loader-pack-formats.json').read_text(encoding='utf-8'))
@@ -21,7 +21,7 @@ for target in TARGETS:
 
 def inspect(target: dict) -> tuple[Path, dict]:
     mc, loader = target['minecraft'], target['loader']
-    version = f'2.7.4.384+mc{mc}.port.11'
+    version = f'2.7.4.384+mc{mc}.port.11.1'
     path = PORTS / target['group'] / 'build' / mc / 'libs' / f'music_player-{loader}-{mc}-{version}.jar'
     legacy = loader == 'forge' or mc == '1.20.1'
     meta_path = 'META-INF/mods.toml' if legacy else 'META-INF/neoforge.mods.toml'
@@ -76,8 +76,11 @@ def inspect(target: dict) -> tuple[Path, dict]:
                 if nested.testzip() is not None:
                     raise ValueError(f'{path}: corrupt dependency {name}')
                 classes += check_classes(nested, target['java'], name)
+                if name.endswith('/youtube-source-services-1.0.4.jar.packed'):
+                    check_youtube_services(nested, path.name)
                 if name.endswith('/musicplayer-lavaplayer.jar.packed'):
                     check_soundcloud(nested, target['source_group'])
+                    check_youtube_source(nested, target['source_group'])
                     nested.getinfo('info/u_team/music_player/lavaplayer/sources/YoutubeServicesAudioSourceManager.class')
                     auth = 'info/u_team/music_player/lavaplayer/sources/YoutubeAuth.class'
                     compiled = PORTS / target['source_group'] / 'musicplayer-lavaplayer/build/classes/java/main' / auth
@@ -121,7 +124,7 @@ def build_group(package_group: str, targets: list[dict]) -> tuple[Path, dict]:
 
         metadata = first.read(metadata_name).decode('utf-8')
         group_name = package_group.removeprefix(f'{targets[0]["loader"]}-')
-        group_version = f'2.7.4.384+mc{group_name}.port.11'
+        group_version = f'2.7.4.384+mc{group_name}.port.11.1'
         metadata = re.sub(r'(?m)^version="[^"]+"$', f'version="{group_version}"', metadata, count=1)
         minecraft_range = f'[{targets[0]["minecraft"]},{targets[-1]["minecraft"][:-1]}3)'
         metadata = re.sub(
@@ -135,7 +138,7 @@ def build_group(package_group: str, targets: list[dict]) -> tuple[Path, dict]:
         else:
             metadata = re.sub(r'(?s)(modId="neoforge".*?versionRange=")[^"]+("),?', r'\g<1>[4,)\g<2>', metadata, count=1)
 
-        name = f'music_player-{targets[0]["loader"]}-{group_name}-2.7.4.384.port.11.jar'
+        name = f'music_player-{targets[0]["loader"]}-{group_name}-2.7.4.384.port.11.1.jar'
         output = DESTINATION / name
         with zipfile.ZipFile(output, 'w') as combined:
             for info in first.infolist():
@@ -189,7 +192,7 @@ def main():
         return
     for target in selected:
         path, record = inspect(target)
-        name = f'music_player-{target["loader"]}-{target["minecraft"]}-2.7.4.384.port.11.jar'
+        name = f'music_player-{target["loader"]}-{target["minecraft"]}-2.7.4.384.port.11.1.jar'
         shutil.copyfile(path, DESTINATION / name)
         record['file'] = name
         records = [r for r in records if not (r['loader']==target['loader'] and r['minecraft']==record['minecraft'])]

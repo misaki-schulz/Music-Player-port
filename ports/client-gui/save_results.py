@@ -10,7 +10,7 @@ expected={(t['loader'],t['minecraft']) for t in targets}
 agent=hashlib.sha256((CACHE/'client-probe-v2.jar').read_bytes()).hexdigest()
 fabric_agent=hashlib.sha256((CACHE/'client-probe-fabric.jar').read_bytes()).hexdigest()
 history=json.loads((Path(__file__).parent/'agent-history.json').read_text(encoding='utf-8')) if (Path(__file__).parent/'agent-history.json').exists() else {}
-by_key={(r['loader'],r['minecraft']):r for r in records if r.get('release')=='port.11' and r['status']=='passed' and r.get('agent_sha256')==(fabric_agent if r['loader']=='fabric' else agent)}
+by_key={(r['loader'],r['minecraft']):r for r in records if r.get('release')=='port.11.1' and r['status']=='passed' and r.get('agent_sha256')==(fabric_agent if r['loader']=='fabric' else agent)}
 assert set(by_key)==expected, f'Incomplete GUI matrix: {sorted(expected-set(by_key))}'
 output=[]
 for target in targets:
@@ -24,19 +24,19 @@ for target in targets:
  item['checks']=checks;item['check_count']=len(checks)
  item['screenshot_count']=len(r['screenshots'])
  if 'jar_sha256' in r:
-  path=ROOT/'dist/port.11'/f"music_player-{r['loader']}-{r['minecraft']}-2.7.4.384.port.11.jar"
+  path=ROOT/'dist/port.11.1'/f"music_player-{r['loader']}-{r['minecraft']}-2.7.4.384.port.11.1.jar"
   assert hashlib.sha256(path.read_bytes()).hexdigest()==r['jar_sha256']
   item['jar_sha256']=r['jar_sha256']
  output.append(item)
 source={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(__file__).parent.glob('*.java')}
-summary={'tested_at_utc':datetime.now(timezone.utc).isoformat(),'release':'port.11','scope':'GUI buttons and WAV track loading in actual Minecraft clients','agent_sha256':agent,'fabric_agent_sha256':fabric_agent,'agent_source_sha256':source,'prior_agent_history':history,'results':output}
+summary={'tested_at_utc':datetime.now(timezone.utc).isoformat(),'release':'port.11.1','scope':'GUI buttons and WAV track loading in actual Minecraft clients','agent_sha256':agent,'fabric_agent_sha256':fabric_agent,'agent_source_sha256':source,'prior_agent_history':history,'results':output}
 p=Path(__file__).parent/'last-results.json'
 p.write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
 print('Saved',len(output),'passed GUI results;',sum(r['check_count'] for r in output),'checks')
 
 versions=list(dict.fromkeys(t['minecraft'] for t in targets))
 lookup={(r['loader'],r['minecraft']):r for r in output}
-text=['# GUI-РїСЂРѕРІРµСЂРєР° port.11', '', f'Р’СЃРµ {len(expected)} СЃРѕС‡РµС‚Р°РЅРёР№ РїСЂРѕС€Р»Рё СЃС†РµРЅР°СЂРёР№ РІ РЅР°СЃС‚РѕСЏС‰РµРј РєР»РёРµРЅС‚Рµ Minecraft.', '', 'РџСЂРѕРІРµСЂРµРЅС‹ GUI-РєРЅРѕРїРєРё, РїРµСЂРµС…РѕРґС‹ РјРµР¶РґСѓ РѕРєРЅР°РјРё, РїР»РµР№Р»РёСЃС‚С‹, РїРµСЂРµРјРµС‰РµРЅРёРµ/СѓРґР°Р»РµРЅРёРµ СЃС‚СЂРѕРє, РїРѕРёСЃРє РІ СЃРїРёСЃРєР°С…, WAV РїРѕ РїСѓС‚Рё Рё HTTP, РёРјРїРѕСЂС‚ С„Р°Р№Р»Р°/РїР°РїРєРё, СѓРїСЂР°РІР»РµРЅРёРµ С‚СЂРµРєРѕРј, СЃРѕСЂС‚РёСЂРѕРІРєР°, РЅР°СЃС‚СЂРѕР№РєРё Рё СЌРєРІР°Р»Р°Р№Р·РµСЂ.', '', '| Minecraft | Fabric | Forge | NeoForge |', '|---|---|---|---|']
+text=['# GUI-РїСЂРѕРІРµСЂРєР° port.11.1', '', f'Р’СЃРµ {len(expected)} СЃРѕС‡РµС‚Р°РЅРёР№ РїСЂРѕС€Р»Рё СЃС†РµРЅР°СЂРёР№ РІ РЅР°СЃС‚РѕСЏС‰РµРј РєР»РёРµРЅС‚Рµ Minecraft.', '', 'РџСЂРѕРІРµСЂРµРЅС‹ GUI-РєРЅРѕРїРєРё, РїРµСЂРµС…РѕРґС‹ РјРµР¶РґСѓ РѕРєРЅР°РјРё, РїР»РµР№Р»РёСЃС‚С‹, РїРµСЂРµРјРµС‰РµРЅРёРµ/СѓРґР°Р»РµРЅРёРµ СЃС‚СЂРѕРє, РїРѕРёСЃРє РІ СЃРїРёСЃРєР°С…, WAV РїРѕ РїСѓС‚Рё Рё HTTP, РёРјРїРѕСЂС‚ С„Р°Р№Р»Р°/РїР°РїРєРё, СѓРїСЂР°РІР»РµРЅРёРµ С‚СЂРµРєРѕРј, СЃРѕСЂС‚РёСЂРѕРІРєР°, РЅР°СЃС‚СЂРѕР№РєРё Рё СЌРєРІР°Р»Р°Р№Р·РµСЂ.', '', '| Minecraft | Fabric | Forge | NeoForge |', '|---|---|---|---|']
 for mc in versions:
     cells=[]
     for loader in ['fabric','forge','neoforge']:
