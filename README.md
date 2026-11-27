@@ -16,6 +16,8 @@ See [Fabric requirements and build commands](ports/README.md) or [Forge and NeoF
 
 ## Build
 
+To build on GitHub, open [Build all ports](https://github.com/misaki-schulz/Music-Player-port/actions/workflows/build.yml) and choose **Run workflow**. It builds all 24 supported Minecraft/loader combinations in 18 independent release groups. Download the verified JARs and SHA-256 checksums from the run's artifacts, available for seven days. No Minecraft client is launched.
+
 Run `build-menu.bat` on Windows or `sh build-menu.sh` on Linux or macOS. The build scripts put release JARs in `dist/port.11.1/` and exact Fabric builds in `dist/port.11.1/exact/`. JARs ending in `-thin` omit the bundled audio libraries.
 
 The Gradle project at the repository root targets Minecraft 26.2 with Java 25, Fabric Loader 0.19.3 or newer, and Fabric API 0.156.0+26.2 or newer. The release scripts use the profiles under `ports/`.

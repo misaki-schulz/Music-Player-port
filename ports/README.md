@@ -2,6 +2,10 @@
 
 Выберите JAR для своей версии Minecraft и загрузчика. На одной установке достаточно одного JAR Music Player. Для Forge и NeoForge см. [версии загрузчиков](LOADERS.md).
 
+## Сборка на GitHub
+
+Откройте [Build all ports](https://github.com/misaki-schulz/Music-Player-port/actions/workflows/build.yml) и нажмите **Run workflow**. GitHub соберёт все 24 сочетания Minecraft и загрузчика в 18 группах JAR. Готовые JAR и SHA-256 доступны в артефактах запуска семь дней. Сборка выполняется на серверах GitHub; Minecraft не запускается.
+
 ## Fabric
 
 Для сборок из этой таблицы нужен Fabric Loader 0.19.5 или новее. Установите Fabric API для своей версии игры.
